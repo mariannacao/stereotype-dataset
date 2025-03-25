@@ -84,7 +84,7 @@ EXAMPLE_PERSONAS = {
             "education": "Master's degree in Computer Science",
             "occupation": "Senior Software Engineer",
             "location": "San Francisco Bay Area",
-            "background": "urban",
+        "background": "urban",
             "income_level": "upper middle class",
             "marital_status": "single"
         },
@@ -128,7 +128,7 @@ EXAMPLE_PERSONAS = {
             "education": "Technical certification in Automotive Repair",
             "occupation": "Auto Repair Shop Owner",
             "location": "Rural Montana",
-            "background": "rural",
+        "background": "rural",
             "income_level": "middle class",
             "marital_status": "married with children"
         },

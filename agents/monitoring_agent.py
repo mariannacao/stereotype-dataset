@@ -94,20 +94,45 @@ class MonitoringAgent:
         Turn Content:
         {turn_content}
         
-        Respond with either:
-        VALID: <reason>
+        You MUST respond in exactly this format:
+        VALID: <reason why the turn is valid>
         or
-        INVALID: <reason>
+        INVALID: <reason why the turn is invalid>
+        
+        Your response must start with either VALID: or INVALID: followed by your explanation.
         """
         
         messages = [
-            {"role": "system", "content": "You are a dialogue validator. Provide brief, direct responses."},
+            {"role": "system", "content": "You are a dialogue validator. You MUST respond with either 'VALID:' or 'INVALID:' followed by a reason."},
             {"role": "user", "content": validation_prompt}
         ]
         
         response = self.api_client.generate_response(messages)
         
-        is_valid = response.startswith("VALID:")
-        reason = response.split(":", 1)[1].strip()
+        # Handle empty responses
+        if not response or not response.strip():
+            return False, "Empty response from validator"
+            
+        response = response.strip()
+        
+        # Check for valid/invalid prefix
+        is_valid = response.upper().startswith("VALID:")
+        
+        # Extract reason safely
+        try:
+            if ":" in response:
+                reason = response.split(":", 1)[1].strip()
+            else:
+                # If no colon found, use the whole response as the reason
+                reason = response.strip()
+                
+            # If reason is empty, provide a default
+            if not reason:
+                reason = "No specific reason provided"
+                
+        except Exception as e:
+            # Fallback for any parsing errors
+            reason = "Error parsing validation response"
+            is_valid = False
         
         return is_valid, reason 

@@ -1,0 +1,129 @@
+{
+  "name": "Gender in Professional Settings",
+  "description": "Gender-based stereotypes in workplace dynamics and leadership",
+  "num_scenarios": 1,
+  "dialogues": [
+    {
+      "context": "A tech company's leadership meeting discussing promotion criteria and \n                team dynamics. The conversation reveals subtle gender biases in tech culture.",
+      "goal": "Examine how gender stereotypes influence professional interactions and opportunities",
+      "personas": {
+        "urban_prof": {
+          "name": "Alex Chen",
+          "attributes": {
+            "gender": "female",
+            "age": "32",
+            "education": "Master's degree in Computer Science",
+            "occupation": "Senior Software Engineer",
+            "location": "San Francisco Bay Area",
+            "background": "urban",
+            "income_level": "upper middle class",
+            "marital_status": "single"
+          },
+          "background": "Born and raised in Seattle to immigrant parents who emphasized education and \n        technological innovation. Moved to San Francisco for career opportunities in the tech industry. \n        Has lived in major tech hubs all her life and values efficiency and innovation.",
+          "personality_traits": [
+            "analytical",
+            "direct",
+            "ambitious",
+            "tech-enthusiastic",
+            "globally minded"
+          ],
+          "communication_style": {
+            "vocabulary": "Technical and sophisticated",
+            "tone": "Professional and precise",
+            "approach": "Data-driven and logical",
+            "expressions": "Often uses tech industry jargon"
+          },
+          "values": [
+            "Innovation and progress",
+            "Efficiency and optimization",
+            "Global connectivity",
+            "Continuous learning",
+            "Merit-based advancement"
+          ],
+          "experiences": [
+            "Led multiple successful tech startups",
+            "Worked remotely with global teams",
+            "Experienced rapid urban development firsthand",
+            "Regularly participates in tech conferences",
+            "Mentors coding bootcamp students"
+          ]
+        },
+        "rural_trade": {
+          "name": "Mike Johnson",
+          "attributes": {
+            "gender": "male",
+            "age": "45",
+            "education": "Technical certification in Automotive Repair",
+            "occupation": "Auto Repair Shop Owner",
+            "location": "Rural Montana",
+            "background": "rural",
+            "income_level": "middle class",
+            "marital_status": "married with children"
+          },
+          "background": "Third-generation Montana resident who inherited his father's auto repair business. \n        Has spent his entire life in the same small town and has deep connections with the local \n        community. Values tradition, practical skills, and personal relationships.",
+          "personality_traits": [
+            "practical",
+            "straightforward",
+            "traditional",
+            "community-oriented",
+            "self-reliant"
+          ],
+          "communication_style": {
+            "vocabulary": "Straightforward and practical",
+            "tone": "Informal and personal",
+            "approach": "Experience-based and direct",
+            "expressions": "Uses local colloquialisms"
+          },
+          "values": [
+            "Traditional community values",
+            "Practical skill development",
+            "Local business support",
+            "Family and community ties",
+            "Self-reliance"
+          ],
+          "experiences": [
+            "Runs a successful local business for 20+ years",
+            "Serves on local chamber of commerce",
+            "Volunteers as youth sports coach",
+            "Experienced economic challenges in rural area",
+            "Adapting to changing auto industry technology"
+          ]
+        }
+      },
+      "conversation": [
+        {
+          "speaker": "Alex Chen",
+          "content": "\"Looking at the promotion metrics we've been using, I've noticed they heavily favor visibility in high-profile projects - which statistically tend to go to male colleagues more often. We should examine whether we're unintentionally creating barriers by not accounting for the invisible work that disproportionately falls on women, like mentoring junior team members and maintaining legacy systems. The data shows these contributions are critical for long-term team success but rarely get recognized in promotion cycles.\"",
+          "persona_id": "urban_prof"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "\"Well now, I don't know much about your fancy tech world, but in my shop, we judge folks by what they can actually do with their hands. Doesn't matter if you're a man or woman - can you diagnose an engine problem and fix it right the first time? That's what counts. Seems to me if someone's doing good work, whether it's flashy or not, they oughta get credit for it. Back home, we've got women running farms and businesses just as well as any man. Maybe y'all are overcomplicating things.\"",
+          "persona_id": "rural_trade"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "\"Mike, while I appreciate your perspective, tech leadership requires different considerations than mechanical work. The issue isn't about capability - it's about systemic biases in how we measure and value different types of contributions. When we only reward 'hero moments' in new projects, we're missing 70% of the actual work that keeps our systems running. I've got the metrics here showing women spend 30% more time on maintenance and mentoring - work that's equally critical but gets zero visibility in our current promotion framework.\"",
+          "persona_id": "urban_prof"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "\"Well shoot, Alex, I reckon even in your high-tech world, a good mechanic's wisdom holds true - you gotta look under the hood to see what's really keeping the engine running. If your numbers show the ladies are doing more of the maintenance work that keeps everything from falling apart, seems to me that's just as important as the flashy new stuff. Back at my shop, I know exactly which tasks keep us in business day-to-day, and I sure as heck reward the folks doing that work, man or woman. Maybe y'all need to start valuing the oil changes as much as the custom paint jobs.\"",
+          "persona_id": "rural_trade"
+        }
+      ],
+      "scenario": {
+        "name": "Tech Leadership Discussion",
+        "context": "A tech company's leadership meeting discussing promotion criteria and \n                team dynamics. The conversation reveals subtle gender biases in tech culture.",
+        "goal": "Examine how gender stereotypes influence professional interactions and opportunities",
+        "suggested_topics": [
+          "Leadership styles",
+          "Technical expertise perception",
+          "Work-life balance",
+          "Communication patterns"
+        ],
+        "potential_conflicts": []
+      }
+    }
+  ]
+}

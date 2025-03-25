@@ -2,6 +2,9 @@ import os
 import sys
 import json
 import random
+from datetime import datetime
+from pathlib import Path
+from config.dialogue_contexts import DialogueScenario
 
 # Add debugging information
 current_dir = os.getcwd()
@@ -31,22 +34,24 @@ print(f"Python path: {sys.path}")
 try:
     from config.personas import EXAMPLE_PERSONAS
     from config.dialogue_contexts import DIALOGUE_SCENARIOS
+    from config.stereotype_categories import STEREOTYPE_CATEGORIES
     from agents.dialogue_manager import DialogueManager
 
-    def generate_dialogue(scenario_name: str, persona_pairs: list, num_turns: int = 4):
+    def ensure_directory(path: str):
+        """Create directory if it doesn't exist."""
+        Path(path).mkdir(parents=True, exist_ok=True)
+
+    def generate_dialogue(scenario: DialogueScenario, persona_pairs: list, num_turns: int = 4):
         """
         Generate a dialogue for a specific scenario and persona pair.
         
         Args:
-            scenario_name: Name of the scenario to use
+            scenario: The scenario object to use
             persona_pairs: List of tuples of persona IDs to use
             num_turns: Number of turns to generate
         """
         # Initialize the dialogue manager
         manager = DialogueManager()
-        
-        # Get the scenario
-        scenario = DIALOGUE_SCENARIOS[scenario_name]
         
         # Add personas
         for persona_id, persona in persona_pairs:
@@ -88,41 +93,79 @@ try:
         return output
 
     def main():
-        # Define available persona pairs for different scenarios
-        scenario_personas = {
-            "tech_hub": [
-                ("urban_prof", EXAMPLE_PERSONAS["urban_professional"]),
-                ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
-            ],
-            "education_reform": [
-                ("suburban_edu", EXAMPLE_PERSONAS["suburban_educator"]),
-                ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
-            ]
-        }
+        # Create base output directory with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        base_output_dir = f"dialogue_outputs_{timestamp}"
+        ensure_directory(base_output_dir)
         
-        # Generate dialogues for different scenarios
-        all_dialogues = []
-        
-        for scenario_name, personas in scenario_personas.items():
-            print(f"\nGenerating dialogue for scenario: {scenario_name}")
-            dialogue = generate_dialogue(scenario_name, personas)
-            all_dialogues.append(dialogue)
-        
-        # Save all dialogues
-        output = {
-            "dialogues": all_dialogues,
+        # Track all generated dialogues
+        all_dialogues = {
             "metadata": {
-                "num_scenarios": len(all_dialogues),
-                "personas_used": list(EXAMPLE_PERSONAS.keys()),
-                "scenarios_used": list(scenario_personas.keys())
+                "timestamp": timestamp,
+                "total_categories": len(STEREOTYPE_CATEGORIES),
+                "categories": []
             }
         }
         
-        # Save to file
-        with open("dialogue_output.json", "w") as f:
-            json.dump(output, f, indent=2)
+        # Generate dialogues for each stereotype category
+        for category_id, category in STEREOTYPE_CATEGORIES.items():
+            print(f"\nProcessing category: {category.name}")
+            
+            # Create category directory
+            category_dir = os.path.join(base_output_dir, category_id)
+            ensure_directory(category_dir)
+            
+            category_dialogues = []
+            
+            # Generate dialogues for each scenario in the category
+            for scenario in category.scenarios:
+                # Select appropriate personas for the scenario
+                persona_pairs = [
+                    ("urban_prof", EXAMPLE_PERSONAS["urban_professional"]),
+                    ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
+                ]
+                
+                dialogue = generate_dialogue(scenario, persona_pairs)
+                category_dialogues.append(dialogue)
+                
+                # Save individual dialogue
+                dialogue_filename = f"{scenario.name.lower().replace(' ', '_')}.json"
+                dialogue_path = os.path.join(category_dir, dialogue_filename)
+                with open(dialogue_path, "w") as f:
+                    json.dump(dialogue, f, indent=2)
+            
+            # Save category metadata
+            category_metadata = {
+                "name": category.name,
+                "description": category.description,
+                "num_scenarios": len(category.scenarios),
+                "dialogues": category_dialogues
+            }
+            
+            category_meta_path = os.path.join(category_dir, "_category_info.json")
+            with open(category_meta_path, "w") as f:
+                json.dump(category_metadata, f, indent=2)
+            
+            # Add to overall metadata
+            all_dialogues["metadata"]["categories"].append({
+                "id": category_id,
+                "name": category.name,
+                "num_dialogues": len(category_dialogues)
+            })
         
-        print("\nAll dialogues saved to dialogue_output.json")
+        # Save overall metadata
+        meta_path = os.path.join(base_output_dir, "_dataset_info.json")
+        with open(meta_path, "w") as f:
+            json.dump(all_dialogues, f, indent=2)
+        
+        print(f"\nAll dialogues saved to {base_output_dir}/")
+        print("Directory structure:")
+        print(f"- {base_output_dir}/")
+        for category_id in STEREOTYPE_CATEGORIES.keys():
+            print(f"  - {category_id}/")
+            print(f"    - _category_info.json")
+            print(f"    - [dialogue files...]")
+        print(f"  - _dataset_info.json")
 
     if __name__ == "__main__":
         main()
@@ -134,6 +177,7 @@ except ImportError as e:
         "config/__init__.py",
         "config/personas.py",
         "config/dialogue_contexts.py",
+        "config/stereotype_categories.py",
         "agents/__init__.py",
         "agents/dialogue_manager.py",
         "agents/generation_agent.py",
@@ -145,6 +189,6 @@ except ImportError as e:
     ]
     
     for file in required_files:
-        path = os.path.join(current_dir, file)
+        path = os.path.join(project_root, file)
         exists = os.path.exists(path)
         print(f"- {file}: {'✓' if exists else '✗'}")
