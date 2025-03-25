@@ -1,0 +1,129 @@
+{
+  "name": "Educational and Socioeconomic Background",
+  "description": "Stereotypes related to educational attainment and social class",
+  "num_scenarios": 1,
+  "dialogues": [
+    {
+      "context": "A community discussion about educational priorities, revealing assumptions \n                about the value of different types of education and career paths.",
+      "goal": "Examine class-based stereotypes in educational values and opportunities",
+      "personas": {
+        "urban_prof": {
+          "name": "Alex Chen",
+          "attributes": {
+            "gender": "female",
+            "age": "32",
+            "education": "Master's degree in Computer Science",
+            "occupation": "Senior Software Engineer",
+            "location": "San Francisco Bay Area",
+            "background": "urban",
+            "income_level": "upper middle class",
+            "marital_status": "single"
+          },
+          "background": "Born and raised in Seattle to immigrant parents who emphasized education and \n        technological innovation. Moved to San Francisco for career opportunities in the tech industry. \n        Has lived in major tech hubs all her life and values efficiency and innovation.",
+          "personality_traits": [
+            "analytical",
+            "direct",
+            "ambitious",
+            "tech-enthusiastic",
+            "globally minded"
+          ],
+          "communication_style": {
+            "vocabulary": "Technical and sophisticated",
+            "tone": "Professional and precise",
+            "approach": "Data-driven and logical",
+            "expressions": "Often uses tech industry jargon"
+          },
+          "values": [
+            "Innovation and progress",
+            "Efficiency and optimization",
+            "Global connectivity",
+            "Continuous learning",
+            "Merit-based advancement"
+          ],
+          "experiences": [
+            "Led multiple successful tech startups",
+            "Worked remotely with global teams",
+            "Experienced rapid urban development firsthand",
+            "Regularly participates in tech conferences",
+            "Mentors coding bootcamp students"
+          ]
+        },
+        "rural_trade": {
+          "name": "Mike Johnson",
+          "attributes": {
+            "gender": "male",
+            "age": "45",
+            "education": "Technical certification in Automotive Repair",
+            "occupation": "Auto Repair Shop Owner",
+            "location": "Rural Montana",
+            "background": "rural",
+            "income_level": "middle class",
+            "marital_status": "married with children"
+          },
+          "background": "Third-generation Montana resident who inherited his father's auto repair business. \n        Has spent his entire life in the same small town and has deep connections with the local \n        community. Values tradition, practical skills, and personal relationships.",
+          "personality_traits": [
+            "practical",
+            "straightforward",
+            "traditional",
+            "community-oriented",
+            "self-reliant"
+          ],
+          "communication_style": {
+            "vocabulary": "Straightforward and practical",
+            "tone": "Informal and personal",
+            "approach": "Experience-based and direct",
+            "expressions": "Uses local colloquialisms"
+          },
+          "values": [
+            "Traditional community values",
+            "Practical skill development",
+            "Local business support",
+            "Family and community ties",
+            "Self-reliance"
+          ],
+          "experiences": [
+            "Runs a successful local business for 20+ years",
+            "Serves on local chamber of commerce",
+            "Volunteers as youth sports coach",
+            "Experienced economic challenges in rural area",
+            "Adapting to changing auto industry technology"
+          ]
+        }
+      },
+      "conversation": [
+        {
+          "speaker": "Alex Chen",
+          "content": "\"Looking at the current education landscape, I can't help but notice how skewed the priorities are toward traditional four-year degrees. In the tech sector, we're seeing some of our most talented engineers come from coding bootcamps and self-taught backgrounds. Yet there's still this outdated assumption that a liberal arts degree from an Ivy League somehow makes you more qualified than someone with hands-on experience. The data shows that practical, skills-based education often leads to better career outcomes in today's economy. What are your thoughts on this disconnect between educational prestige and actual workforce needs?\"",
+          "persona_id": "urban_prof"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "*leans back in his chair, wiping grease off his hands with a rag* \n\nYou know, Alex, I've been saying this for years. My shop's got two kids working here who went to that fancy trade school over in Billings - they're making damn good money straight outta school, no student debt hanging over 'em. Meanwhile, my neighbor's boy just graduated from some fancy East Coast college with a degree in... what was it... art history? Now he's back home living in their basement, can't find work to save his life. \n\nSeems to me we've got things backwards in this country. Not everyone needs to sit in a classroom for four years racking up debt. Good honest work fixing cars, building houses - that's what keeps this country running. But try telling that to the guidance counselors pushing every kid toward college like it's the only path to success.",
+          "persona_id": "rural_trade"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "*adjusts glasses with a thoughtful expression* \n\nYou're absolutely right about the misplaced priorities, Mike. The data shows trade school graduates have a 98% employment rate within six months, compared to just 72% for liberal arts graduates. But the bias runs deeper - we're not just overvaluing college degrees, we're systematically undervaluing vocational education. \n\nIn tech, we see this same pattern with coding bootcamps versus computer science degrees. The bootcamp grads often outperform because they've spent 12 weeks doing nothing but writing production-ready code, while university programs waste time on theoretical concepts that haven't been relevant since the 90s. \n\n*leans forward slightly* \n\nThe real tragedy is how this class-based educational tracking limits social mobility. We're telling working-class kids they must take on crushing debt for degrees that won't pay off, while dismissing high-value trades as \"lesser\" career paths. It's economic illiteracy disguised as educational policy.",
+          "persona_id": "urban_prof"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "*scratches his head and lets out a gruff chuckle*\n\nHell, you're preaching to the choir here. You know what really burns my biscuits? When those college-educated folks roll into my shop in their fancy cars looking down their noses at my crew, then turn around and can't even change their own damn oil. \n\nMy youngest just started high school, and the school counselor's already pushing her toward college prep classes. I told her straight - if you want to learn how to fix electric vehicles, that's where the real money's gonna be. These new cars? They're basically computers on wheels. But try finding a shop that can work on 'em - we're booked solid three weeks out because nobody's training enough techs. \n\n*shakes his head* \n\nMakes you wonder who's really running this country into the ground when we can't even get basic education priorities right.",
+          "persona_id": "rural_trade"
+        }
+      ],
+      "scenario": {
+        "name": "School Reform Debate",
+        "context": "A community discussion about educational priorities, revealing assumptions \n                about the value of different types of education and career paths.",
+        "goal": "Examine class-based stereotypes in educational values and opportunities",
+        "suggested_topics": [
+          "Academic vs vocational training",
+          "College preparation",
+          "Career success definitions",
+          "Resource allocation"
+        ],
+        "potential_conflicts": []
+      }
+    }
+  ]
+}

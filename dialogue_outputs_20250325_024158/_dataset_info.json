@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "timestamp": "20250325_024158",
+    "total_categories": 8,
+    "categories": [
+      {
+        "id": "tech_generational",
+        "name": "Technology and Generational Divides",
+        "num_dialogues": 1
+      },
+      {
+        "id": "gender_workplace",
+        "name": "Gender in Professional Settings",
+        "num_dialogues": 1
+      },
+      {
+        "id": "rural_urban",
+        "name": "Rural-Urban Cultural Divide",
+        "num_dialogues": 1
+      },
+      {
+        "id": "education_class",
+        "name": "Educational and Socioeconomic Background",
+        "num_dialogues": 1
+      },
+      {
+        "id": "cultural_communication",
+        "name": "Cultural Communication Styles",
+        "num_dialogues": 1
+      },
+      {
+        "id": "age_workplace",
+        "name": "Age and Workplace Value",
+        "num_dialogues": 1
+      },
+      {
+        "id": "regional_competence",
+        "name": "Regional Professional Competence",
+        "num_dialogues": 1
+      },
+      {
+        "id": "innovation_tradition",
+        "name": "Innovation vs Traditional Expertise",
+        "num_dialogues": 1
+      }
+    ]
+  }
+}

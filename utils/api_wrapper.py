@@ -1,4 +1,5 @@
 import os
+import time
 from typing import List, Dict, Any, Optional
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -24,14 +25,18 @@ class OpenRouterAPI:
                 "X-Title": self.title
             }
         )
+        
+        # Configure retry parameters
+        self.max_retries = 3
+        self.retry_delay = 2  # seconds
     
     def generate_response(self, 
                          messages: List[Dict[str, str]], 
                          temperature: float = 0.7,
                          max_tokens: Optional[int] = None,
-                         top_p: Optional[float] = None) -> str:
+                         top_p: Optional[float] = None) -> Optional[str]:
         """
-        Generate a response using the OpenRouter API.
+        Generate a response using the OpenRouter API with retry logic.
         
         Args:
             messages: List of message dictionaries with 'role' and 'content'
@@ -40,31 +45,50 @@ class OpenRouterAPI:
             top_p: Nucleus sampling parameter
             
         Returns:
-            Generated text response
+            Generated text response or None if all retries fail
         """
-        try:
-            # Prepare the API call parameters
-            params: Dict[str, Any] = {
-                "model": self.model,
-                "messages": messages,
-                "temperature": temperature,
-            }
-            
-            # Add optional parameters if specified
-            if max_tokens is not None:
-                params["max_tokens"] = max_tokens
-            if top_p is not None:
-                params["top_p"] = top_p
-            
-            # Make the API call
-            response = self.client.chat.completions.create(**params)
-            
-            # Extract and return the generated text
-            return response.choices[0].message.content
-            
-        except Exception as e:
-            print(f"Error in API call: {str(e)}")
-            raise
+        retries = 0
+        last_error = None
+        
+        while retries < self.max_retries:
+            try:
+                # Prepare the API call parameters
+                params: Dict[str, Any] = {
+                    "model": self.model,
+                    "messages": messages,
+                    "temperature": temperature,
+                }
+                
+                # Add optional parameters if specified
+                if max_tokens is not None:
+                    params["max_tokens"] = max_tokens
+                if top_p is not None:
+                    params["top_p"] = top_p
+                
+                # Make the API call
+                response = self.client.chat.completions.create(**params)
+                
+                # Extract and return the generated text
+                if response and response.choices and len(response.choices) > 0:
+                    return response.choices[0].message.content
+                else:
+                    print("Warning: Empty response from API")
+                    retries += 1
+                    
+            except Exception as e:
+                last_error = str(e)
+                print(f"Error in API call (attempt {retries + 1}/{self.max_retries}): {last_error}")
+                retries += 1
+                
+                if retries < self.max_retries:
+                    print(f"Retrying in {self.retry_delay} seconds...")
+                    time.sleep(self.retry_delay)
+                    # Increase delay for next retry (exponential backoff)
+                    self.retry_delay *= 2
+        
+        # If we get here, all retries failed
+        print(f"All {self.max_retries} attempts failed. Last error: {last_error}")
+        return None
 
     def generate_dialogue_turn(self,
                              persona_description: str,
@@ -79,7 +103,7 @@ class OpenRouterAPI:
             system_prompt: System prompt to guide the generation
             
         Returns:
-            Generated dialogue turn
+            Generated dialogue turn or a fallback message if generation fails
         """
         # Format conversation history into role/content format expected by API
         formatted_history = []
@@ -95,4 +119,10 @@ class OpenRouterAPI:
              "\n".join([f"{m.get('speaker', 'Unknown')}: {m.get('content', '')}" for m in conversation_history])}
         ]
         
-        return self.generate_response(messages, temperature=0.7)
+        response = self.generate_response(messages, temperature=0.7)
+        
+        if response is None:
+            # Return a fallback response if API calls fail
+            return "[Error: Unable to generate response. The conversation cannot continue.]"
+        
+        return response
