@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import random
 
 # Add debugging information
 current_dir = os.getcwd()
@@ -29,36 +30,47 @@ print(f"Python path: {sys.path}")
 
 try:
     from config.personas import EXAMPLE_PERSONAS
+    from config.dialogue_contexts import DIALOGUE_SCENARIOS
     from agents.dialogue_manager import DialogueManager
 
-    def main():
+    def generate_dialogue(scenario_name: str, persona_pairs: list, num_turns: int = 4):
+        """
+        Generate a dialogue for a specific scenario and persona pair.
+        
+        Args:
+            scenario_name: Name of the scenario to use
+            persona_pairs: List of tuples of persona IDs to use
+            num_turns: Number of turns to generate
+        """
         # Initialize the dialogue manager
         manager = DialogueManager()
         
+        # Get the scenario
+        scenario = DIALOGUE_SCENARIOS[scenario_name]
+        
         # Add personas
-        manager.add_persona("urban_prof", EXAMPLE_PERSONAS["urban_professional"])
-        manager.add_persona("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
-        
-        # Set up the dialogue context
-        context = """Setting: A community meeting about installing a new tech hub in a rural town.
-        The discussion is about the potential benefits and drawbacks of the development."""
-        
-        goal = """Generate a dialogue that explores different perspectives on technological development
-        in rural areas, revealing potential stereotypes and biases that might emerge in such discussions."""
+        for persona_id, persona in persona_pairs:
+            manager.add_persona(persona_id, persona)
         
         # Start the dialogue
-        manager.start_dialogue(context=context, goal=goal)
+        manager.start_dialogue(context=scenario.context, goal=scenario.goal)
         
-        # Generate a few turns of dialogue
-        speakers = ["urban_prof", "rural_trade", "urban_prof", "rural_trade"]
-        
-        print("\nContext:", context)
-        print("\nGoal:", goal)
+        print(f"\nScenario: {scenario.name}")
+        print("\nContext:", scenario.context)
+        print("\nGoal:", scenario.goal)
+        print("\nSuggested Topics:")
+        for topic in scenario.suggested_topics:
+            print(f"- {topic}")
         print("\nStarting dialogue...\n")
         
-        for speaker_id in speakers:
-            print(f"\nGenerating turn for {speaker_id}...")
-            result = manager.generate_turn(speaker_id)
+        # Generate dialogue turns
+        for turn in range(num_turns):
+            # Alternate between personas
+            current_pair = persona_pairs[turn % len(persona_pairs)]
+            persona_id = current_pair[0]
+            
+            print(f"\nGenerating turn {turn + 1} for {persona_id}...")
+            result = manager.generate_turn(persona_id)
             
             print(f"\n{result['speaker']}: {result['content']}")
             print("\nAnalysis:")
@@ -70,11 +82,47 @@ try:
         # Export the dialogue
         output = manager.export_dialogue()
         
+        # Add scenario information to output
+        output["scenario"] = scenario.to_dict()
+        
+        return output
+
+    def main():
+        # Define available persona pairs for different scenarios
+        scenario_personas = {
+            "tech_hub": [
+                ("urban_prof", EXAMPLE_PERSONAS["urban_professional"]),
+                ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
+            ],
+            "education_reform": [
+                ("suburban_edu", EXAMPLE_PERSONAS["suburban_educator"]),
+                ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
+            ]
+        }
+        
+        # Generate dialogues for different scenarios
+        all_dialogues = []
+        
+        for scenario_name, personas in scenario_personas.items():
+            print(f"\nGenerating dialogue for scenario: {scenario_name}")
+            dialogue = generate_dialogue(scenario_name, personas)
+            all_dialogues.append(dialogue)
+        
+        # Save all dialogues
+        output = {
+            "dialogues": all_dialogues,
+            "metadata": {
+                "num_scenarios": len(all_dialogues),
+                "personas_used": list(EXAMPLE_PERSONAS.keys()),
+                "scenarios_used": list(scenario_personas.keys())
+            }
+        }
+        
         # Save to file
         with open("dialogue_output.json", "w") as f:
             json.dump(output, f, indent=2)
         
-        print("\nDialogue saved to dialogue_output.json")
+        print("\nAll dialogues saved to dialogue_output.json")
 
     if __name__ == "__main__":
         main()
@@ -85,6 +133,7 @@ except ImportError as e:
     required_files = [
         "config/__init__.py",
         "config/personas.py",
+        "config/dialogue_contexts.py",
         "agents/__init__.py",
         "agents/dialogue_manager.py",
         "agents/generation_agent.py",
