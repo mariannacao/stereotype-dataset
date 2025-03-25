@@ -23,10 +23,29 @@ We use OpenRouter as our API gateway to access language models. The current conf
     - `HTTP-Referer`: Site URL for rankings
     - `X-Title`: Application identifier
   - Configuration managed via environment variables in `.env`
+  - Robust error handling with retry logic
 
 ### Core Components
 
-#### 1. Persona Management (`config/personas.py`)
+#### 1. Stereotype Categories (`config/stereotype_categories.py`)
+
+Eight fundamental dimensions of stereotypes:
+- **Gender**: Gender identity and expression stereotypes
+- **Race/Ethnicity**: Racial and ethnic identity stereotypes
+- **Socioeconomic**: Social class and economic status stereotypes
+- **Age**: Age and generational difference stereotypes
+- **Religion**: Religious beliefs and practices stereotypes
+- **Disability**: Physical and cognitive abilities stereotypes
+- **Education**: Educational attainment stereotypes
+- **Regional**: Geographic location and cultural background stereotypes
+
+Each category includes:
+- Clear description
+- Multiple scenarios
+- Suggested discussion topics
+- Potential conflict areas
+
+#### 2. Persona Management (`config/personas.py`)
 
 - **Classes**:
   - `PersonaAttribute`: Represents individual persona characteristics
@@ -36,19 +55,23 @@ We use OpenRouter as our API gateway to access language models. The current conf
   - Structured attribute storage
   - Natural language description generation
   - JSON serialization support
-  - Example personas included (urban professional and rural tradesperson)
+  - Example personas with diverse backgrounds
 
-#### 2. API Integration (`utils/api_wrapper.py`)
+#### 3. API Integration (`utils/api_wrapper.py`)
 
 - **Class**: `OpenRouterAPI`
 - **Key Features**:
   - Environment variable management
   - Configurable API parameters
-  - Error handling and retry logic
+  - Robust error handling:
+    - Automatic retries (3 attempts)
+    - Exponential backoff (2s, 4s, 8s)
+    - Detailed error logging
+    - Fallback responses
   - Message formatting for API calls
   - Support for temperature and sampling parameters
 
-#### 3. Generation Agent (`agents/generation_agent.py`)
+#### 4. Generation Agent (`agents/generation_agent.py`)
 
 - **Purpose**: Produces contextually appropriate dialogue turns
 - **Features**:
@@ -56,8 +79,9 @@ We use OpenRouter as our API gateway to access language models. The current conf
   - Context maintenance
   - System prompt engineering
   - Temperature control for output variation
+  - Error recovery mechanisms
 
-#### 4. Monitoring Agent (`agents/monitoring_agent.py`)
+#### 5. Monitoring Agent (`agents/monitoring_agent.py`)
 
 - **Purpose**: Ensures dialogue quality and tracks patterns
 - **Analysis Areas**:
@@ -66,7 +90,7 @@ We use OpenRouter as our API gateway to access language models. The current conf
   - Language authenticity validation
   - Turn-by-turn analysis
 
-#### 5. Dialogue Manager (`agents/dialogue_manager.py`)
+#### 6. Dialogue Manager (`agents/dialogue_manager.py`)
 
 - **Purpose**: Orchestrates the dialogue generation process
 - **Features**:
@@ -88,10 +112,20 @@ We use OpenRouter as our API gateway to access language models. The current conf
         "education": str,
         "occupation": str,
         "location": str,
-        "background": str
+        "background": str,
+        "income_level": str,
+        "marital_status": str
     },
     "background": str,
-    "personality_traits": List[str]
+    "personality_traits": List[str],
+    "communication_style": {
+        "vocabulary": str,
+        "tone": str,
+        "approach": str,
+        "expressions": str
+    },
+    "values": List[str],
+    "experiences": List[str]
 }
 ```
 
@@ -115,30 +149,53 @@ We use OpenRouter as our API gateway to access language models. The current conf
     "context": str,
     "goal": str,
     "personas": Dict[str, PersonaDict],
-    "conversation": List[DialogueTurn]
+    "conversation": List[DialogueTurn],
+    "stereotype_category": {
+        "name": str,
+        "description": str
+    }
 }
 ```
 
-### Output and Analysis
+### Output Organization
 
-The framework generates several types of output:
+The framework organizes outputs by stereotype categories:
 
-1. **Real-time Analysis**:
-   - Turn-by-turn persona consistency checks
-   - Stereotype pattern identification
-   - Language authenticity validation
+```
+dialogue_outputs_[timestamp]/
+├── gender/
+│   ├── _category_info.json
+│   ├── leadership_competence.json
+│   └── work_life_balance.json
+├── race_ethnicity/
+│   ├── _category_info.json
+│   ├── academic_achievement.json
+│   └── professional_competence.json
+...
+└── _dataset_info.json
+```
 
-2. **Dialogue Export** (`dialogue_output.json`):
-   - Full conversation history
-   - Speaker metadata
-   - Turn-level analysis
-   - Context and goals
-   - Persona definitions
+### Error Handling
 
-3. **Analysis Metrics**:
-   - Persona consistency scores
-   - Stereotype pattern frequency
-   - Language authenticity measures
+The framework implements robust error handling:
+
+1. **API Calls**:
+   - Automatic retry with exponential backoff
+   - Detailed error logging
+   - Fallback responses
+   - Maximum retry attempts: 3
+
+2. **Validation**:
+   - Response format verification
+   - Content quality checks
+   - Persona consistency validation
+   - Fallback mechanisms
+
+3. **Output Management**:
+   - Safe file handling
+   - Directory creation checks
+   - JSON validation
+   - Error recovery
 
 ## Usage
 
@@ -167,17 +224,49 @@ python main.py
 This will:
 1. Initialize the dialogue manager
 2. Load predefined personas
-3. Generate a multi-turn dialogue
+3. Generate dialogues for each stereotype category
 4. Perform analysis
-5. Save results to `dialogue_output.json`
+5. Save results in organized directories
 
 ### Dataset Generation
 
-The framework can be extended for dataset generation by:
-1. Defining multiple scenarios
-2. Creating diverse personas
-3. Running multiple dialogue sessions
-4. Collecting and aggregating results
+The framework supports systematic dataset generation:
+1. Multiple stereotype categories
+2. Diverse scenarios per category
+3. Various persona combinations
+4. Comprehensive analysis
+5. Organized output structure
+
+## Dependencies
+
+- openai>=1.0.0: OpenAI API client
+- python-dotenv: Environment variable management
+- requests: HTTP requests
+
+## Project Structure
+```
+stereotype-dialogue/
+├── agents/
+│   ├── __init__.py
+│   ├── dialogue_manager.py
+│   ├── generation_agent.py
+│   └── monitoring_agent.py
+├── config/
+│   ├── __init__.py
+│   ├── personas.py
+│   ├── dialogue_contexts.py
+│   └── stereotype_categories.py
+├── utils/
+│   ├── __init__.py
+│   └── api_wrapper.py
+├── prompts/
+│   └── __init__.py
+├── .env
+├── .gitignore
+├── main.py
+├── requirements.txt
+└── README.md
+```
 
 ## Token Usage and Costs
 
@@ -202,60 +291,3 @@ Using the free tier of DeepSeek's model through OpenRouter allows for:
 - Testing and development
 - Small dataset generation
 - Proof of concept work
-
-For larger datasets, consider:
-1. Rate limiting implementation
-2. Batch processing
-3. Cost monitoring
-4. Error handling and retry logic
-
-## Future Extensions
-
-1. **Additional Personas**:
-   - More demographic variations
-   - Complex background stories
-   - Specialized knowledge areas
-
-2. **Enhanced Analysis**:
-   - Quantitative stereotype metrics
-   - Sentiment analysis
-   - Bias detection algorithms
-
-3. **Dataset Generation**:
-   - Scenario templating
-   - Automated variation generation
-   - Quality filtering
-
-4. **Model Variations**:
-   - Different LLM testing
-   - Parameter optimization
-   - Custom fine-tuning
-
-## Dependencies
-
-- openai>=1.0.0: OpenAI API client
-- python-dotenv: Environment variable management
-- requests: HTTP requests
-
-## Project Structure
-```
-stereotype-dialogue/
-├── agents/
-│   ├── __init__.py
-│   ├── dialogue_manager.py
-│   ├── generation_agent.py
-│   └── monitoring_agent.py
-├── config/
-│   ├── __init__.py
-│   └── personas.py
-├── utils/
-│   ├── __init__.py
-│   └── api_wrapper.py
-├── prompts/
-│   └── __init__.py
-├── .env
-├── .gitignore
-├── main.py
-├── requirements.txt
-└── README.md
-```
