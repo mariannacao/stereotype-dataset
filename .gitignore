@@ -31,4 +31,22 @@ wheels/
 *.swo
 
 # Project specific
-dialogue_output.json 
+dialogue_output.json
+
+# Node.js
+node_modules/
+package-lock.json
+package.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent 

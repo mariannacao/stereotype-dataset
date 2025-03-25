@@ -28,31 +28,53 @@ print(f"\nProject root: {project_root}")
 print(f"Python path: {sys.path}")
 
 try:
-    from config.personas import PERSONAS
+    from config.personas import EXAMPLE_PERSONAS
     from agents.dialogue_manager import DialogueManager
 
     def main():
-        # Initialize dialogue manager with personas and topic
-        dialogue_manager = DialogueManager(
-            personas={
-                "speaker1": PERSONAS["urban_educated"],
-                "speaker2": PERSONAS["rural_traditional"]
-            },
-            topic="The impact of technology on traditional farming methods"
-        )
+        # Initialize the dialogue manager
+        manager = DialogueManager()
         
-        # Generate dialogue turns
-        for _ in range(6):  # 3 turns each
-            dialogue_manager.generate_turn("speaker1")
-            dialogue_manager.generate_turn("speaker2")
+        # Add personas
+        manager.add_persona("urban_prof", EXAMPLE_PERSONAS["urban_professional"])
+        manager.add_persona("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
         
-        # Save dialogue history
+        # Set up the dialogue context
+        context = """Setting: A community meeting about installing a new tech hub in a rural town.
+        The discussion is about the potential benefits and drawbacks of the development."""
+        
+        goal = """Generate a dialogue that explores different perspectives on technological development
+        in rural areas, revealing potential stereotypes and biases that might emerge in such discussions."""
+        
+        # Start the dialogue
+        manager.start_dialogue(context=context, goal=goal)
+        
+        # Generate a few turns of dialogue
+        speakers = ["urban_prof", "rural_trade", "urban_prof", "rural_trade"]
+        
+        print("\nContext:", context)
+        print("\nGoal:", goal)
+        print("\nStarting dialogue...\n")
+        
+        for speaker_id in speakers:
+            print(f"\nGenerating turn for {speaker_id}...")
+            result = manager.generate_turn(speaker_id)
+            
+            print(f"\n{result['speaker']}: {result['content']}")
+            print("\nAnalysis:")
+            print("- Persona Consistency:", result['analysis']['persona_consistency'])
+            print("- Stereotype Patterns:", result['analysis']['stereotype_patterns'])
+            print("- Language Authenticity:", result['analysis']['language_authenticity'])
+            print("\n" + "-"*80)
+        
+        # Export the dialogue
+        output = manager.export_dialogue()
+        
+        # Save to file
         with open("dialogue_output.json", "w") as f:
-            json.dump(dialogue_manager.dialogue_history, f, indent=2)
+            json.dump(output, f, indent=2)
         
-        # Print dialogue
-        print("\nGenerated Dialogue:")
-        print(dialogue_manager._format_dialogue_history())
+        print("\nDialogue saved to dialogue_output.json")
 
     if __name__ == "__main__":
         main()
