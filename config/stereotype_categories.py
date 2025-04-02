@@ -211,7 +211,8 @@ STEREOTYPE_CATEGORIES = {
                     "Training opportunities",
                     "Leadership potential",
                     "Professional growth"
-                ]
+                ],
+                persona_ids=["urban_professional", "academic_researcher"]
             )
         ]
     ),
@@ -230,7 +231,8 @@ STEREOTYPE_CATEGORIES = {
                     "Problem-solving ability",
                     "Communication skills",
                     "Leadership potential"
-                ]
+                ],
+                persona_ids=["academic_researcher", "rural_tradesperson"]
             ),
             DialogueScenario(
                 name="Career Advancement",
@@ -242,7 +244,8 @@ STEREOTYPE_CATEGORIES = {
                     "Professional growth",
                     "Leadership roles",
                     "Skill development"
-                ]
+                ],
+                persona_ids=["urban_professional", "rural_tradesperson"]
             )
         ]
     ),
@@ -261,7 +264,8 @@ STEREOTYPE_CATEGORIES = {
                     "Communication patterns",
                     "Cultural norms",
                     "Professional standards"
-                ]
+                ],
+                persona_ids=["urban_professional", "tech_entrepreneur"]
             ),
             DialogueScenario(
                 name="Professional Competence",
@@ -273,7 +277,8 @@ STEREOTYPE_CATEGORIES = {
                     "Work ethic",
                     "Technical capability",
                     "Cultural competence"
-                ]
+                ],
+                persona_ids=["tech_entrepreneur", "academic_researcher"]
             )
         ]
     )

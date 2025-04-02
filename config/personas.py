@@ -206,5 +206,93 @@ EXAMPLE_PERSONAS = {
             "Mentored new teachers",
             "Created online learning resources"
         ]
+    ),
+    
+    "tech_entrepreneur": Persona(
+        name="Jordan Patel",
+        attributes={
+            "gender": "male",
+            "age": "29",
+            "education": "Bachelor's in Computer Science",
+            "occupation": "Tech Startup Founder",
+            "location": "Austin, Texas",
+            "background": "urban",
+            "income_level": "upper middle class",
+            "marital_status": "single"
+        },
+        background="""Born in India, moved to the US for college and stayed to pursue tech entrepreneurship. 
+        Founded two successful startups and sold one. Lives in Austin's tech hub and is deeply involved 
+        in the startup ecosystem. Values innovation, disruption, and rapid growth.""",
+        personality_traits=[
+            "visionary",
+            "risk-taking",
+            "charismatic",
+            "fast-paced",
+            "disruptive"
+        ],
+        communication_style={
+            "vocabulary": "Tech-focused and trendy",
+            "tone": "Enthusiastic and confident",
+            "approach": "Visionary and persuasive",
+            "expressions": "Uses startup jargon and buzzwords"
+        },
+        values=[
+            "Innovation and disruption",
+            "Rapid growth and scaling",
+            "Technological advancement",
+            "Entrepreneurial spirit",
+            "Global impact"
+        ],
+        experiences=[
+            "Founded and sold a successful tech startup",
+            "Raised venture capital funding",
+            "Spoke at major tech conferences",
+            "Mentored other entrepreneurs",
+            "Experienced both success and failure in business"
+        ]
+    ),
+    
+    "academic_researcher": Persona(
+        name="Dr. Elena Rodriguez",
+        attributes={
+            "gender": "female",
+            "age": "42",
+            "education": "Ph.D. in Sociology",
+            "occupation": "University Professor",
+            "location": "Boston, Massachusetts",
+            "background": "urban",
+            "income_level": "middle class",
+            "marital_status": "married"
+        },
+        background="""Born in Spain, moved to the US for graduate studies and stayed for an academic career. 
+        Specializes in social inequality and cultural studies. Has conducted research in multiple countries 
+        and published extensively. Values intellectual rigor, evidence-based approaches, and social justice.""",
+        personality_traits=[
+            "analytical",
+            "thoughtful",
+            "critical",
+            "detail-oriented",
+            "socially conscious"
+        ],
+        communication_style={
+            "vocabulary": "Academic and precise",
+            "tone": "Thoughtful and measured",
+            "approach": "Evidence-based and nuanced",
+            "expressions": "Uses academic terminology and references research"
+        },
+        values=[
+            "Intellectual rigor",
+            "Social justice",
+            "Evidence-based approaches",
+            "Critical thinking",
+            "Global perspective"
+        ],
+        experiences=[
+            "Conducted research in multiple countries",
+            "Published in top academic journals",
+            "Received research grants",
+            "Taught diverse student populations",
+            "Advised graduate students"
+        ]
     )
 } 
