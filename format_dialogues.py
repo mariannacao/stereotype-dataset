@@ -46,6 +46,10 @@ def format_conversation(conversation_history):
     output.append("CONVERSATION HISTORY")
     output.append("=" * 50)
     
+    if not conversation_history:
+        output.append("No conversation history available.")
+        return "\n".join(output)
+    
     for i, turn in enumerate(conversation_history, 1):
         output.append(f"\nTurn {i}:")
         output.append(f"Speaker: {turn['speaker']}")
@@ -66,10 +70,23 @@ def format_analysis(analysis_data):
     output.append("CONVERSATION ANALYSIS")
     output.append("=" * 50)
     
+    if not analysis_data:
+        output.append("No analysis available.")
+        return "\n".join(output)
+    
     for key, value in analysis_data.items():
-        output.append(f"\n{key.replace('_', ' ').title()}:")
-        output.append(value)
-        output.append("-" * 50)
+        if value and value != "---":
+            output.append(f"\n{key.replace('_', ' ').title()}:")
+            
+            if value.startswith("###") or value.startswith("####"):
+                value = value.replace("###", "").replace("####", "").strip()
+                value = value.replace("**", "").strip()
+            
+            paragraphs = value.split("\n\n")
+            for paragraph in paragraphs:
+                output.append(paragraph.strip())
+            
+            output.append("-" * 50)
     
     return "\n".join(output)
 
@@ -120,7 +137,8 @@ def process_json_file(json_path):
             output.append(format_persona(persona_data))
             output.append("\n" + "-" * 80)
         
-        output.append("\n" + format_conversation(data.get('conversation_history', [])))
+        conversation_data = data.get('conversation', [])
+        output.append("\n" + format_conversation(conversation_data))
         
         if 'analysis' in data:
             output.append("\n" + format_analysis(data['analysis']))
@@ -147,7 +165,6 @@ def process_directory(directory_path):
     
     print(f"Found {len(json_files)} JSON files to process")
     
-    # Process each file
     for json_path in json_files:
         process_json_file(json_path)
 

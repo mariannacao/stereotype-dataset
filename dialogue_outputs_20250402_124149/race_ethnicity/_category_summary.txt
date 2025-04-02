@@ -1,0 +1,35 @@
+SUMMARY REPORT: RACE AND ETHNICITY STEREOTYPES
+================================================================================
+Description: Stereotypes based on racial and ethnic identity
+Number of scenarios: 2
+
+================================================================================
+
+1. Academic Achievement
+--------------------------------------------------------------------------------
+Personas:
+  • Alex Chen
+  • Mike Johnson
+
+Key Analysis Points:
+  • Stereotype Patterns: ### **Comprehensive Analysis of the Conversation**  
+  • Persona Consistency: #### **1. Overall Stereotype Patterns**  
+  • Conversation Dynamics: **a. Recurring Themes of Implicit Bias & Stereotypes:**  
+- **Mike Johnson** exhibits several implicit biases:  
+  - **Meritocracy Myth:** He repeated...
+
+================================================================================
+
+2. Professional Competence
+--------------------------------------------------------------------------------
+Personas:
+  • Alex Chen
+  • Mike Johnson
+
+Key Analysis Points:
+  • Stereotype Patterns: ### **Comprehensive Analysis of the Conversation**  
+  • Persona Consistency: #### **1. Overall Stereotype Patterns**  
+  • Conversation Dynamics: **a. Recurring Themes of Implicit Bias & Stereotypes:**  
+- **Educational Pedigree Bias (Mike):** Mike consistently associates Ivy League or tradition...
+
+================================================================================

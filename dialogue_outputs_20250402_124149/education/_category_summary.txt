@@ -1,0 +1,36 @@
+SUMMARY REPORT: EDUCATION LEVEL STEREOTYPES
+================================================================================
+Description: Stereotypes based on educational attainment
+Number of scenarios: 2
+
+================================================================================
+
+1. Professional Competence
+--------------------------------------------------------------------------------
+Personas:
+  • Alex Chen
+  • Mike Johnson
+
+Key Analysis Points:
+  • Stereotype Patterns: ### Comprehensive Analysis of the Conversation  
+  • Persona Consistency: #### **1. Overall Stereotype Patterns**  
+  • Conversation Dynamics: **a. Recurring Themes of Implicit Bias & Stereotypes:**  
+- **Educational Elitism vs. Practical Experience:** Alex challenges the assumption that Ivy ...
+
+================================================================================
+
+2. Career Advancement
+--------------------------------------------------------------------------------
+Personas:
+  • Alex Chen
+  • Mike Johnson
+
+Key Analysis Points:
+  • Stereotype Patterns: ### Comprehensive Analysis of the Conversation
+  • Persona Consistency: #### 1. **Overall Stereotype Patterns**
+   - **Recurring Themes of Implicit Bias/Stereotypes**:
+     - **Alex Chen** initially highlights a data-drive...
+  • Conversation Dynamics:    - **Evolution of Stereotypes**:
+     - The conversation starts with Alex pointing out systemic bias but shifts to Mike framing the issue as a false...
+
+================================================================================
