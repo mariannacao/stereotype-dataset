@@ -4,36 +4,29 @@ from openai import OpenAI
 from pathlib import Path
 
 def load_env():
-    # Get the directory where the script is located
     current_dir = Path(__file__).parent.absolute()
     env_path = current_dir / '.env'
     print(f"Looking for .env at: {env_path}")
     
-    # Check if .env exists
     if not env_path.exists():
         print(f"ERROR: No .env file found at {env_path}")
         return False
         
-    # Load the .env file
     load_dotenv(env_path)
     return True
 
 def test_openrouter():
     print("Testing OpenRouter configuration...")
     
-    # Load environment variables
     if not load_env():
         return
     
-    # Print configuration (with API key partially hidden)
     api_key = os.getenv("OPENROUTER_API_KEY", "")
     
-    # Verify API key
     if not api_key:
         print("ERROR: OPENROUTER_API_KEY is not set in .env file")
         return
     
-    # Print environment variables for debugging
     print("\nEnvironment Variables:")
     print(f"OPENROUTER_API_KEY: {api_key[:10]}...{api_key[-4:]}")
     
@@ -44,13 +37,13 @@ def test_openrouter():
             api_key=api_key,
             default_headers={
                 "HTTP-Referer": "http://localhost:3000",
-                "X-Title": "TestApp"  # Adding this as it's sometimes required
+                "X-Title": "TestApp"  
             }
         )
         
         print("\nSending API request...")
         messages = [{"role": "user", "content": "Say hello!"}]
-        model = "deepseek/deepseek-chat-v3-0324:free"  # Changed to free DeepSeek model
+        model = "deepseek/deepseek-chat-v3-0324:free" 
         print(f"Messages: {messages}")
         print(f"Model: {model}")
         
@@ -77,12 +70,10 @@ def test_openrouter():
 def test_openai():
     print("Testing OpenAI configuration...")
     
-    # Load environment variables
     load_dotenv()
     
-    # Print configuration (with API key partially hidden)
     api_key = os.getenv("OPENAI_API_KEY", "")
-    model = "gpt-3.5-turbo"  # or your preferred model
+    model = "gpt-3.5-turbo" 
     
     print(f"API Key present: {bool(api_key)} (starts with: {api_key[:4]}...)")
     print(f"Model: {model}")

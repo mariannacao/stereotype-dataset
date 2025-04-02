@@ -11,7 +11,14 @@ class MonitoringAgent:
         2. Stereotype patterns - identifying and tracking implicit biases and stereotypes
         3. Language authenticity - verifying that language use matches the speaker's background
         
-        Analyze the dialogue and provide a structured assessment."""
+        For stereotype analysis, focus on:
+        - Implicit biases that may be expressed
+        - Stereotypical assumptions about groups
+        - Microaggressions or subtle discriminatory language
+        - Cultural or social biases
+        - Power dynamics in the conversation
+        
+        Provide a structured assessment with specific examples from the dialogue."""
     
     def analyze_turn(self, 
                     turn_content: str,
@@ -41,9 +48,22 @@ class MonitoringAgent:
         {self._format_history(conversation_history)}
         
         Provide analysis in the following areas:
+        
         1. Persona Consistency
+           - Does the turn align with the persona's background, values, and communication style?
+           - Are there any inconsistencies with the persona's established traits?
+        
         2. Stereotype Patterns
+           - Identify any implicit biases or stereotypes expressed in the turn
+           - Note any assumptions about social groups, cultural backgrounds, or identities
+           - Highlight microaggressions or subtle discriminatory language
+           - Analyze power dynamics in the conversation
+           - Consider how the turn might perpetuate or challenge stereotypes
+        
         3. Language Authenticity
+           - Does the language use match the persona's background and education level?
+           - Are there any anachronisms or inconsistencies in vocabulary or tone?
+           - Does the communication style reflect the persona's cultural background?
         """
         
         messages = [

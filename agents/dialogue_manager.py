@@ -88,6 +88,9 @@ class DialogueManager:
     
     def export_dialogue(self) -> Dict[str, any]:
         """Export the complete dialogue with metadata."""
+        # Analyze the entire conversation for overall patterns
+        conversation_analysis = self._analyze_conversation()
+        
         return {
             "context": self._context,
             "goal": self._goal,
@@ -95,5 +98,55 @@ class DialogueManager:
                 pid: persona.to_dict() 
                 for pid, persona in self.active_personas.items()
             },
-            "conversation": self.conversation_history
+            "conversation": self.conversation_history,
+            "analysis": conversation_analysis
+        }
+        
+    def _analyze_conversation(self) -> Dict[str, any]:
+        """Analyze the entire conversation for overall patterns and trends."""
+        # Combine all turns for a comprehensive analysis
+        full_conversation = "\n\n".join([
+            f"{turn['speaker']}: {turn['content']}"
+            for turn in self.conversation_history
+        ])
+        
+        analysis_prompt = f"""
+        Analyze this entire conversation for overall patterns and trends.
+        
+        Conversation:
+        {full_conversation}
+        
+        Provide a comprehensive analysis focusing on:
+        
+        1. Overall Stereotype Patterns
+           - Identify recurring themes of implicit bias or stereotypes
+           - Analyze how stereotypes evolve throughout the conversation
+           - Note any patterns of microaggressions or subtle discrimination
+           - Evaluate power dynamics between the speakers
+        
+        2. Persona Consistency
+           - Assess how well each persona maintains their established traits
+           - Identify any significant deviations from persona definitions
+           - Evaluate the authenticity of the dialogue
+        
+        3. Conversation Dynamics
+           - Analyze the flow and progression of the conversation
+           - Identify key moments where stereotypes are challenged or reinforced
+           - Evaluate the effectiveness of persuasion attempts
+           - Assess the overall tone and atmosphere of the dialogue
+        """
+        
+        messages = [
+            {"role": "system", "content": "You are a dialogue analyst specializing in identifying implicit biases and stereotype patterns in conversations."},
+            {"role": "user", "content": analysis_prompt}
+        ]
+        
+        analysis = self.monitoring_agent.api_client.generate_response(messages)
+        
+        # Parse the analysis into sections
+        sections = analysis.split("\n\n")
+        return {
+            "stereotype_patterns": sections[0] if len(sections) > 0 else "",
+            "persona_consistency": sections[1] if len(sections) > 1 else "",
+            "conversation_dynamics": sections[2] if len(sections) > 2 else ""
         } 
