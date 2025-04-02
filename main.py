@@ -112,10 +112,21 @@ try:
             category_dialogues = []
             
             for scenario in category.scenarios:
-                persona_pairs = [
-                    ("urban_prof", EXAMPLE_PERSONAS["urban_professional"]),
-                    ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
-                ]
+                # Use the personas specified in the scenario
+                persona_pairs = []
+                for persona_id in scenario.persona_ids:
+                    if persona_id in EXAMPLE_PERSONAS:
+                        persona_pairs.append((persona_id, EXAMPLE_PERSONAS[persona_id]))
+                    else:
+                        print(f"Warning: Persona ID '{persona_id}' not found in EXAMPLE_PERSONAS")
+                
+                # If no valid personas were found, use a default pair
+                if not persona_pairs:
+                    print("Warning: No valid personas found for scenario. Using default personas.")
+                    persona_pairs = [
+                        ("urban_prof", EXAMPLE_PERSONAS["urban_professional"]),
+                        ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
+                    ]
                 
                 dialogue = generate_dialogue(scenario, persona_pairs)
                 category_dialogues.append(dialogue)

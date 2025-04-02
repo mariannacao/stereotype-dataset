@@ -33,7 +33,8 @@ STEREOTYPE_CATEGORIES = {
                     "Technical vs interpersonal skills",
                     "Decision-making approaches",
                     "Communication patterns"
-                ]
+                ],
+                persona_ids=["urban_professional", "tech_entrepreneur"]
             ),
             DialogueScenario(
                 name="Work-Life Balance",
@@ -45,7 +46,8 @@ STEREOTYPE_CATEGORIES = {
                     "Flexible work arrangements",
                     "Career advancement",
                     "Family responsibilities"
-                ]
+                ],
+                persona_ids=["urban_professional", "rural_tradesperson"]
             )
         ]
     ),
@@ -64,7 +66,8 @@ STEREOTYPE_CATEGORIES = {
                     "Support program access",
                     "Cultural factors",
                     "Achievement gaps"
-                ]
+                ],
+                persona_ids=["urban_professional", "academic_researcher"]
             ),
             DialogueScenario(
                 name="Professional Competence",
@@ -76,7 +79,8 @@ STEREOTYPE_CATEGORIES = {
                     "Cultural fit assessment",
                     "Professional experience",
                     "Team dynamics"
-                ]
+                ],
+                persona_ids=["tech_entrepreneur", "urban_professional"]
             )
         ]
     ),
@@ -95,7 +99,8 @@ STEREOTYPE_CATEGORIES = {
                     "Program accessibility",
                     "Parental involvement",
                     "Educational support"
-                ]
+                ],
+                persona_ids=["urban_professional", "rural_tradesperson"]
             ),
             DialogueScenario(
                 name="Work Ethic and Values",
@@ -107,7 +112,8 @@ STEREOTYPE_CATEGORIES = {
                     "Career aspirations",
                     "Financial management",
                     "Social responsibility"
-                ]
+                ],
+                persona_ids=["urban_professional", "rural_tradesperson"]
             )
         ]
     ),
@@ -126,7 +132,8 @@ STEREOTYPE_CATEGORIES = {
                     "Technology adoption",
                     "Change resistance",
                     "Digital skills"
-                ]
+                ],
+                persona_ids=["tech_entrepreneur", "urban_professional"]
             ),
             DialogueScenario(
                 name="Workplace Value",
@@ -138,7 +145,8 @@ STEREOTYPE_CATEGORIES = {
                     "Innovation potential",
                     "Leadership ability",
                     "Career development"
-                ]
+                ],
+                persona_ids=["urban_professional", "tech_entrepreneur"]
             )
         ]
     ),
@@ -157,7 +165,8 @@ STEREOTYPE_CATEGORIES = {
                     "Workplace policies",
                     "Cultural sensitivity",
                     "Team integration"
-                ]
+                ],
+                persona_ids=["urban_professional", "tech_entrepreneur"]
             ),
             DialogueScenario(
                 name="Professional Ethics",
@@ -169,7 +178,8 @@ STEREOTYPE_CATEGORIES = {
                     "Business practices",
                     "Value alignment",
                     "Decision-making"
-                ]
+                ],
+                persona_ids=["urban_professional", "academic_researcher"]
             )
         ]
     ),
@@ -188,7 +198,8 @@ STEREOTYPE_CATEGORIES = {
                     "Performance capability",
                     "Accommodation needs",
                     "Team integration"
-                ]
+                ],
+                persona_ids=["urban_professional", "tech_entrepreneur"]
             ),
             DialogueScenario(
                 name="Professional Development",

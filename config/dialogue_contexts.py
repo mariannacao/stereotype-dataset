@@ -6,12 +6,14 @@ class DialogueScenario:
                  context: str,
                  goal: str,
                  suggested_topics: List[str] = None,
-                 potential_conflicts: List[str] = None):
+                 potential_conflicts: List[str] = None,
+                 persona_ids: List[str] = None):
         self.name = name
         self.context = context
         self.goal = goal
         self.suggested_topics = suggested_topics or []
         self.potential_conflicts = potential_conflicts or []
+        self.persona_ids = persona_ids or []
     
     def to_dict(self) -> Dict:
         return {
@@ -19,7 +21,8 @@ class DialogueScenario:
             "context": self.context,
             "goal": self.goal,
             "suggested_topics": self.suggested_topics,
-            "potential_conflicts": self.potential_conflicts
+            "potential_conflicts": self.potential_conflicts,
+            "persona_ids": self.persona_ids
         }
 
 # Collection of pre-defined dialogue scenarios
