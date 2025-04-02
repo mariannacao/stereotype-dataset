@@ -43,7 +43,7 @@ def format_persona(persona_data):
 def format_conversation(conversation_history):
     """Format conversation history into a readable text block."""
     output = []
-    output.append("CONVERSATION HISTORY")
+    output.append("CONVERSATION HISTORY AND TURN-BY-TURN ANALYSIS")
     output.append("=" * 50)
     
     if not conversation_history:
@@ -56,9 +56,32 @@ def format_conversation(conversation_history):
         output.append(f"Content: {turn['content']}")
         
         if 'analysis' in turn:
-            output.append("\nAnalysis:")
-            for key, value in turn['analysis'].items():
-                output.append(f"  • {key.replace('_', ' ').title()}: {value}")
+            output.append("\nTurn Analysis:")
+            analysis = turn['analysis']
+            
+            if 'stereotype_present' in analysis:
+                output.append(f"  • Stereotype Present: {analysis['stereotype_present']}")
+            
+            if 'stereotype_type' in analysis:
+                output.append(f"  • Type of Stereotype: {analysis['stereotype_type']}")
+            
+            if 'implicitness' in analysis:
+                output.append(f"  • Implicitness: {analysis['implicitness']}")
+                if 'implicit_indicators' in analysis:
+                    output.append("    Indicators:")
+                    for indicator in analysis['implicit_indicators']:
+                        output.append(f"    - {indicator}")
+            
+            if 'contextual_justification' in analysis:
+                output.append(f"  • Contextual Justification: {analysis['contextual_justification']}")
+            
+            if 'impact' in analysis:
+                output.append(f"  • Impact on Conversation: {analysis['impact']}")
+            
+            if 'language_patterns' in analysis:
+                output.append("  • Language Patterns:")
+                for pattern in analysis['language_patterns']:
+                    output.append(f"    - {pattern}")
         
         output.append("-" * 50)
     
@@ -67,24 +90,60 @@ def format_conversation(conversation_history):
 def format_analysis(analysis_data):
     """Format analysis data into a readable text block."""
     output = []
-    output.append("CONVERSATION ANALYSIS")
+    output.append("OVERALL CONVERSATION ANALYSIS")
     output.append("=" * 50)
     
     if not analysis_data:
         output.append("No analysis available.")
         return "\n".join(output)
     
+    if 'stereotype_patterns' in analysis_data:
+        output.append("\nRecurring Stereotype Patterns:")
+        patterns = analysis_data['stereotype_patterns']
+        if isinstance(patterns, str):
+            patterns = patterns.replace("###", "").replace("####", "").replace("**", "").strip()
+            output.append(patterns)
+        elif isinstance(patterns, dict):
+            for key, value in patterns.items():
+                output.append(f"\n• {key.replace('_', ' ').title()}:")
+                output.append(f"  {value}")
+    
+    if 'stereotype_evolution' in analysis_data:
+        output.append("\nEvolution of Stereotypes:")
+        evolution = analysis_data['stereotype_evolution']
+        if isinstance(evolution, list):
+            for stage in evolution:
+                output.append(f"• {stage}")
+        else:
+            output.append(evolution)
+    
+    if 'cross_cultural_dynamics' in analysis_data:
+        output.append("\nCross-Cultural Dynamics:")
+        output.append(analysis_data['cross_cultural_dynamics'])
+    
+    if 'power_dynamics' in analysis_data:
+        output.append("\nPower Dynamics:")
+        output.append(analysis_data['power_dynamics'])
+    
+    if 'dialogue_impact' in analysis_data:
+        output.append("\nImpact on Dialogue Progression:")
+        output.append(analysis_data['dialogue_impact'])
+    
     for key, value in analysis_data.items():
-        if value and value != "---":
+        if key not in ['stereotype_patterns', 'stereotype_evolution', 'cross_cultural_dynamics', 
+                      'power_dynamics', 'dialogue_impact'] and value and value != "---":
             output.append(f"\n{key.replace('_', ' ').title()}:")
-            
-            if value.startswith("###") or value.startswith("####"):
-                value = value.replace("###", "").replace("####", "").strip()
-                value = value.replace("**", "").strip()
-            
-            paragraphs = value.split("\n\n")
-            for paragraph in paragraphs:
-                output.append(paragraph.strip())
+            if isinstance(value, str):
+                value = value.replace("###", "").replace("####", "").replace("**", "").strip()
+                paragraphs = value.split("\n\n")
+                for paragraph in paragraphs:
+                    output.append(paragraph.strip())
+            elif isinstance(value, dict):
+                for subkey, subvalue in value.items():
+                    output.append(f"• {subkey.replace('_', ' ').title()}: {subvalue}")
+            elif isinstance(value, list):
+                for item in value:
+                    output.append(f"• {item}")
             
             output.append("-" * 50)
     

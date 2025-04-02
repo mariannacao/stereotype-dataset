@@ -1,0 +1,45 @@
+{
+  "conversation": [
+    {
+      "speaker": "Speaker Name",
+      "content": "Dialogue content",
+      "persona_id": "persona_id",
+      "analysis": {
+        "stereotype_present": true,
+        "stereotype_type": "implicit/explicit",
+        "implicitness": "Description of how the stereotype is expressed implicitly",
+        "implicit_indicators": [
+          "Use of coded language",
+          "Subtle assumptions",
+          "Indirect references",
+          "Contextual implications"
+        ],
+        "contextual_justification": "Analysis of whether the stereotype is justified by the context",
+        "impact": "How this turn affects the conversation dynamics",
+        "language_patterns": [
+          "Specific phrases or patterns that indicate stereotyping",
+          "Word choices that reveal biases",
+          "Rhetorical devices used"
+        ]
+      }
+    }
+  ],
+  "analysis": {
+    "stereotype_patterns": {
+      "primary_stereotypes": "Description of main stereotypes observed",
+      "frequency": "Analysis of how often stereotypes appear",
+      "severity": "Assessment of stereotype impact",
+      "context_sensitivity": "How stereotypes relate to scenario context"
+    },
+    "stereotype_evolution": [
+      "How stereotypes develop through the conversation",
+      "Changes in expression or intensity",
+      "Responses and counter-responses"
+    ],
+    "cross_cultural_dynamics": "Analysis of cultural interactions and misunderstandings",
+    "power_dynamics": "Analysis of power relationships and their influence on stereotype expression",
+    "dialogue_impact": "Overall impact of stereotypes on conversation effectiveness",
+    "persona_consistency": "How well personas maintain their characteristics",
+    "conversation_dynamics": "Analysis of turn-taking, responses, and overall flow"
+  }
+} 
