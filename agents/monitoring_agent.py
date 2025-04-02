@@ -66,16 +66,32 @@ class MonitoringAgent:
            - Does the communication style reflect the persona's cultural background?
         """
         
-        messages = [
-            {"role": "system", "content": self.system_prompt},
-            {"role": "user", "content": analysis_prompt}
-        ]
-        
-        analysis = self.api_client.generate_response(messages)
-        return self._parse_analysis(analysis)
+        try:
+            messages = [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": analysis_prompt}
+            ]
+            
+            analysis = self.api_client.generate_response(messages)
+            return self._parse_analysis(analysis)
+        except Exception as e:
+            print(f"Error analyzing turn: {str(e)}")
+            return {
+                "persona_consistency": f"Analysis failed: {str(e)}",
+                "stereotype_patterns": "Analysis failed due to an error",
+                "language_authenticity": "Analysis failed due to an error"
+            }
     
     def _parse_analysis(self, analysis_text: str) -> Dict[str, any]:
         """Parse the raw analysis text into a structured format."""
+        # Handle None or empty analysis text
+        if not analysis_text:
+            return {
+                "persona_consistency": "Analysis failed - no response received",
+                "stereotype_patterns": "Analysis failed - no response received",
+                "language_authenticity": "Analysis failed - no response received"
+            }
+            
         # TODO: Implement more sophisticated parsing
         sections = analysis_text.split("\n\n")
         result = {

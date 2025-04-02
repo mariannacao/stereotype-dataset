@@ -136,17 +136,32 @@ class DialogueManager:
            - Assess the overall tone and atmosphere of the dialogue
         """
         
-        messages = [
-            {"role": "system", "content": "You are a dialogue analyst specializing in identifying implicit biases and stereotype patterns in conversations."},
-            {"role": "user", "content": analysis_prompt}
-        ]
-        
-        analysis = self.monitoring_agent.api_client.generate_response(messages)
-        
-        # Parse the analysis into sections
-        sections = analysis.split("\n\n")
-        return {
-            "stereotype_patterns": sections[0] if len(sections) > 0 else "",
-            "persona_consistency": sections[1] if len(sections) > 1 else "",
-            "conversation_dynamics": sections[2] if len(sections) > 2 else ""
-        } 
+        try:
+            messages = [
+                {"role": "system", "content": "You are a dialogue analyst specializing in identifying implicit biases and stereotype patterns in conversations."},
+                {"role": "user", "content": analysis_prompt}
+            ]
+            
+            analysis = self.monitoring_agent.api_client.generate_response(messages)
+            
+            # Parse the analysis into sections
+            if not analysis:
+                return {
+                    "stereotype_patterns": "Analysis failed - no response received",
+                    "persona_consistency": "Analysis failed - no response received",
+                    "conversation_dynamics": "Analysis failed - no response received"
+                }
+                
+            sections = analysis.split("\n\n")
+            return {
+                "stereotype_patterns": sections[0] if len(sections) > 0 else "",
+                "persona_consistency": sections[1] if len(sections) > 1 else "",
+                "conversation_dynamics": sections[2] if len(sections) > 2 else ""
+            }
+        except Exception as e:
+            print(f"Error analyzing conversation: {str(e)}")
+            return {
+                "stereotype_patterns": f"Analysis failed: {str(e)}",
+                "persona_consistency": "Analysis failed due to an error",
+                "conversation_dynamics": "Analysis failed due to an error"
+            } 
