@@ -37,7 +37,7 @@ try:
         """Create directory if it doesn't exist."""
         Path(path).mkdir(parents=True, exist_ok=True)
 
-    def generate_dialogue(scenario: DialogueScenario, persona_pairs: list, num_turns: int = 4):
+    def generate_dialogue(scenario: DialogueScenario, persona_pairs: list, num_turns: int = 12):
         """
         Generate a dialogue for a specific scenario and persona pair.
         

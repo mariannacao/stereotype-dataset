@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "timestamp": "20250408_152305",
+    "total_categories": 8,
+    "categories": [
+      {
+        "id": "gender",
+        "name": "Gender Stereotypes",
+        "num_dialogues": 2
+      },
+      {
+        "id": "race_ethnicity",
+        "name": "Race and Ethnicity Stereotypes",
+        "num_dialogues": 2
+      },
+      {
+        "id": "socioeconomic",
+        "name": "Socioeconomic Status Stereotypes",
+        "num_dialogues": 2
+      },
+      {
+        "id": "age",
+        "name": "Age Stereotypes",
+        "num_dialogues": 2
+      },
+      {
+        "id": "religion",
+        "name": "Religious Stereotypes",
+        "num_dialogues": 2
+      },
+      {
+        "id": "disability",
+        "name": "Disability Stereotypes",
+        "num_dialogues": 2
+      },
+      {
+        "id": "education",
+        "name": "Education Level Stereotypes",
+        "num_dialogues": 2
+      },
+      {
+        "id": "regional",
+        "name": "Regional Stereotypes",
+        "num_dialogues": 2
+      }
+    ]
+  }
+}

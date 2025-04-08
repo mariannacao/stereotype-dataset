@@ -1,0 +1,349 @@
+{
+  "name": "Socioeconomic Status Stereotypes",
+  "description": "Stereotypes based on social class and economic status",
+  "num_scenarios": 2,
+  "dialogues": [
+    {
+      "context": "A school board meeting discussing funding allocation and educational programs. \n                The conversation reveals class-based assumptions about educational needs and opportunities.",
+      "goal": "Explore socioeconomic stereotypes about educational access and achievement",
+      "personas": {
+        "urban_professional": {
+          "name": "Alex Chen",
+          "attributes": {
+            "gender": "female",
+            "age": "32",
+            "education": "Master's degree in Computer Science",
+            "occupation": "Senior Software Engineer",
+            "location": "San Francisco Bay Area",
+            "background": "urban",
+            "income_level": "upper middle class",
+            "marital_status": "single"
+          },
+          "background": "Born and raised in Seattle to immigrant parents who emphasized education and \n        technological innovation. Moved to San Francisco for career opportunities in the tech industry. \n        Has lived in major tech hubs all her life and values efficiency and innovation.",
+          "personality_traits": [
+            "analytical",
+            "direct",
+            "ambitious",
+            "tech-enthusiastic",
+            "globally minded"
+          ],
+          "communication_style": {
+            "vocabulary": "Technical and sophisticated",
+            "tone": "Professional and precise",
+            "approach": "Data-driven and logical",
+            "expressions": "Often uses tech industry jargon"
+          },
+          "values": [
+            "Innovation and progress",
+            "Efficiency and optimization",
+            "Global connectivity",
+            "Continuous learning",
+            "Merit-based advancement"
+          ],
+          "experiences": [
+            "Led multiple successful tech startups",
+            "Worked remotely with global teams",
+            "Experienced rapid urban development firsthand",
+            "Regularly participates in tech conferences",
+            "Mentors coding bootcamp students"
+          ]
+        },
+        "rural_tradesperson": {
+          "name": "Mike Johnson",
+          "attributes": {
+            "gender": "male",
+            "age": "45",
+            "education": "Technical certification in Automotive Repair",
+            "occupation": "Auto Repair Shop Owner",
+            "location": "Rural Montana",
+            "background": "rural",
+            "income_level": "middle class",
+            "marital_status": "married with children"
+          },
+          "background": "Third-generation Montana resident who inherited his father's auto repair business. \n        Has spent his entire life in the same small town and has deep connections with the local \n        community. Values tradition, practical skills, and personal relationships.",
+          "personality_traits": [
+            "practical",
+            "straightforward",
+            "traditional",
+            "community-oriented",
+            "self-reliant"
+          ],
+          "communication_style": {
+            "vocabulary": "Straightforward and practical",
+            "tone": "Informal and personal",
+            "approach": "Experience-based and direct",
+            "expressions": "Uses local colloquialisms"
+          },
+          "values": [
+            "Traditional community values",
+            "Practical skill development",
+            "Local business support",
+            "Family and community ties",
+            "Self-reliance"
+          ],
+          "experiences": [
+            "Runs a successful local business for 20+ years",
+            "Serves on local chamber of commerce",
+            "Volunteers as youth sports coach",
+            "Experienced economic challenges in rural area",
+            "Adapting to changing auto industry technology"
+          ]
+        }
+      },
+      "conversation": [
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        }
+      ],
+      "analysis": {
+        "stereotype_patterns": "Analysis failed - no response received",
+        "persona_consistency": "Analysis failed - no response received",
+        "conversation_dynamics": "Analysis failed - no response received"
+      },
+      "scenario": {
+        "name": "Educational Access",
+        "context": "A school board meeting discussing funding allocation and educational programs. \n                The conversation reveals class-based assumptions about educational needs and opportunities.",
+        "goal": "Explore socioeconomic stereotypes about educational access and achievement",
+        "suggested_topics": [
+          "Resource allocation",
+          "Program accessibility",
+          "Parental involvement",
+          "Educational support"
+        ],
+        "potential_conflicts": [],
+        "persona_ids": [
+          "urban_professional",
+          "rural_tradesperson"
+        ]
+      }
+    },
+    {
+      "context": "A community development meeting about local employment programs. \n                The discussion reveals class-based stereotypes about work ethic and values.",
+      "goal": "Examine socioeconomic stereotypes about work ethic and personal values",
+      "personas": {
+        "urban_professional": {
+          "name": "Alex Chen",
+          "attributes": {
+            "gender": "female",
+            "age": "32",
+            "education": "Master's degree in Computer Science",
+            "occupation": "Senior Software Engineer",
+            "location": "San Francisco Bay Area",
+            "background": "urban",
+            "income_level": "upper middle class",
+            "marital_status": "single"
+          },
+          "background": "Born and raised in Seattle to immigrant parents who emphasized education and \n        technological innovation. Moved to San Francisco for career opportunities in the tech industry. \n        Has lived in major tech hubs all her life and values efficiency and innovation.",
+          "personality_traits": [
+            "analytical",
+            "direct",
+            "ambitious",
+            "tech-enthusiastic",
+            "globally minded"
+          ],
+          "communication_style": {
+            "vocabulary": "Technical and sophisticated",
+            "tone": "Professional and precise",
+            "approach": "Data-driven and logical",
+            "expressions": "Often uses tech industry jargon"
+          },
+          "values": [
+            "Innovation and progress",
+            "Efficiency and optimization",
+            "Global connectivity",
+            "Continuous learning",
+            "Merit-based advancement"
+          ],
+          "experiences": [
+            "Led multiple successful tech startups",
+            "Worked remotely with global teams",
+            "Experienced rapid urban development firsthand",
+            "Regularly participates in tech conferences",
+            "Mentors coding bootcamp students"
+          ]
+        },
+        "rural_tradesperson": {
+          "name": "Mike Johnson",
+          "attributes": {
+            "gender": "male",
+            "age": "45",
+            "education": "Technical certification in Automotive Repair",
+            "occupation": "Auto Repair Shop Owner",
+            "location": "Rural Montana",
+            "background": "rural",
+            "income_level": "middle class",
+            "marital_status": "married with children"
+          },
+          "background": "Third-generation Montana resident who inherited his father's auto repair business. \n        Has spent his entire life in the same small town and has deep connections with the local \n        community. Values tradition, practical skills, and personal relationships.",
+          "personality_traits": [
+            "practical",
+            "straightforward",
+            "traditional",
+            "community-oriented",
+            "self-reliant"
+          ],
+          "communication_style": {
+            "vocabulary": "Straightforward and practical",
+            "tone": "Informal and personal",
+            "approach": "Experience-based and direct",
+            "expressions": "Uses local colloquialisms"
+          },
+          "values": [
+            "Traditional community values",
+            "Practical skill development",
+            "Local business support",
+            "Family and community ties",
+            "Self-reliance"
+          ],
+          "experiences": [
+            "Runs a successful local business for 20+ years",
+            "Serves on local chamber of commerce",
+            "Volunteers as youth sports coach",
+            "Experienced economic challenges in rural area",
+            "Adapting to changing auto industry technology"
+          ]
+        }
+      },
+      "conversation": [
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        },
+        {
+          "speaker": "Alex Chen",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "urban_professional"
+        },
+        {
+          "speaker": "Mike Johnson",
+          "content": "[Error: Unable to generate response. The conversation cannot continue.]",
+          "persona_id": "rural_tradesperson"
+        }
+      ],
+      "analysis": {
+        "stereotype_patterns": "Analysis failed - no response received",
+        "persona_consistency": "Analysis failed - no response received",
+        "conversation_dynamics": "Analysis failed - no response received"
+      },
+      "scenario": {
+        "name": "Work Ethic and Values",
+        "context": "A community development meeting about local employment programs. \n                The discussion reveals class-based stereotypes about work ethic and values.",
+        "goal": "Examine socioeconomic stereotypes about work ethic and personal values",
+        "suggested_topics": [
+          "Work motivation",
+          "Career aspirations",
+          "Financial management",
+          "Social responsibility"
+        ],
+        "potential_conflicts": [],
+        "persona_ids": [
+          "urban_professional",
+          "rural_tradesperson"
+        ]
+      }
+    }
+  ]
+}

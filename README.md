@@ -291,3 +291,71 @@ Using the free tier of DeepSeek's model through OpenRouter allows for:
 - Testing and development
 - Small dataset generation
 - Proof of concept work
+
+## Generation Order
+
+The dialogues are generated in the following order of stereotype categories:
+
+1. Gender Stereotypes
+2. Race and Ethnicity Stereotypes
+3. Socioeconomic Status Stereotypes
+4. Age Stereotypes
+5. Religious Stereotypes
+6. Disability Stereotypes
+7. Education Level Stereotypes
+
+Each category contains two scenarios, and the generation process follows this order. If the generation gets cut off, you can identify which category was being processed by checking the output files and their timestamps.
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Create a `.env` file with your OpenRouter API key:
+   ```
+   OPENROUTER_API_KEY=your_api_key_here
+   OPENROUTER_REFERER=http://localhost:3000
+   OPENROUTER_TITLE=PersuasionDialogue
+   OPENROUTER_MODEL=deepseek/deepseek-chat-v3-0324:free
+   ```
+
+## Usage
+
+Run the main script:
+```bash
+python main.py
+```
+
+This will:
+1. Generate dialogues for each stereotype category
+2. Save them in JSON format
+3. Convert them to text format
+4. Create a structured output directory
+
+## Output Structure
+
+The script creates a directory named `dialogue_outputs_[timestamp]` containing:
+- A subdirectory for each stereotype category
+- JSON files for each dialogue
+- Text files for each dialogue
+- Metadata files with analysis information
+
+## Analysis
+
+The system analyzes each dialogue for:
+- Stereotype patterns
+- Persona consistency
+- Language authenticity
+- Conversation dynamics
+
+## Requirements
+
+- Python 3.8+
+- OpenRouter API key
+- Dependencies listed in requirements.txt
+
+## License
+
+MIT License
