@@ -5,6 +5,11 @@ import random
 from datetime import datetime
 from pathlib import Path
 from config.dialogue_contexts import DialogueScenario
+from typing import List, Dict
+from dotenv import load_dotenv
+from agents.dialogue_manager import DialogueManager
+from agents.open_router_api import OpenRouterAPI
+from utils.database import DialogueDatabase
 
 current_dir = os.getcwd()
 print(f"Current working directory: {current_dir}")
@@ -31,13 +36,12 @@ try:
     from config.personas import EXAMPLE_PERSONAS
     from config.dialogue_contexts import DIALOGUE_SCENARIOS
     from config.stereotype_categories import STEREOTYPE_CATEGORIES
-    from agents.dialogue_manager import DialogueManager
 
     def ensure_directory(path: str):
         """Create directory if it doesn't exist."""
         Path(path).mkdir(parents=True, exist_ok=True)
 
-    def generate_dialogue(scenario: DialogueScenario, persona_pairs: list, num_turns: int = 12):
+    def generate_dialogue(scenario: DialogueScenario, persona_pairs: list, num_turns: int = 4):
         """
         Generate a dialogue for a specific scenario and persona pair.
         
@@ -76,7 +80,6 @@ try:
             print("\n" + "-"*80)
         
         output = manager.export_dialogue()
-        
         output["scenario"] = scenario.to_dict()
         
         print("\nOverall Conversation Analysis:")
@@ -91,80 +94,107 @@ try:
         return output
 
     def main():
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        base_output_dir = f"dialogue_outputs_{timestamp}"
-        ensure_directory(base_output_dir)
+        # Initialize database
+        db = DialogueDatabase()
         
-        all_dialogues = {
-            "metadata": {
-                "timestamp": timestamp,
-                "total_categories": len(STEREOTYPE_CATEGORIES),
-                "categories": []
-            }
-        }
+        # Load environment variables
+        load_dotenv()
         
+        # Initialize API
+        api = OpenRouterAPI()
+        
+        # Process each stereotype category
         for category_id, category in STEREOTYPE_CATEGORIES.items():
             print(f"\nProcessing category: {category.name}")
             
-            category_dir = os.path.join(base_output_dir, category_id)
-            ensure_directory(category_dir)
-            
-            category_dialogues = []
+            # Insert stereotype category
+            category_id = db.insert_stereotype_category(category.name, category.description)
             
             for scenario in category.scenarios:
+                # Insert scenario
+                scenario_id = db.insert_scenario(
+                    category_id=category_id,
+                    name=scenario.name,
+                    context=scenario.context,
+                    goal=scenario.goal
+                )
+                
                 # Use the personas specified in the scenario
                 persona_pairs = []
                 for persona_id in scenario.persona_ids:
                     if persona_id in EXAMPLE_PERSONAS:
-                        persona_pairs.append((persona_id, EXAMPLE_PERSONAS[persona_id]))
+                        persona = EXAMPLE_PERSONAS[persona_id]
+                        # Insert persona if not exists
+                        existing_persona = db.get_persona_by_name(persona["name"])
+                        if not existing_persona:
+                            persona_id = db.insert_persona(
+                                name=persona["name"],
+                                background=persona["background"],
+                                personality_traits=persona["personality_traits"]
+                            )
+                        else:
+                            persona_id = existing_persona["id"]
+                        persona_pairs.append((persona_id, persona))
                     else:
                         print(f"Warning: Persona ID '{persona_id}' not found in EXAMPLE_PERSONAS")
                 
                 # If no valid personas were found, use a default pair
                 if not persona_pairs:
                     print("Warning: No valid personas found for scenario. Using default personas.")
-                    persona_pairs = [
+                    default_personas = [
                         ("urban_prof", EXAMPLE_PERSONAS["urban_professional"]),
                         ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
                     ]
+                    for persona_id, persona in default_personas:
+                        existing_persona = db.get_persona_by_name(persona["name"])
+                        if not existing_persona:
+                            persona_id = db.insert_persona(
+                                name=persona["name"],
+                                background=persona["background"],
+                                personality_traits=persona["personality_traits"]
+                            )
+                        else:
+                            persona_id = existing_persona["id"]
+                        persona_pairs.append((persona_id, persona))
                 
+                # Generate dialogue
                 dialogue = generate_dialogue(scenario, persona_pairs)
-                category_dialogues.append(dialogue)
                 
-                dialogue_filename = f"{scenario.name.lower().replace(' ', '_')}.json"
-                dialogue_path = os.path.join(category_dir, dialogue_filename)
-                with open(dialogue_path, "w") as f:
-                    json.dump(dialogue, f, indent=2)
-            
-            category_metadata = {
-                "name": category.name,
-                "description": category.description,
-                "num_scenarios": len(category.scenarios),
-                "dialogues": category_dialogues
-            }
-            
-            category_meta_path = os.path.join(category_dir, "_category_info.json")
-            with open(category_meta_path, "w") as f:
-                json.dump(category_metadata, f, indent=2)
-            
-            all_dialogues["metadata"]["categories"].append({
-                "id": category_id,
-                "name": category.name,
-                "num_dialogues": len(category_dialogues)
-            })
+                # Insert dialogue
+                dialogue_id = db.insert_dialogue(scenario_id)
+                
+                # Insert dialogue turns and analysis
+                for turn_num, turn in enumerate(dialogue["dialogue"]):
+                    # Insert dialogue turn
+                    turn_id = db.insert_dialogue_turn(
+                        dialogue_id=dialogue_id,
+                        turn_number=turn_num,
+                        speaker_id=turn["speaker_id"],
+                        content=turn["content"]
+                    )
+                    
+                    # Insert turn analysis
+                    for aspect, content in turn["analysis"].items():
+                        db.insert_analysis(
+                            dialogue_id=dialogue_id,
+                            turn_id=turn_id,
+                            aspect=aspect,
+                            content=content
+                        )
+                
+                # Insert overall analysis
+                for aspect, content in dialogue["analysis"].items():
+                    db.insert_analysis(
+                        dialogue_id=dialogue_id,
+                        turn_id=None,  # Overall analysis
+                        aspect=aspect,
+                        content=content
+                    )
         
-        meta_path = os.path.join(base_output_dir, "_dataset_info.json")
-        with open(meta_path, "w") as f:
-            json.dump(all_dialogues, f, indent=2)
+        # Close database connection
+        db.close()
         
-        print(f"\nAll dialogues saved to {base_output_dir}/")
-        print("Directory structure:")
-        print(f"- {base_output_dir}/")
-        for category_id in STEREOTYPE_CATEGORIES.keys():
-            print(f"  - {category_id}/")
-            print(f"    - _category_info.json")
-            print(f"    - [dialogue files...]")
-        print(f"  - _dataset_info.json")
+        print("\nAll dialogues saved to database")
 
     if __name__ == "__main__":
         main()
