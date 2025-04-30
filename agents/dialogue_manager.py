@@ -91,6 +91,19 @@ class DialogueManager:
         # Analyze the entire conversation for overall patterns
         conversation_analysis = self._analyze_conversation()
         
+        # Format conversation history to include turn analysis
+        formatted_conversation = []
+        for turn in self.conversation_history:
+            formatted_turn = {
+                "speaker": turn["speaker"],
+                "content": turn["content"],
+                "persona_id": turn["persona_id"],
+                "is_valid": turn.get("is_valid", True),
+                "validation_reason": turn.get("validation_reason", ""),
+                "turn_analysis": turn["turn_analysis"]
+            }
+            formatted_conversation.append(formatted_turn)
+        
         return {
             "context": self._context,
             "goal": self._goal,
@@ -98,7 +111,7 @@ class DialogueManager:
                 pid: persona.to_dict() 
                 for pid, persona in self.active_personas.items()
             },
-            "conversation": self.conversation_history,
+            "conversation": formatted_conversation,
             "analysis": conversation_analysis
         }
         
