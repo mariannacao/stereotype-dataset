@@ -50,12 +50,16 @@ try:
             persona_pairs: List of tuples of persona IDs to use
             num_turns: Number of turns to generate
         """
-        manager = DialogueManager()
+        manager = DialogueManager(db)
         
         for persona_id, persona in persona_pairs:
             manager.add_persona(persona_id, persona)
         
-        manager.start_dialogue(context=scenario.context, goal=scenario.goal)
+        manager.start_dialogue(
+            context=scenario.context,
+            goal=scenario.goal,
+            scenario_id=scenario_id
+        )
         
         print(f"\nScenario: {scenario.name}")
         print("\nContext:", scenario.context)
@@ -79,19 +83,11 @@ try:
             print("- Language Authenticity:", result['analysis']['language_authenticity'])
             print("\n" + "-"*80)
         
-        output = manager.export_dialogue()
-        output["scenario"] = scenario.to_dict()
+        # Finalize the dialogue and store the overall analysis
+        manager.finalize_dialogue()
         
-        print("\nOverall Conversation Analysis:")
-        print("\nStereotype Patterns:")
-        print(output["analysis"]["stereotype_patterns"])
-        print("\nPersona Consistency:")
-        print(output["analysis"]["persona_consistency"])
-        print("\nConversation Dynamics:")
-        print(output["analysis"]["conversation_dynamics"])
+        print("\nDialogue saved to database")
         print("\n" + "="*80)
-        
-        return output
 
     def main():
         # Initialize database
@@ -164,12 +160,12 @@ try:
                 dialogue_id = db.insert_dialogue(scenario_id)
                 
                 # Insert dialogue turns and analysis
-                for turn_num, turn in enumerate(dialogue["dialogue"]):
+                for turn_num, turn in enumerate(dialogue["conversation"]):
                     # Insert dialogue turn
                     turn_id = db.insert_dialogue_turn(
                         dialogue_id=dialogue_id,
                         turn_number=turn_num,
-                        speaker_id=turn["speaker_id"],
+                        speaker_id=turn["persona_id"],
                         content=turn["content"]
                     )
                     
