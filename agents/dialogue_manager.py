@@ -67,20 +67,20 @@ class DialogueManager:
             conversation_history=self.conversation_history
         )
         
-        # Add to conversation history
-        self.conversation_history.append({
+        # Create turn data structure with all fields
+        turn_data = {
             "speaker": speaking_persona.name,
             "content": turn_content,
-            "persona_id": speaking_persona_id
-        })
-        
-        return {
-            "content": turn_content,
-            "speaker": speaking_persona.name,
+            "persona_id": speaking_persona_id,
             "is_valid": is_valid,
             "validation_reason": validation_reason,
-            "analysis": analysis
+            "turn_analysis": analysis
         }
+        
+        # Add to conversation history
+        self.conversation_history.append(turn_data)
+        
+        return turn_data
     
     def get_conversation_history(self) -> List[Dict[str, str]]:
         """Get the current conversation history."""

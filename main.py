@@ -70,9 +70,9 @@ try:
             
             print(f"\n{result['speaker']}: {result['content']}")
             print("\nTurn Analysis:")
-            print("- Persona Consistency:", result['analysis']['persona_consistency'])
-            print("- Stereotype Patterns:", result['analysis']['stereotype_patterns'])
-            print("- Language Authenticity:", result['analysis']['language_authenticity'])
+            print("- Stereotype Analysis:", result['turn_analysis']['stereotype_analysis'])
+            print("- Persona Consistency:", result['turn_analysis']['persona_consistency'])
+            print("- Conversation Dynamics:", result['turn_analysis']['conversation_dynamics'])
             print("\n" + "-"*80)
         
         output = manager.export_dialogue()

@@ -47,23 +47,22 @@ class MonitoringAgent:
         Previous Context:
         {self._format_history(conversation_history)}
         
-        Provide analysis in the following areas:
+        Provide a detailed analysis in the following format:
         
-        1. Persona Consistency
-           - Does the turn align with the persona's background, values, and communication style?
-           - Are there any inconsistencies with the persona's established traits?
+        1. Stereotype Analysis
+           - Identify any implicit biases or stereotypes expressed
+           - Note specific phrases or language patterns that reveal biases
+           - Analyze how the turn might perpetuate or challenge stereotypes
         
-        2. Stereotype Patterns
-           - Identify any implicit biases or stereotypes expressed in the turn
-           - Note any assumptions about social groups, cultural backgrounds, or identities
-           - Highlight microaggressions or subtle discriminatory language
-           - Analyze power dynamics in the conversation
-           - Consider how the turn might perpetuate or challenge stereotypes
+        2. Persona Consistency
+           - Evaluate how well the turn aligns with the persona's traits
+           - Note any inconsistencies with established characteristics
+           - Assess authenticity of the dialogue
         
-        3. Language Authenticity
-           - Does the language use match the persona's background and education level?
-           - Are there any anachronisms or inconsistencies in vocabulary or tone?
-           - Does the communication style reflect the persona's cultural background?
+        3. Conversation Dynamics
+           - Analyze the rhetorical strategies used
+           - Evaluate the effectiveness of persuasion attempts
+           - Note any power dynamics or social positioning
         """
         
         try:
@@ -77,28 +76,32 @@ class MonitoringAgent:
         except Exception as e:
             print(f"Error analyzing turn: {str(e)}")
             return {
-                "persona_consistency": f"Analysis failed: {str(e)}",
-                "stereotype_patterns": "Analysis failed due to an error",
-                "language_authenticity": "Analysis failed due to an error"
+                "stereotype_analysis": f"Analysis failed: {str(e)}",
+                "persona_consistency": "Analysis failed due to an error",
+                "conversation_dynamics": "Analysis failed due to an error"
             }
     
     def _parse_analysis(self, analysis_text: str) -> Dict[str, any]:
         """Parse the raw analysis text into a structured format."""
-        # Handle None or empty analysis text
         if not analysis_text:
             return {
+                "stereotype_analysis": "Analysis failed - no response received",
                 "persona_consistency": "Analysis failed - no response received",
-                "stereotype_patterns": "Analysis failed - no response received",
-                "language_authenticity": "Analysis failed - no response received"
+                "conversation_dynamics": "Analysis failed - no response received"
             }
             
-        # TODO: Implement more sophisticated parsing
+        # Split the analysis into sections
         sections = analysis_text.split("\n\n")
         result = {
-            "persona_consistency": sections[0] if len(sections) > 0 else "",
-            "stereotype_patterns": sections[1] if len(sections) > 1 else "",
-            "language_authenticity": sections[2] if len(sections) > 2 else ""
+            "stereotype_analysis": sections[0] if len(sections) > 0 else "",
+            "persona_consistency": sections[1] if len(sections) > 1 else "",
+            "conversation_dynamics": sections[2] if len(sections) > 2 else ""
         }
+        
+        # Clean up markdown formatting
+        for key in result:
+            result[key] = result[key].replace("###", "").replace("####", "").replace("**", "").strip()
+            
         return result
     
     def _format_history(self, history: List[Dict[str, str]]) -> str:
