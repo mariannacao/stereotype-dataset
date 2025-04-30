@@ -10,7 +10,7 @@ class GenerationAgent:
         Keep responses focused and relevant to the conversation topic."""
     
     def generate_turn(self,
-                     persona: Dict[str, Any],
+                     speaking_persona: Persona,
                      conversation_history: List[Dict[str, str]],
                      context: str,
                      goal: str) -> str:
@@ -18,7 +18,7 @@ class GenerationAgent:
         Generate a single turn of dialogue for a given persona.
         
         Args:
-            persona: The speaking persona's information
+            speaking_persona: The speaking persona's information
             conversation_history: Previous turns in the conversation
             context: The conversation context
             goal: The conversation goal
@@ -34,9 +34,9 @@ class GenerationAgent:
         prompt = f"""Context: {context}
 Goal: {goal}
 
-Persona: {persona['name']}
-Background: {persona['background']}
-Key Traits: {', '.join(persona['personality_traits'][:3])}
+Persona: {speaking_persona.name}
+Background: {speaking_persona.background}
+Key Traits: {', '.join(speaking_persona.personality_traits[:3])}
 
 Recent Conversation:
 {history_text}

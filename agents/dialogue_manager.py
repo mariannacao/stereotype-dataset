@@ -41,8 +41,8 @@ class DialogueManager:
         turn_content = self.generation_agent.generate_turn(
             speaking_persona=speaking_persona,
             conversation_history=self.conversation_history,
-            dialogue_context=self._context,
-            dialogue_goal=self._goal
+            context=self._context,
+            goal=self._goal
         )
         
         # Validate the turn
@@ -56,8 +56,8 @@ class DialogueManager:
             turn_content = self.generation_agent.generate_turn(
                 speaking_persona=speaking_persona,
                 conversation_history=self.conversation_history,
-                dialogue_context=f"{self._context}\nNote: Previous attempt was invalid because: {validation_reason}",
-                dialogue_goal=self._goal
+                context=f"{self._context}\nNote: Previous attempt was invalid because: {validation_reason}",
+                goal=self._goal
             )
         
         # Analyze the turn

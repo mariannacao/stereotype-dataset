@@ -8,7 +8,7 @@ from config.dialogue_contexts import DialogueScenario
 from typing import List, Dict
 from dotenv import load_dotenv
 from agents.dialogue_manager import DialogueManager
-from agents.open_router_api import OpenRouterAPI
+from utils.api_wrapper import OpenRouterAPI
 from utils.database import DialogueDatabase
 
 current_dir = os.getcwd()
@@ -125,12 +125,12 @@ try:
                     if persona_id in EXAMPLE_PERSONAS:
                         persona = EXAMPLE_PERSONAS[persona_id]
                         # Insert persona if not exists
-                        existing_persona = db.get_persona_by_name(persona["name"])
+                        existing_persona = db.get_persona_by_name(persona.name)
                         if not existing_persona:
                             persona_id = db.insert_persona(
-                                name=persona["name"],
-                                background=persona["background"],
-                                personality_traits=persona["personality_traits"]
+                                name=persona.name,
+                                background=persona.background,
+                                personality_traits=persona.personality_traits
                             )
                         else:
                             persona_id = existing_persona["id"]
@@ -146,12 +146,12 @@ try:
                         ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
                     ]
                     for persona_id, persona in default_personas:
-                        existing_persona = db.get_persona_by_name(persona["name"])
+                        existing_persona = db.get_persona_by_name(persona.name)
                         if not existing_persona:
                             persona_id = db.insert_persona(
-                                name=persona["name"],
-                                background=persona["background"],
-                                personality_traits=persona["personality_traits"]
+                                name=persona.name,
+                                background=persona.background,
+                                personality_traits=persona.personality_traits
                             )
                         else:
                             persona_id = existing_persona["id"]
