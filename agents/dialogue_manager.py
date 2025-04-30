@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional
 from config.personas import Persona
+from config.persona_generator import PersonaGenerator
 from agents.generation_agent import GenerationAgent
 from agents.monitoring_agent import MonitoringAgent
 
@@ -7,12 +8,13 @@ class DialogueManager:
     def __init__(self):
         self.generation_agent = GenerationAgent()
         self.monitoring_agent = MonitoringAgent()
+        self.persona_generator = PersonaGenerator()
         self.conversation_history: List[Dict[str, str]] = []
         self.active_personas: Dict[str, Persona] = {}
         
-    def add_persona(self, persona_id: str, persona: Persona):
-        """Add a persona to the dialogue."""
-        self.active_personas[persona_id] = persona
+    def add_persona(self, persona_id: str, background: Optional[str] = None) -> None:
+        """Add a dynamically generated persona to the dialogue."""
+        self.active_personas[persona_id] = self.persona_generator.generate_persona(background)
     
     def start_dialogue(self, 
                       context: str = "",

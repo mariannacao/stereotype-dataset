@@ -1,59 +1,29 @@
-from typing import Dict, List
-from .dialogue_contexts import DialogueScenario
+from typing import List, Dict, Optional
+from dataclasses import dataclass
+from config.persona_generator import PersonaGenerator
 
+@dataclass
+class DialogueScenario:
+    name: str
+    context: str
+    goal: str
+    suggested_topics: List[str]
+    persona_backgrounds: List[str]  # List of backgrounds for personas in this scenario
+
+@dataclass
 class StereotypeCategory:
-    def __init__(self,
-                 name: str,
-                 description: str,
-                 scenarios: List[DialogueScenario]):
-        self.name = name
-        self.description = description
-        self.scenarios = scenarios
-    
-    def to_dict(self) -> Dict:
-        return {
-            "name": self.name,
-            "description": self.description,
-            "scenarios": [s.to_dict() for s in self.scenarios]
-        }
+    name: str
+    description: str
+    scenarios: List[DialogueScenario]
 
+# Initialize persona generator
+persona_generator = PersonaGenerator()
+
+# Define stereotype categories
 STEREOTYPE_CATEGORIES = {
-    "gender": StereotypeCategory(
-        name="Gender Stereotypes",
-        description="Stereotypes based on gender identity and expression",
-        scenarios=[
-            DialogueScenario(
-                name="Leadership and Competence",
-                context="""A company board meeting discussing leadership qualities and promotion criteria. 
-                The conversation reveals implicit gender biases about leadership styles and competence.""",
-                goal="Explore gender-based stereotypes about leadership ability and professional competence",
-                suggested_topics=[
-                    "Leadership styles and effectiveness",
-                    "Technical vs interpersonal skills",
-                    "Decision-making approaches",
-                    "Communication patterns"
-                ],
-                persona_ids=["urban_professional", "tech_entrepreneur"]
-            ),
-            DialogueScenario(
-                name="Work-Life Balance",
-                context="""A team meeting about flexible work arrangements and parental leave policies. 
-                The discussion reveals different expectations for men and women regarding work-life balance.""",
-                goal="Examine gender-based assumptions about work-life balance and caregiving responsibilities",
-                suggested_topics=[
-                    "Parental leave policies",
-                    "Flexible work arrangements",
-                    "Career advancement",
-                    "Family responsibilities"
-                ],
-                persona_ids=["urban_professional", "rural_tradesperson"]
-            )
-        ]
-    ),
-    
     "race_ethnicity": StereotypeCategory(
         name="Race and Ethnicity Stereotypes",
-        description="Stereotypes based on racial and ethnic identity",
+        description="Stereotypes based on racial and ethnic backgrounds",
         scenarios=[
             DialogueScenario(
                 name="Academic Achievement",
@@ -66,27 +36,60 @@ STEREOTYPE_CATEGORIES = {
                     "Cultural factors",
                     "Achievement gaps"
                 ],
-                persona_ids=["urban_professional", "academic_researcher"]
+                persona_backgrounds=["urban", "suburban", "rural"]
             ),
             DialogueScenario(
-                name="Professional Competence",
-                context="""A hiring committee meeting discussing candidate qualifications and team fit. 
-                The discussion reveals subtle racial biases in professional competence assessment.""",
-                goal="Examine racial stereotypes in professional settings and hiring decisions",
+                name="Workplace Dynamics",
+                context="""A team meeting about project assignments and leadership roles. 
+                The discussion reveals racial and ethnic biases in professional settings.""",
+                goal="Examine racial and ethnic stereotypes in workplace dynamics",
                 suggested_topics=[
-                    "Qualification evaluation",
-                    "Cultural fit assessment",
-                    "Professional experience",
-                    "Team dynamics"
+                    "Leadership potential",
+                    "Team collaboration",
+                    "Professional competence",
+                    "Career advancement"
                 ],
-                persona_ids=["tech_entrepreneur", "urban_professional"]
+                persona_backgrounds=["urban", "suburban"]
+            )
+        ]
+    ),
+    
+    "gender": StereotypeCategory(
+        name="Gender Stereotypes",
+        description="Stereotypes based on gender identity",
+        scenarios=[
+            DialogueScenario(
+                name="Work-Life Balance",
+                context="""A team meeting about flexible work arrangements and parental leave policies. 
+                The discussion reveals different expectations for men and women regarding work-life balance.""",
+                goal="Examine gender-based assumptions about work-life balance and caregiving responsibilities",
+                suggested_topics=[
+                    "Parental leave",
+                    "Flexible scheduling",
+                    "Career advancement",
+                    "Workplace expectations"
+                ],
+                persona_backgrounds=["urban", "suburban", "rural"]
+            ),
+            DialogueScenario(
+                name="Leadership Styles",
+                context="""A leadership training session discussing different management approaches. 
+                The conversation reveals gender-based assumptions about leadership effectiveness.""",
+                goal="Explore gender stereotypes in leadership and management",
+                suggested_topics=[
+                    "Decision-making styles",
+                    "Communication approaches",
+                    "Conflict resolution",
+                    "Team management"
+                ],
+                persona_backgrounds=["urban", "suburban"]
             )
         ]
     ),
     
     "socioeconomic": StereotypeCategory(
-        name="Socioeconomic Status Stereotypes",
-        description="Stereotypes based on social class and economic status",
+        name="Socioeconomic Stereotypes",
+        description="Stereotypes based on socioeconomic status",
         scenarios=[
             DialogueScenario(
                 name="Educational Access",
@@ -99,119 +102,20 @@ STEREOTYPE_CATEGORIES = {
                     "Parental involvement",
                     "Educational support"
                 ],
-                persona_ids=["urban_professional", "rural_tradesperson"]
+                persona_backgrounds=["urban", "suburban", "rural"]
             ),
             DialogueScenario(
-                name="Work Ethic and Values",
-                context="""A community development meeting about local employment programs. 
-                The discussion reveals class-based stereotypes about work ethic and values.""",
-                goal="Examine socioeconomic stereotypes about work ethic and personal values",
+                name="Career Opportunities",
+                context="""A career fair where different companies discuss their hiring practices. 
+                The conversation reveals class-based assumptions about career potential.""",
+                goal="Examine socioeconomic stereotypes in career development",
                 suggested_topics=[
-                    "Work motivation",
-                    "Career aspirations",
-                    "Financial management",
-                    "Social responsibility"
-                ],
-                persona_ids=["urban_professional", "rural_tradesperson"]
-            )
-        ]
-    ),
-    
-    "age": StereotypeCategory(
-        name="Age Stereotypes",
-        description="Stereotypes based on age and generational differences",
-        scenarios=[
-            DialogueScenario(
-                name="Technology Adoption",
-                context="""A company meeting about digital transformation initiatives. 
-                The conversation reveals age-based assumptions about technology adoption and learning ability.""",
-                goal="Explore age-based stereotypes about technological competence and adaptability",
-                suggested_topics=[
-                    "Learning ability",
-                    "Technology adoption",
-                    "Change resistance",
-                    "Digital skills"
-                ],
-                persona_ids=["tech_entrepreneur", "urban_professional"]
-            ),
-            DialogueScenario(
-                name="Workplace Value",
-                context="""A team meeting discussing project assignments and mentorship roles. 
-                The discussion reveals age-based stereotypes about workplace contributions.""",
-                goal="Examine age-based stereotypes about professional value and capability",
-                suggested_topics=[
-                    "Experience value",
-                    "Innovation potential",
-                    "Leadership ability",
-                    "Career development"
-                ],
-                persona_ids=["urban_professional", "tech_entrepreneur"]
-            )
-        ]
-    ),
-    
-    "religion": StereotypeCategory(
-        name="Religious Stereotypes",
-        description="Stereotypes based on religious beliefs and practices",
-        scenarios=[
-            DialogueScenario(
-                name="Workplace Accommodation",
-                context="""A human resources meeting discussing religious accommodation requests. 
-                The conversation reveals implicit biases about religious practices and workplace integration.""",
-                goal="Explore religious stereotypes in workplace accommodation and inclusion",
-                suggested_topics=[
-                    "Religious practices",
-                    "Workplace policies",
-                    "Cultural sensitivity",
-                    "Team integration"
-                ],
-                persona_ids=["urban_professional", "tech_entrepreneur"]
-            ),
-            DialogueScenario(
-                name="Professional Ethics",
-                context="""A business ethics committee meeting discussing company values and practices. 
-                The discussion reveals religious-based assumptions about ethical behavior.""",
-                goal="Examine religious stereotypes about professional ethics and values",
-                suggested_topics=[
-                    "Ethical standards",
-                    "Business practices",
-                    "Value alignment",
-                    "Decision-making"
-                ],
-                persona_ids=["urban_professional", "academic_researcher"]
-            )
-        ]
-    ),
-    
-    "disability": StereotypeCategory(
-        name="Disability Stereotypes",
-        description="Stereotypes based on physical and cognitive abilities",
-        scenarios=[
-            DialogueScenario(
-                name="Workplace Accessibility",
-                context="""A company meeting about workplace accessibility and accommodation. 
-                The conversation reveals implicit biases about disability and workplace capability.""",
-                goal="Explore disability stereotypes about workplace competence and accommodation",
-                suggested_topics=[
-                    "Workplace accessibility",
-                    "Performance capability",
-                    "Accommodation needs",
-                    "Team integration"
-                ],
-                persona_ids=["urban_professional", "tech_entrepreneur"]
-            ),
-            DialogueScenario(
-                name="Professional Development",
-                context="""A career development meeting discussing training and advancement opportunities. 
-                The discussion reveals assumptions about disability and professional growth.""",
-                goal="Examine disability stereotypes about professional development and advancement",
-                suggested_topics=[
+                    "Professional networks",
+                    "Skill development",
                     "Career advancement",
-                    "Training opportunities",
-                    "Leadership potential",
-                    "Professional growth"
+                    "Workplace culture"
                 ],
-                persona_ids=["urban_professional", "academic_researcher"]
+                persona_backgrounds=["urban", "suburban"]
             )
         ]
     ),
@@ -231,7 +135,7 @@ STEREOTYPE_CATEGORIES = {
                     "Communication skills",
                     "Leadership potential"
                 ],
-                persona_ids=["academic_researcher", "rural_tradesperson"]
+                persona_backgrounds=["urban", "suburban", "rural"]
             ),
             DialogueScenario(
                 name="Career Advancement",
@@ -244,40 +148,73 @@ STEREOTYPE_CATEGORIES = {
                     "Leadership roles",
                     "Skill development"
                 ],
-                persona_ids=["urban_professional", "rural_tradesperson"]
+                persona_backgrounds=["urban", "suburban"]
             )
         ]
     ),
     
-    "regional": StereotypeCategory(
-        name="Regional Stereotypes",
-        description="Stereotypes based on geographic location and cultural background",
+    "religion": StereotypeCategory(
+        name="Religious Stereotypes",
+        description="Stereotypes based on religious beliefs and practices",
         scenarios=[
             DialogueScenario(
-                name="Workplace Culture",
-                context="""A global team meeting discussing work practices and communication styles. 
-                The conversation reveals regional biases about workplace culture and effectiveness.""",
-                goal="Explore regional stereotypes about workplace culture and professional practices",
+                name="Workplace Accommodation",
+                context="""A human resources meeting discussing religious accommodation requests. 
+                The conversation reveals implicit biases about religious practices and workplace integration.""",
+                goal="Explore religious stereotypes in workplace accommodation and inclusion",
                 suggested_topics=[
-                    "Work style differences",
-                    "Communication patterns",
-                    "Cultural norms",
-                    "Professional standards"
+                    "Religious holidays",
+                    "Prayer spaces",
+                    "Dress codes",
+                    "Workplace culture"
                 ],
-                persona_ids=["urban_professional", "tech_entrepreneur"]
+                persona_backgrounds=["urban", "suburban"]
             ),
             DialogueScenario(
-                name="Professional Competence",
-                context="""A project team meeting about international collaboration. 
-                The discussion reveals regional assumptions about professional capability.""",
-                goal="Examine regional stereotypes about professional competence and work ethic",
+                name="Community Integration",
+                context="""A community center meeting about local events and programs. 
+                The discussion reveals assumptions about religious groups and community participation.""",
+                goal="Examine religious stereotypes in community settings",
                 suggested_topics=[
-                    "Professional standards",
-                    "Work ethic",
-                    "Technical capability",
-                    "Cultural competence"
+                    "Community events",
+                    "Cultural celebrations",
+                    "Interfaith dialogue",
+                    "Social integration"
                 ],
-                persona_ids=["tech_entrepreneur", "academic_researcher"]
+                persona_backgrounds=["urban", "suburban"]
+            )
+        ]
+    ),
+    
+    "disability": StereotypeCategory(
+        name="Disability Stereotypes",
+        description="Stereotypes based on physical and mental abilities",
+        scenarios=[
+            DialogueScenario(
+                name="Workplace Accessibility",
+                context="""A team meeting discussing workplace accommodations and accessibility features. 
+                The conversation reveals assumptions about disability and workplace capabilities.""",
+                goal="Explore disability stereotypes in workplace settings",
+                suggested_topics=[
+                    "Accessibility features",
+                    "Workplace accommodations",
+                    "Professional capabilities",
+                    "Team dynamics"
+                ],
+                persona_backgrounds=["urban", "suburban"]
+            ),
+            DialogueScenario(
+                name="Educational Support",
+                context="""A school meeting about special education programs and support services. 
+                The discussion reveals assumptions about learning abilities and educational needs.""",
+                goal="Examine disability stereotypes in educational settings",
+                suggested_topics=[
+                    "Learning accommodations",
+                    "Support services",
+                    "Academic expectations",
+                    "Social integration"
+                ],
+                persona_backgrounds=["urban", "suburban"]
             )
         ]
     )
