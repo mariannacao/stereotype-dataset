@@ -6,7 +6,6 @@ class GenerationAgent:
     def __init__(self, api_client: Optional[OpenRouterAPI] = None):
         self.api_client = api_client or OpenRouterAPI()
         
-        # Base system prompt for dialogue generation
         self.base_system_prompt = """You are a dialogue generation agent that creates realistic, context-aware 
         conversation turns. You should:
         1. Stay consistent with the given persona's attributes, background, and personality traits
@@ -33,16 +32,13 @@ class GenerationAgent:
         Returns:
             Generated dialogue turn
         """
-        # Create a detailed system prompt
         system_prompt = self.base_system_prompt
         
-        # Add context and goal
         if dialogue_context:
             system_prompt += f"\n\nContext: {dialogue_context}"
         if dialogue_goal:
             system_prompt += f"\n\nConversation goal: {dialogue_goal}"
         
-        # Add special instructions for first turn
         if not conversation_history:
             system_prompt += """\n\nThis is the FIRST turn of the conversation. You should:
             1. Start the discussion naturally, addressing the context and goal
@@ -52,10 +48,8 @@ class GenerationAgent:
             
             Do NOT just say hello or give a minimal response. Make a meaningful opening statement."""
             
-        # Get the persona description
         persona_desc = speaking_persona.get_prompt_description()
         
-        # Format user prompt differently for first turn vs. subsequent turns
         user_prompt = f"Persona:\n{persona_desc}\n\n"
         if conversation_history:
             user_prompt += f"Conversation history:\n" + "\n".join([
@@ -65,16 +59,13 @@ class GenerationAgent:
         else:
             user_prompt += f"You are starting the conversation in this context. Make a meaningful opening statement that reflects your persona and engages with the topic."
         
-        # Generate the dialogue turn
         response = self.api_client.generate_dialogue_turn(
             persona_description=persona_desc,
             conversation_history=conversation_history,
             system_prompt=system_prompt
         )
         
-        # Ensure we got a non-empty response
         if not response or not response.strip():
-            # Retry with more explicit instructions
             system_prompt += "\n\nIMPORTANT: You MUST generate a substantive response. Empty or minimal responses are not acceptable."
             response = self.api_client.generate_dialogue_turn(
                 persona_description=persona_desc,

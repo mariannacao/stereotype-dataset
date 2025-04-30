@@ -38,35 +38,28 @@ class Persona:
         """Generate a natural language description of the persona for prompts"""
         sections = []
         
-        # Basic information
         sections.append(f"Name: {self.name}")
         
-        # Attributes
         sections.append("\nBasic Attributes:")
         for attr_name, attr in self.attributes.items():
             sections.append(f"- {attr_name}: {attr.value}")
         
-        # Background
         if self.background:
             sections.append(f"\nBackground:\n{self.background}")
         
-        # Personality traits
         if self.personality_traits:
             sections.append("\nPersonality Traits:")
             sections.append(", ".join(self.personality_traits))
         
-        # Communication style
         if self.communication_style:
             sections.append("\nCommunication Style:")
             for aspect, style in self.communication_style.items():
                 sections.append(f"- {aspect}: {style}")
         
-        # Values
         if self.values:
             sections.append("\nCore Values:")
             sections.append(", ".join(self.values))
         
-        # Experiences
         if self.experiences:
             sections.append("\nKey Experiences:")
             for exp in self.experiences:
@@ -74,7 +67,6 @@ class Persona:
         
         return "\n".join(sections)
 
-# Comprehensive persona definitions
 EXAMPLE_PERSONAS = {
     "urban_professional": Persona(
         name="Alex Chen",

@@ -34,18 +34,9 @@ try:
     from agents.dialogue_manager import DialogueManager
 
     def ensure_directory(path: str):
-        """Create directory if it doesn't exist."""
         Path(path).mkdir(parents=True, exist_ok=True)
 
     def generate_dialogue(scenario: DialogueScenario, persona_pairs: list, num_turns: int = 12):
-        """
-        Generate a dialogue for a specific scenario and persona pair.
-        
-        Args:
-            scenario: The scenario object to use
-            persona_pairs: List of tuples of persona IDs to use
-            num_turns: Number of turns to generate
-        """
         manager = DialogueManager()
         
         for persona_id, persona in persona_pairs:
@@ -112,7 +103,6 @@ try:
             category_dialogues = []
             
             for scenario in category.scenarios:
-                # Use the personas specified in the scenario
                 persona_pairs = []
                 for persona_id in scenario.persona_ids:
                     if persona_id in EXAMPLE_PERSONAS:
@@ -120,7 +110,6 @@ try:
                     else:
                         print(f"Warning: Persona ID '{persona_id}' not found in EXAMPLE_PERSONAS")
                 
-                # If no valid personas were found, use a default pair
                 if not persona_pairs:
                     print("Warning: No valid personas found for scenario. Using default personas.")
                     persona_pairs = [

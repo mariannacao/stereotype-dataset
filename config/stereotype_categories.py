@@ -17,7 +17,6 @@ class StereotypeCategory:
             "scenarios": [s.to_dict() for s in self.scenarios]
         }
 
-# Define fundamental stereotype categories with their scenarios
 STEREOTYPE_CATEGORIES = {
     "gender": StereotypeCategory(
         name="Gender Stereotypes",

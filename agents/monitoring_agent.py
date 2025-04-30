@@ -90,7 +90,6 @@ class MonitoringAgent:
                 "conversation_dynamics": "Analysis failed - no response received"
             }
             
-        # Split the analysis into sections
         sections = analysis_text.split("\n\n")
         result = {
             "stereotype_analysis": sections[0] if len(sections) > 0 else "",
@@ -98,7 +97,6 @@ class MonitoringAgent:
             "conversation_dynamics": sections[2] if len(sections) > 2 else ""
         }
         
-        # Clean up markdown formatting
         for key in result:
             result[key] = result[key].replace("###", "").replace("####", "").replace("**", "").strip()
             
@@ -148,29 +146,23 @@ class MonitoringAgent:
         
         response = self.api_client.generate_response(messages)
         
-        # Handle empty responses
         if not response or not response.strip():
             return False, "Empty response from validator"
             
         response = response.strip()
         
-        # Check for valid/invalid prefix
         is_valid = response.upper().startswith("VALID:")
         
-        # Extract reason safely
         try:
             if ":" in response:
                 reason = response.split(":", 1)[1].strip()
             else:
-                # If no colon found, use the whole response as the reason
                 reason = response.strip()
                 
-            # If reason is empty, provide a default
             if not reason:
                 reason = "No specific reason provided"
                 
         except Exception as e:
-            # Fallback for any parsing errors
             reason = "Error parsing validation response"
             is_valid = False
         

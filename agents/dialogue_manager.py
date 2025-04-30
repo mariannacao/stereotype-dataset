@@ -37,7 +37,6 @@ class DialogueManager:
         
         speaking_persona = self.active_personas[speaking_persona_id]
         
-        # Generate the turn
         turn_content = self.generation_agent.generate_turn(
             speaking_persona=speaking_persona,
             conversation_history=self.conversation_history,
@@ -45,14 +44,12 @@ class DialogueManager:
             dialogue_goal=self._goal
         )
         
-        # Validate the turn
         is_valid, validation_reason = self.monitoring_agent.check_turn_validity(
             turn_content=turn_content,
             speaking_persona=speaking_persona
         )
         
         if not is_valid:
-            # If invalid, try one more time
             turn_content = self.generation_agent.generate_turn(
                 speaking_persona=speaking_persona,
                 conversation_history=self.conversation_history,
@@ -60,14 +57,12 @@ class DialogueManager:
                 dialogue_goal=self._goal
             )
         
-        # Analyze the turn
         analysis = self.monitoring_agent.analyze_turn(
             turn_content=turn_content,
             speaking_persona=speaking_persona,
             conversation_history=self.conversation_history
         )
         
-        # Create turn data structure with all fields
         turn_data = {
             "speaker": speaking_persona.name,
             "content": turn_content,
@@ -77,21 +72,16 @@ class DialogueManager:
             "turn_analysis": analysis
         }
         
-        # Add to conversation history
         self.conversation_history.append(turn_data)
         
         return turn_data
     
     def get_conversation_history(self) -> List[Dict[str, str]]:
-        """Get the current conversation history."""
         return self.conversation_history
     
     def export_dialogue(self) -> Dict[str, any]:
-        """Export the complete dialogue with metadata."""
-        # Analyze the entire conversation for overall patterns
         conversation_analysis = self._analyze_conversation()
         
-        # Format conversation history to include turn analysis
         formatted_conversation = []
         for turn in self.conversation_history:
             formatted_turn = {
@@ -116,8 +106,6 @@ class DialogueManager:
         }
         
     def _analyze_conversation(self) -> Dict[str, any]:
-        """Analyze the entire conversation for overall patterns and trends."""
-        # Combine all turns for a comprehensive analysis
         full_conversation = "\n\n".join([
             f"{turn['speaker']}: {turn['content']}"
             for turn in self.conversation_history
@@ -157,7 +145,6 @@ class DialogueManager:
             
             analysis = self.monitoring_agent.api_client.generate_response(messages)
             
-            # Parse the analysis into sections
             if not analysis:
                 return {
                     "stereotype_patterns": "Analysis failed - no response received",

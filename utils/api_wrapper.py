@@ -4,7 +4,6 @@ from typing import List, Dict, Any, Optional
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
 class OpenRouterAPI:
@@ -26,7 +25,6 @@ class OpenRouterAPI:
             }
         )
         
-        # Configure retry parameters
         self.max_retries = 3
         self.retry_delay = 2  # seconds
     
@@ -52,23 +50,19 @@ class OpenRouterAPI:
         
         while retries < self.max_retries:
             try:
-                # Prepare the API call parameters
                 params: Dict[str, Any] = {
                     "model": self.model,
                     "messages": messages,
                     "temperature": temperature,
                 }
                 
-                # Add optional parameters if specified
                 if max_tokens is not None:
                     params["max_tokens"] = max_tokens
                 if top_p is not None:
                     params["top_p"] = top_p
                 
-                # Make the API call
                 response = self.client.chat.completions.create(**params)
                 
-                # Extract and return the generated text
                 if response and response.choices and len(response.choices) > 0:
                     return response.choices[0].message.content
                 else:
@@ -83,10 +77,8 @@ class OpenRouterAPI:
                 if retries < self.max_retries:
                     print(f"Retrying in {self.retry_delay} seconds...")
                     time.sleep(self.retry_delay)
-                    # Increase delay for next retry (exponential backoff)
                     self.retry_delay *= 2
         
-        # If we get here, all retries failed
         print(f"All {self.max_retries} attempts failed. Last error: {last_error}")
         return None
 
@@ -105,7 +97,6 @@ class OpenRouterAPI:
         Returns:
             Generated dialogue turn or a fallback message if generation fails
         """
-        # Format conversation history into role/content format expected by API
         formatted_history = []
         for msg in conversation_history:
             formatted_history.append({
