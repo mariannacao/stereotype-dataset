@@ -197,6 +197,73 @@ The framework implements robust error handling:
    - JSON validation
    - Error recovery
 
+## Database Schema
+
+The SQLite database includes tables for:
+- Stereotype categories
+- Scenarios
+- Personas
+- Dialogues
+- Dialogue turns
+- Analysis results
+
+## Data Storage Evolution
+
+The project has evolved from JSON-based storage to a more robust SQLite database system:
+
+### Previous JSON Storage
+- Dialogues were saved in timestamped directories
+- Each stereotype category had its own subdirectory
+- Files included raw dialogues, analyses, and metadata
+- Limited querying and analysis capabilities
+
+### Current SQLite Database
+The data is now stored in `stereotype_dialogues.db` with the following structure:
+
+1. **stereotype_categories**
+   - Stores different types of stereotypes (gender, race, etc.)
+   - Contains name and description
+
+2. **scenarios**
+   - Stores specific dialogue scenarios
+   - Links to stereotype categories
+   - Contains context and goals
+
+3. **personas**
+   - Stores character definitions
+   - Contains name, background, and personality traits
+
+4. **dialogues**
+   - Stores complete conversations
+   - Links to scenarios
+   - Includes timestamps
+
+5. **dialogue_turns**
+   - Stores individual conversation turns
+   - Links to dialogues and speakers
+   - Contains the actual content
+
+6. **analysis**
+   - Stores analysis results
+   - Can be linked to either entire dialogues or specific turns
+   - Contains different aspects of analysis (stereotypes, consistency, etc.)
+
+### Data Flow
+When a dialogue is generated:
+1. The stereotype category is inserted
+2. The scenario is inserted
+3. Personas are inserted (if they don't exist)
+4. The dialogue is inserted
+5. Each turn is inserted
+6. Analysis for each turn and the overall dialogue is inserted
+
+### Advantages of Database Storage
+- Better data organization
+- Easier querying and analysis
+- Relationships between data are maintained
+- More efficient storage
+- Better data integrity
+
 ## Usage
 
 ### Environment Setup

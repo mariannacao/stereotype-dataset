@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from utils.api_wrapper import OpenRouterAPI
 from config.personas import Persona
 
@@ -6,83 +6,64 @@ class GenerationAgent:
     def __init__(self, api_client: Optional[OpenRouterAPI] = None):
         self.api_client = api_client or OpenRouterAPI()
         
-        # Base system prompt for dialogue generation
-        self.base_system_prompt = """You are a dialogue generation agent that creates realistic, context-aware 
-        conversation turns. You should:
-        1. Stay consistent with the given persona's attributes, background, and personality traits
-        2. Incorporate subtle, contextually appropriate stereotypes and biases that might emerge naturally
-        3. Use appropriate language patterns, vocabulary, and expressions based on the persona's background
-        4. Maintain a natural flow of conversation while advancing the dialogue purpose
-        
-        Generate ONLY the next dialogue turn, without any additional explanations or metadata."""
+        self.system_prompt = """Generate natural dialogue that reflects the persona's characteristics and background. 
+        Keep responses focused and relevant to the conversation topic."""
     
-    def generate_turn(self, 
+    def generate_turn(self,
                      speaking_persona: Persona,
                      conversation_history: List[Dict[str, str]],
-                     dialogue_context: str = "",
-                     dialogue_goal: str = "") -> str:
+                     context: str,
+                     goal: str) -> str:
         """
-        Generate the next turn in the dialogue.
+        Generate a single turn of dialogue for a given persona.
         
         Args:
-            speaking_persona: The persona who is speaking in this turn
-            conversation_history: Previous messages in the conversation
-            dialogue_context: Additional context about the conversation setting
-            dialogue_goal: The goal or purpose of the conversation
+            speaking_persona: The speaking persona's information
+            conversation_history: Previous turns in the conversation
+            context: The conversation context
+            goal: The conversation goal
             
         Returns:
             Generated dialogue turn
         """
-        # Create a detailed system prompt
-        system_prompt = self.base_system_prompt
+        # Format conversation history (keep only last 3 turns to save tokens)
+        recent_history = conversation_history[-3:] if len(conversation_history) > 3 else conversation_history
+        history_text = "\n".join([f"{turn['speaker']}: {turn['content']}" for turn in recent_history])
         
-        # Add context and goal
-        if dialogue_context:
-            system_prompt += f"\n\nContext: {dialogue_context}"
-        if dialogue_goal:
-            system_prompt += f"\n\nConversation goal: {dialogue_goal}"
+        # Prepare the generation prompt
+        prompt = f"""Context: {context}
+Goal: {goal}
+
+Persona: {speaking_persona.name}
+Background: {speaking_persona.background}
+Key Traits: {', '.join(speaking_persona.personality_traits[:3])}
+
+Recent Conversation:
+{history_text}
+
+Generate a natural response that:
+1. Aligns with the persona's characteristics
+2. Advances the conversation
+3. Shows engagement with the topic
+4. Maintains a natural flow
+
+Response:"""
         
-        # Add special instructions for first turn
-        if not conversation_history:
-            system_prompt += """\n\nThis is the FIRST turn of the conversation. You should:
-            1. Start the discussion naturally, addressing the context and goal
-            2. Speak in a way that establishes your persona's perspective
-            3. Open the conversation in a way that invites response
-            4. Make a substantive contribution that sets the tone for the dialogue
-            
-            Do NOT just say hello or give a minimal response. Make a meaningful opening statement."""
-            
-        # Get the persona description
-        persona_desc = speaking_persona.get_prompt_description()
+        messages = [
+            {"role": "system", "content": self.system_prompt},
+            {"role": "user", "content": prompt}
+        ]
         
-        # Format user prompt differently for first turn vs. subsequent turns
-        user_prompt = f"Persona:\n{persona_desc}\n\n"
-        if conversation_history:
-            user_prompt += f"Conversation history:\n" + "\n".join([
-                f"{m.get('speaker', 'Unknown')}: {m.get('content', '')}" 
-                for m in conversation_history
-            ])
-        else:
-            user_prompt += f"You are starting the conversation in this context. Make a meaningful opening statement that reflects your persona and engages with the topic."
-        
-        # Generate the dialogue turn
-        response = self.api_client.generate_dialogue_turn(
-            persona_description=persona_desc,
-            conversation_history=conversation_history,
-            system_prompt=system_prompt
-        )
-        
-        # Ensure we got a non-empty response
-        if not response or not response.strip():
-            # Retry with more explicit instructions
-            system_prompt += "\n\nIMPORTANT: You MUST generate a substantive response. Empty or minimal responses are not acceptable."
-            response = self.api_client.generate_dialogue_turn(
-                persona_description=persona_desc,
-                conversation_history=conversation_history,
-                system_prompt=system_prompt
+        try:
+            response = self.api_client.generate_response(
+                messages,
+                temperature=0.7,
+                max_tokens=150  # Limit response length
             )
-        
-        return response.strip()
+            return response if response else "[Error: Unable to generate response]"
+        except Exception as e:
+            print(f"Error generating turn: {str(e)}")
+            return "[Error: Generation failed]"
     
     def format_conversation_history(self, history: List[Dict[str, str]]) -> str:
         """Format conversation history for display or logging."""
