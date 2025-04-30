@@ -5,6 +5,9 @@ import random
 from datetime import datetime
 from pathlib import Path
 from config.dialogue_contexts import DialogueScenario
+from typing import Dict, List
+from config.stereotype_categories import STEREOTYPE_CATEGORIES
+from agents.dialogue_manager import DialogueManager
 
 current_dir = os.getcwd()
 print(f"Current working directory: {current_dir}")
@@ -36,124 +39,43 @@ try:
     def ensure_directory(path: str):
         Path(path).mkdir(parents=True, exist_ok=True)
 
-    def generate_dialogue(scenario: DialogueScenario, persona_pairs: list, num_turns: int = 12):
-        manager = DialogueManager()
+    def generate_dialogue(scenario, category_name: str) -> Dict:
+        """Generate a dialogue for a given scenario."""
+        dialogue_manager = DialogueManager()
         
-        for persona_id, persona in persona_pairs:
-            manager.add_persona(persona_id, persona)
+        for i, background in enumerate(scenario.persona_backgrounds):
+            dialogue_manager.add_persona(f"persona{i+1}", background=background)
         
-        manager.start_dialogue(context=scenario.context, goal=scenario.goal)
+        dialogue_manager.start_dialogue(
+            context=scenario.context,
+            goal=scenario.goal
+        )
         
-        print(f"\nScenario: {scenario.name}")
-        print("\nContext:", scenario.context)
-        print("\nGoal:", scenario.goal)
-        print("\nSuggested Topics:")
-        for topic in scenario.suggested_topics:
-            print(f"- {topic}")
-        print("\nStarting dialogue...\n")
+        for i in range(len(scenario.persona_backgrounds)):
+            dialogue_manager.generate_turn(f"persona{i+1}")
         
-        for turn in range(num_turns):
-            current_pair = persona_pairs[turn % len(persona_pairs)]
-            persona_id = current_pair[0]
-            
-            print(f"\nGenerating turn {turn + 1} for {persona_id}...")
-            result = manager.generate_turn(persona_id)
-            
-            print(f"\n{result['speaker']}: {result['content']}")
-            print("\nTurn Analysis:")
-            print("- Stereotype Analysis:", result['turn_analysis']['stereotype_analysis'])
-            print("- Persona Consistency:", result['turn_analysis']['persona_consistency'])
-            print("- Conversation Dynamics:", result['turn_analysis']['conversation_dynamics'])
-            print("\n" + "-"*80)
-        
-        output = manager.export_dialogue()
-        
-        output["scenario"] = scenario.to_dict()
-        
-        print("\nOverall Conversation Analysis:")
-        print("\nStereotype Patterns:")
-        print(output["analysis"]["stereotype_patterns"])
-        print("\nPersona Consistency:")
-        print(output["analysis"]["persona_consistency"])
-        print("\nConversation Dynamics:")
-        print(output["analysis"]["conversation_dynamics"])
-        print("\n" + "="*80)
-        
-        return output
+        return dialogue_manager.export_dialogue()
 
     def main():
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        base_output_dir = f"dialogue_outputs_{timestamp}"
-        ensure_directory(base_output_dir)
-        
-        all_dialogues = {
-            "metadata": {
-                "timestamp": timestamp,
-                "total_categories": len(STEREOTYPE_CATEGORIES),
-                "categories": []
-            }
-        }
+        output_dir = "output"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
         
         for category_id, category in STEREOTYPE_CATEGORIES.items():
             print(f"\nProcessing category: {category.name}")
             
-            category_dir = os.path.join(base_output_dir, category_id)
-            ensure_directory(category_dir)
-            
-            category_dialogues = []
-            
             for scenario in category.scenarios:
-                persona_pairs = []
-                for persona_id in scenario.persona_ids:
-                    if persona_id in EXAMPLE_PERSONAS:
-                        persona_pairs.append((persona_id, EXAMPLE_PERSONAS[persona_id]))
-                    else:
-                        print(f"Warning: Persona ID '{persona_id}' not found in EXAMPLE_PERSONAS")
+                print(f"Generating dialogue for scenario: {scenario.name}")
                 
-                if not persona_pairs:
-                    print("Warning: No valid personas found for scenario. Using default personas.")
-                    persona_pairs = [
-                        ("urban_prof", EXAMPLE_PERSONAS["urban_professional"]),
-                        ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
-                    ]
+                dialogue = generate_dialogue(scenario, category.name)
                 
-                dialogue = generate_dialogue(scenario, persona_pairs)
-                category_dialogues.append(dialogue)
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"{output_dir}/{category_id}_{scenario.name.lower().replace(' ', '_')}_{timestamp}.json"
                 
-                dialogue_filename = f"{scenario.name.lower().replace(' ', '_')}.json"
-                dialogue_path = os.path.join(category_dir, dialogue_filename)
-                with open(dialogue_path, "w") as f:
+                with open(filename, 'w') as f:
                     json.dump(dialogue, f, indent=2)
-            
-            category_metadata = {
-                "name": category.name,
-                "description": category.description,
-                "num_scenarios": len(category.scenarios),
-                "dialogues": category_dialogues
-            }
-            
-            category_meta_path = os.path.join(category_dir, "_category_info.json")
-            with open(category_meta_path, "w") as f:
-                json.dump(category_metadata, f, indent=2)
-            
-            all_dialogues["metadata"]["categories"].append({
-                "id": category_id,
-                "name": category.name,
-                "num_dialogues": len(category_dialogues)
-            })
-        
-        meta_path = os.path.join(base_output_dir, "_dataset_info.json")
-        with open(meta_path, "w") as f:
-            json.dump(all_dialogues, f, indent=2)
-        
-        print(f"\nAll dialogues saved to {base_output_dir}/")
-        print("Directory structure:")
-        print(f"- {base_output_dir}/")
-        for category_id in STEREOTYPE_CATEGORIES.keys():
-            print(f"  - {category_id}/")
-            print(f"    - _category_info.json")
-            print(f"    - [dialogue files...]")
-        print(f"  - _dataset_info.json")
+                
+                print(f"Saved dialogue to {filename}")
 
     if __name__ == "__main__":
         main()

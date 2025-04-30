@@ -253,26 +253,170 @@ class PersonaGenerator:
             }
     
     def generate_values(self, background: str) -> List[str]:
-        """Generate values based on background."""
-        num_values = random.randint(4, 6)
+        """Generate a set of core values for the persona."""
+        # Define a comprehensive set of values
+        values = [
+            # Personal values
+            "Family and relationships",
+            "Personal growth",
+            "Health and wellness",
+            "Financial security",
+            "Work-life balance",
+            "Independence",
+            "Creativity",
+            "Adventure",
+            "Stability",
+            "Tradition",
+            
+            # Professional values
+            "Career advancement",
+            "Professional excellence",
+            "Innovation",
+            "Leadership",
+            "Teamwork",
+            "Work ethic",
+            "Continuous learning",
+            "Problem-solving",
+            "Adaptability",
+            "Time management",
+            
+            # Social values
+            "Community service",
+            "Social justice",
+            "Diversity and inclusion",
+            "Environmental sustainability",
+            "Cultural preservation",
+            "Global awareness",
+            "Civic engagement",
+            "Interpersonal relationships",
+            "Communication",
+            "Empathy",
+            
+            # Educational values
+            "Lifelong learning",
+            "Intellectual curiosity",
+            "Critical thinking",
+            "Knowledge sharing",
+            "Research and discovery",
+            "Academic excellence",
+            "Educational access",
+            "Mentorship",
+            "Collaborative learning",
+            "Innovation in education"
+        ]
+        
+        # Adjust values based on background
         if background == "urban":
-            values = [v for v in self.values if v in ["innovation", "progress", "individualism", "growth", "efficiency"]]
+            values.extend([
+                "Urban development",
+                "Cultural diversity",
+                "Technological advancement",
+                "Global connectivity",
+                "Innovation in urban spaces"
+            ])
         elif background == "suburban":
-            values = [v for v in self.values if v in ["community", "stability", "equality", "collaboration", "adaptability"]]
-        else:  # rural
-            values = [v for v in self.values if v in ["tradition", "community", "stability", "independence", "consistency"]]
-        return random.sample(values, num_values)
+            values.extend([
+                "Community development",
+                "Family-oriented living",
+                "Quality education",
+                "Safe neighborhoods",
+                "Local business support"
+            ])
+        elif background == "rural":
+            values.extend([
+                "Agricultural sustainability",
+                "Rural development",
+                "Traditional knowledge",
+                "Natural resource conservation",
+                "Local community support"
+            ])
+        
+        # Sample 5-7 values
+        num_values = random.randint(5, 7)
+        return random.sample(values, min(num_values, len(values)))
     
     def generate_experiences(self, background: str) -> List[str]:
         """Generate experiences based on background."""
-        num_experiences = random.randint(4, 6)
+        # Define a comprehensive set of experiences
+        experiences = [
+            # Professional experiences
+            "Led successful projects",
+            "Worked in multiple industries",
+            "Started a business",
+            "Managed large teams",
+            "Developed innovative solutions",
+            "Received industry recognition",
+            "Mentored junior colleagues",
+            "Implemented process improvements",
+            "Expanded business operations",
+            "Navigated industry changes",
+            
+            # Educational experiences
+            "Completed advanced degrees",
+            "Attended professional conferences",
+            "Published research papers",
+            "Taught courses or workshops",
+            "Participated in academic programs",
+            "Received academic awards",
+            "Conducted field research",
+            "Developed educational materials",
+            "Led student organizations",
+            "Participated in study abroad",
+            
+            # Community experiences
+            "Volunteered in local organizations",
+            "Served on community boards",
+            "Organized community events",
+            "Led youth programs",
+            "Participated in cultural activities",
+            "Supported local businesses",
+            "Advocated for community needs",
+            "Built community partnerships",
+            "Created community resources",
+            "Mentored community members",
+            
+            # Personal development experiences
+            "Overcame significant challenges",
+            "Adapted to major life changes",
+            "Developed new skills",
+            "Built professional networks",
+            "Achieved personal goals",
+            "Balanced multiple responsibilities",
+            "Navigated cultural differences",
+            "Learned from failures",
+            "Pursued continuous learning",
+            "Maintained work-life balance"
+        ]
+        
+        # Add background-specific experiences
         if background == "urban":
-            experiences = [e for e in self.experiences if e in ["led successful projects", "worked in multiple industries", "started a business", "worked internationally"]]
+            experiences.extend([
+                "Worked in diverse urban environments",
+                "Navigated city infrastructure",
+                "Participated in urban development",
+                "Engaged with diverse communities",
+                "Adapted to urban lifestyle"
+            ])
         elif background == "suburban":
-            experiences = [e for e in self.experiences if e in ["mentored others", "built strong networks", "adapted to change", "achieved major milestones"]]
-        else:  # rural
-            experiences = [e for e in self.experiences if e in ["faced significant challenges", "overcame obstacles", "built strong networks", "learned from failures"]]
-        return random.sample(experiences, num_experiences)
+            experiences.extend([
+                "Contributed to suburban development",
+                "Participated in local schools",
+                "Supported suburban businesses",
+                "Engaged in community activities",
+                "Balanced suburban lifestyle"
+            ])
+        elif background == "rural":
+            experiences.extend([
+                "Worked in agricultural settings",
+                "Participated in rural development",
+                "Supported local farming",
+                "Engaged in rural traditions",
+                "Adapted to rural lifestyle"
+            ])
+        
+        # Sample 4-6 experiences
+        num_experiences = random.randint(4, 6)
+        return random.sample(experiences, min(num_experiences, len(experiences)))
     
     def generate_persona(self, background: Optional[str] = None) -> Persona:
         """Generate a complete persona."""
