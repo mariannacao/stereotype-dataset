@@ -9,7 +9,6 @@ from typing import List, Dict
 from dotenv import load_dotenv
 from agents.dialogue_manager import DialogueManager
 from utils.api_wrapper import OpenRouterAPI
-from utils.database import DialogueDatabase
 
 current_dir = os.getcwd()
 print(f"Current working directory: {current_dir}")
@@ -50,15 +49,14 @@ try:
             persona_pairs: List of tuples of persona IDs to use
             num_turns: Number of turns to generate
         """
-        manager = DialogueManager(db)
+        manager = DialogueManager()
         
         for persona_id, persona in persona_pairs:
             manager.add_persona(persona_id, persona)
         
         manager.start_dialogue(
             context=scenario.context,
-            goal=scenario.goal,
-            scenario_id=scenario_id
+            goal=scenario.goal
         )
         
         print(f"\nScenario: {scenario.name}")
@@ -83,16 +81,11 @@ try:
             print("- Language Authenticity:", result['analysis']['language_authenticity'])
             print("\n" + "-"*80)
         
-        # Finalize the dialogue and store the overall analysis
+        # Finalize the dialogue
         manager.finalize_dialogue()
-        
-        print("\nDialogue saved to database")
         print("\n" + "="*80)
 
     def main():
-        # Initialize database
-        db = DialogueDatabase()
-        
         # Load environment variables
         load_dotenv()
         
@@ -103,33 +96,12 @@ try:
         for category_id, category in STEREOTYPE_CATEGORIES.items():
             print(f"\nProcessing category: {category.name}")
             
-            # Insert stereotype category
-            category_id = db.insert_stereotype_category(category.name, category.description)
-            
             for scenario in category.scenarios:
-                # Insert scenario
-                scenario_id = db.insert_scenario(
-                    category_id=category_id,
-                    name=scenario.name,
-                    context=scenario.context,
-                    goal=scenario.goal
-                )
-                
                 # Use the personas specified in the scenario
                 persona_pairs = []
                 for persona_id in scenario.persona_ids:
                     if persona_id in EXAMPLE_PERSONAS:
                         persona = EXAMPLE_PERSONAS[persona_id]
-                        # Insert persona if not exists
-                        existing_persona = db.get_persona_by_name(persona.name)
-                        if not existing_persona:
-                            persona_id = db.insert_persona(
-                                name=persona.name,
-                                background=persona.background,
-                                personality_traits=persona.personality_traits
-                            )
-                        else:
-                            persona_id = existing_persona["id"]
                         persona_pairs.append((persona_id, persona))
                     else:
                         print(f"Warning: Persona ID '{persona_id}' not found in EXAMPLE_PERSONAS")
@@ -141,56 +113,10 @@ try:
                         ("urban_prof", EXAMPLE_PERSONAS["urban_professional"]),
                         ("rural_trade", EXAMPLE_PERSONAS["rural_tradesperson"])
                     ]
-                    for persona_id, persona in default_personas:
-                        existing_persona = db.get_persona_by_name(persona.name)
-                        if not existing_persona:
-                            persona_id = db.insert_persona(
-                                name=persona.name,
-                                background=persona.background,
-                                personality_traits=persona.personality_traits
-                            )
-                        else:
-                            persona_id = existing_persona["id"]
-                        persona_pairs.append((persona_id, persona))
+                    persona_pairs.extend(default_personas)
                 
                 # Generate dialogue
-                dialogue = generate_dialogue(scenario, persona_pairs)
-                
-                # Insert dialogue
-                dialogue_id = db.insert_dialogue(scenario_id)
-                
-                # Insert dialogue turns and analysis
-                for turn_num, turn in enumerate(dialogue["conversation"]):
-                    # Insert dialogue turn
-                    turn_id = db.insert_dialogue_turn(
-                        dialogue_id=dialogue_id,
-                        turn_number=turn_num,
-                        speaker_id=turn["persona_id"],
-                        content=turn["content"]
-                    )
-                    
-                    # Insert turn analysis
-                    for aspect, content in turn["analysis"].items():
-                        db.insert_analysis(
-                            dialogue_id=dialogue_id,
-                            turn_id=turn_id,
-                            aspect=aspect,
-                            content=content
-                        )
-                
-                # Insert overall analysis
-                for aspect, content in dialogue["analysis"].items():
-                    db.insert_analysis(
-                        dialogue_id=dialogue_id,
-                        turn_id=None,  # Overall analysis
-                        aspect=aspect,
-                        content=content
-                    )
-        
-        # Close database connection
-        db.close()
-        
-        print("\nAll dialogues saved to database")
+                generate_dialogue(scenario, persona_pairs)
 
     if __name__ == "__main__":
         main()
