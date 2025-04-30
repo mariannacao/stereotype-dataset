@@ -33,7 +33,7 @@ class OpenRouterAPI:
     def generate_response(self, 
                          messages: List[Dict[str, str]], 
                          temperature: float = 0.7,
-                         max_tokens: Optional[int] = 150,
+                         max_tokens: Optional[int] = None,
                          top_p: Optional[float] = None) -> Optional[str]:
         """
         Generate a response using the OpenRouter API with retry logic.
@@ -57,10 +57,11 @@ class OpenRouterAPI:
                     "model": self.model,
                     "messages": messages,
                     "temperature": temperature,
-                    "max_tokens": max_tokens
                 }
                 
                 # Add optional parameters if specified
+                if max_tokens is not None:
+                    params["max_tokens"] = max_tokens
                 if top_p is not None:
                     params["top_p"] = top_p
                 
@@ -104,10 +105,9 @@ class OpenRouterAPI:
         Returns:
             Generated dialogue turn or a fallback message if generation fails
         """
-        # Format conversation history (keep only last 3 turns to save tokens)
-        recent_history = conversation_history[-3:] if len(conversation_history) > 3 else conversation_history
+        # Format conversation history into role/content format expected by API
         formatted_history = []
-        for msg in recent_history:
+        for msg in conversation_history:
             formatted_history.append({
                 "role": "assistant" if msg.get("speaker") else "user",
                 "content": f"{msg.get('speaker', 'Unknown')}: {msg.get('content', '')}"
@@ -116,10 +116,10 @@ class OpenRouterAPI:
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Persona:\n{persona_description}\n\nConversation history:\n" + 
-             "\n".join([f"{m.get('speaker', 'Unknown')}: {m.get('content', '')}" for m in recent_history])}
+             "\n".join([f"{m.get('speaker', 'Unknown')}: {m.get('content', '')}" for m in conversation_history])}
         ]
         
-        response = self.generate_response(messages, temperature=0.7, max_tokens=150)
+        response = self.generate_response(messages, temperature=0.7)
         
         if response is None:
             # Return a fallback response if API calls fail

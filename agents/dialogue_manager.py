@@ -2,16 +2,13 @@ from typing import Dict, List, Optional
 from config.personas import Persona
 from agents.generation_agent import GenerationAgent
 from agents.monitoring_agent import MonitoringAgent
-from utils.database import DialogueDatabase
 
 class DialogueManager:
-    def __init__(self, db: DialogueDatabase):
+    def __init__(self):
         self.generation_agent = GenerationAgent()
         self.monitoring_agent = MonitoringAgent()
         self.conversation_history: List[Dict[str, str]] = []
         self.active_personas: Dict[str, Persona] = {}
-        self.db = db
-        self.dialogue_id = None
         
     def add_persona(self, persona_id: str, persona: Persona):
         """Add a persona to the dialogue."""
@@ -19,14 +16,11 @@ class DialogueManager:
     
     def start_dialogue(self, 
                       context: str = "",
-                      goal: str = "",
-                      scenario_id: int = None) -> None:
+                      goal: str = "") -> None:
         """Start a new dialogue session."""
         self.conversation_history = []
         self._context = context
         self._goal = goal
-        if scenario_id:
-            self.dialogue_id = self.db.insert_dialogue(scenario_id)
     
     def generate_turn(self, speaking_persona_id: str) -> Dict[str, any]:
         """
@@ -47,8 +41,8 @@ class DialogueManager:
         turn_content = self.generation_agent.generate_turn(
             speaking_persona=speaking_persona,
             conversation_history=self.conversation_history,
-            context=self._context,
-            goal=self._goal
+            dialogue_context=self._context,
+            dialogue_goal=self._goal
         )
         
         # Validate the turn
@@ -62,8 +56,8 @@ class DialogueManager:
             turn_content = self.generation_agent.generate_turn(
                 speaking_persona=speaking_persona,
                 conversation_history=self.conversation_history,
-                context=f"{self._context}\nNote: Previous attempt was invalid because: {validation_reason}",
-                goal=self._goal
+                dialogue_context=f"{self._context}\nNote: Previous attempt was invalid because: {validation_reason}",
+                dialogue_goal=self._goal
             )
         
         # Analyze the turn
@@ -74,30 +68,11 @@ class DialogueManager:
         )
         
         # Add to conversation history
-        turn_data = {
+        self.conversation_history.append({
             "speaker": speaking_persona.name,
             "content": turn_content,
             "persona_id": speaking_persona_id
-        }
-        self.conversation_history.append(turn_data)
-        
-        # Store in database if dialogue_id exists
-        if self.dialogue_id:
-            turn_id = self.db.insert_dialogue_turn(
-                dialogue_id=self.dialogue_id,
-                turn_number=len(self.conversation_history) - 1,
-                speaker_id=speaking_persona_id,
-                content=turn_content
-            )
-            
-            # Store turn analysis
-            for aspect, content in analysis.items():
-                self.db.insert_analysis(
-                    dialogue_id=self.dialogue_id,
-                    turn_id=turn_id,
-                    aspect=aspect,
-                    content=content
-                )
+        })
         
         return {
             "content": turn_content,
@@ -111,22 +86,21 @@ class DialogueManager:
         """Get the current conversation history."""
         return self.conversation_history
     
-    def finalize_dialogue(self) -> None:
-        """Store the final conversation analysis in the database."""
-        if not self.dialogue_id:
-            return
-            
+    def export_dialogue(self) -> Dict[str, any]:
+        """Export the complete dialogue with metadata."""
         # Analyze the entire conversation for overall patterns
         conversation_analysis = self._analyze_conversation()
         
-        # Store overall analysis
-        for aspect, content in conversation_analysis.items():
-            self.db.insert_analysis(
-                dialogue_id=self.dialogue_id,
-                turn_id=None,  # Overall analysis
-                aspect=aspect,
-                content=content
-            )
+        return {
+            "context": self._context,
+            "goal": self._goal,
+            "personas": {
+                pid: persona.to_dict() 
+                for pid, persona in self.active_personas.items()
+            },
+            "conversation": self.conversation_history,
+            "analysis": conversation_analysis
+        }
         
     def _analyze_conversation(self) -> Dict[str, any]:
         """Analyze the entire conversation for overall patterns and trends."""

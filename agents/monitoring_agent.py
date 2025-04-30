@@ -6,14 +6,19 @@ class MonitoringAgent:
     def __init__(self, api_client: OpenRouterAPI = None):
         self.api_client = api_client or OpenRouterAPI()
         
-        self.analysis_prompts = {
-            "persona_consistency": """Analyze if the response aligns with the persona's characteristics. Focus on key traits and background.""",
-            "stereotype_patterns": """Identify any implicit stereotypes in the response. Look for assumptions about groups or individuals.""",
-            "language_authenticity": """Check if the language matches the persona's background and communication style."""
-        }
+        self.system_prompt = """You are a dialogue monitoring agent that analyzes conversation turns for:
+        1. Persona consistency - ensuring speakers maintain their established attributes and traits
+        2. Stereotype patterns - identifying and tracking implicit biases and stereotypes
+        3. Language authenticity - verifying that language use matches the speaker's background
         
-        self.analysis_system_prompt = """You are an expert at analyzing dialogue for persona consistency and stereotype patterns. 
-        Provide concise, focused analysis in 1-2 sentences per aspect."""
+        For stereotype analysis, focus on:
+        - Implicit biases that may be expressed
+        - Stereotypical assumptions about groups
+        - Microaggressions or subtle discriminatory language
+        - Cultural or social biases
+        - Power dynamics in the conversation
+        
+        Provide a structured assessment with specific examples from the dialogue."""
     
     def analyze_turn(self, 
                     turn_content: str,
@@ -30,68 +35,71 @@ class MonitoringAgent:
         Returns:
             Dictionary containing analysis results
         """
-        analysis = {}
+        analysis_prompt = f"""
+        Analyze this dialogue turn for persona consistency and stereotype patterns.
         
-        # Prepare the analysis context
-        context = f"Persona: {speaking_persona.name}\nBackground: {speaking_persona.background}\nTraits: {', '.join(speaking_persona.personality_traits)}\n\n"
-        context += f"Current Turn: {turn_content}\n\n"
+        Speaking Persona:
+        {speaking_persona.get_prompt_description()}
         
-        # Analyze each aspect
-        for aspect, prompt in self.analysis_prompts.items():
+        Current Turn:
+        {turn_content}
+        
+        Previous Context:
+        {self._format_history(conversation_history)}
+        
+        Provide analysis in the following areas:
+        
+        1. Persona Consistency
+           - Does the turn align with the persona's background, values, and communication style?
+           - Are there any inconsistencies with the persona's established traits?
+        
+        2. Stereotype Patterns
+           - Identify any implicit biases or stereotypes expressed in the turn
+           - Note any assumptions about social groups, cultural backgrounds, or identities
+           - Highlight microaggressions or subtle discriminatory language
+           - Analyze power dynamics in the conversation
+           - Consider how the turn might perpetuate or challenge stereotypes
+        
+        3. Language Authenticity
+           - Does the language use match the persona's background and education level?
+           - Are there any anachronisms or inconsistencies in vocabulary or tone?
+           - Does the communication style reflect the persona's cultural background?
+        """
+        
+        try:
             messages = [
-                {"role": "system", "content": self.analysis_system_prompt},
-                {"role": "user", "content": context + prompt}
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": analysis_prompt}
             ]
             
-            try:
-                response = self.api_client.generate_response(messages, temperature=0.3)
-                analysis[aspect] = response if response else "Analysis failed"
-            except Exception as e:
-                print(f"Error in {aspect} analysis: {str(e)}")
-                analysis[aspect] = "Analysis error"
-        
-        return analysis
+            analysis = self.api_client.generate_response(messages)
+            return self._parse_analysis(analysis)
+        except Exception as e:
+            print(f"Error analyzing turn: {str(e)}")
+            return {
+                "persona_consistency": f"Analysis failed: {str(e)}",
+                "stereotype_patterns": "Analysis failed due to an error",
+                "language_authenticity": "Analysis failed due to an error"
+            }
     
-    def analyze_conversation(self, 
-                           dialogue: List[Dict[str, str]], 
-                           personas: Dict[str, Persona]) -> Dict[str, str]:
-        """
-        Analyze the complete conversation for overall patterns and dynamics.
-        
-        Args:
-            dialogue: Complete conversation
-            personas: Dictionary of participating personas
+    def _parse_analysis(self, analysis_text: str) -> Dict[str, any]:
+        """Parse the raw analysis text into a structured format."""
+        # Handle None or empty analysis text
+        if not analysis_text:
+            return {
+                "persona_consistency": "Analysis failed - no response received",
+                "stereotype_patterns": "Analysis failed - no response received",
+                "language_authenticity": "Analysis failed - no response received"
+            }
             
-        Returns:
-            Dictionary containing overall analysis
-        """
-        # Prepare conversation context
-        context = "Complete Conversation:\n"
-        for turn in dialogue:
-            context += f"{turn['speaker']}: {turn['content']}\n"
-        
-        # Analyze overall patterns
-        analysis_prompts = {
-            "stereotype_patterns": "Identify recurring stereotype patterns in the conversation.",
-            "persona_consistency": "Evaluate overall consistency of personas throughout the dialogue.",
-            "conversation_dynamics": "Analyze how the conversation evolved and the interaction between personas."
+        # TODO: Implement more sophisticated parsing
+        sections = analysis_text.split("\n\n")
+        result = {
+            "persona_consistency": sections[0] if len(sections) > 0 else "",
+            "stereotype_patterns": sections[1] if len(sections) > 1 else "",
+            "language_authenticity": sections[2] if len(sections) > 2 else ""
         }
-        
-        overall_analysis = {}
-        for aspect, prompt in analysis_prompts.items():
-            messages = [
-                {"role": "system", "content": self.analysis_system_prompt},
-                {"role": "user", "content": context + "\n" + prompt}
-            ]
-            
-            try:
-                response = self.api_client.generate_response(messages, temperature=0.3)
-                overall_analysis[aspect] = response if response else "Analysis failed"
-            except Exception as e:
-                print(f"Error in {aspect} analysis: {str(e)}")
-                overall_analysis[aspect] = "Analysis error"
-        
-        return overall_analysis
+        return result
     
     def _format_history(self, history: List[Dict[str, str]]) -> str:
         """Format conversation history for analysis."""
