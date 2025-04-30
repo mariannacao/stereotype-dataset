@@ -1,4 +1,4 @@
-# Persuasion Dialogue Framework with Persona and Stereotype Awareness
+# Multiturn Dialogue Generation Framework with Implicit Stereotype Analysis
 
 ## Project Overview
 
