@@ -4,9 +4,7 @@
 
 This project implements a sophisticated dialogue generation framework that explores how persuasive language and implicit stereotypes manifest in conversations between personas with different backgrounds. The framework uses a multi-agent architecture to generate, monitor, and analyze dialogues while maintaining persona consistency and tracking stereotype patterns.
 
-## Technical Implementation
-
-### LLM Configuration
+## LLM Configuration
 
 We use OpenRouter as our API gateway to access language models. The current configuration uses:
 
@@ -25,84 +23,146 @@ We use OpenRouter as our API gateway to access language models. The current conf
   - Configuration managed via environment variables in `.env`
   - Robust error handling with retry logic
 
-### Core Components
+### Token Usage and Costs
 
-#### 1. Stereotype Categories (`config/stereotype_categories.py`)
+#### Per-Turn Token Usage (Approximate)
 
+1. **Generation**:
+   - System prompt: ~100 tokens
+   - Persona description: ~50-100 tokens
+   - Conversation history: Varies (~50 tokens per turn)
+   - Generated response: ~50-150 tokens
+
+2. **Analysis**:
+   - Consistency check: ~200 tokens
+   - Stereotype analysis: ~200 tokens
+   - Language authenticity: ~200 tokens
+
+Total per turn: ~850-1000 tokens
+
+#### Cost Considerations
+
+Using the free tier of DeepSeek's model through OpenRouter allows for:
+- Testing and development
+- Small dataset generation
+- Proof of concept work
+
+## Project Structure
+
+```
+stereotype-dialogue/
+├── agents/                    # Core dialogue generation and management
+│   ├── dialogue_manager.py    # Orchestrates dialogue generation
+│   ├── generation_agent.py    # Generates dialogue turns
+│   ├── monitoring_agent.py    # Analyzes dialogue quality
+│   └── dialogue_agent.py      # Base agent class
+├── config/                    # Configuration and data
+│   ├── personas.py           # Persona definitions
+│   ├── dialogue_contexts.py  # Dialogue scenarios
+│   ├── stereotype_categories.py # Stereotype categories
+│   └── persona_generator.py  # Persona generation utilities
+├── utils/                    # Utility functions
+│   └── api_wrapper.py       # API integration
+├── prompts/                  # Prompt templates
+│   ├── templates.py         # Base templates
+│   └── prompt_templates.py  # Specialized templates
+├── output/                   # Raw dialogue outputs
+├── output-archive/          # Archived dialogue outputs
+├── main.py                  # Main execution script
+├── format_dialogues.py      # Dialogue formatting utility
+├── generate_summary.py      # Analysis summary generator
+└── requirements.txt         # Project dependencies
+```
+
+## Core Components
+
+### 1. Stereotype Categories (`config/stereotype_categories.py`)
 Eight fundamental dimensions of stereotypes:
-- **Gender**: Gender identity and expression stereotypes
-- **Race/Ethnicity**: Racial and ethnic identity stereotypes
-- **Socioeconomic**: Social class and economic status stereotypes
-- **Age**: Age and generational difference stereotypes
-- **Religion**: Religious beliefs and practices stereotypes
-- **Disability**: Physical and cognitive abilities stereotypes
-- **Education**: Educational attainment stereotypes
-- **Regional**: Geographic location and cultural background stereotypes
+- Gender identity and expression
+- Race and ethnic identity
+- Social class and economic status
+- Age and generational differences
+- Religious beliefs and practices
+- Physical and cognitive abilities
+- Educational attainment
+- Geographic location and cultural background
 
-Each category includes:
-- Clear description
-- Multiple scenarios
-- Suggested discussion topics
-- Potential conflict areas
+### 2. Persona Management (`config/personas.py`, `config/persona_generator.py`)
+- Structured persona definitions with attributes
+- Background generation
+- Personality traits and communication styles
+- Value systems and experiences
 
-#### 2. Persona Management (`config/personas.py`)
+### 3. Dialogue Generation (`agents/`)
+- **DialogueManager**: Orchestrates the generation process
+- **GenerationAgent**: Produces contextually appropriate dialogue turns
+- **MonitoringAgent**: Ensures quality and tracks patterns
+- **DialogueAgent**: Base class for agent functionality
 
-- **Classes**:
-  - `PersonaAttribute`: Represents individual persona characteristics
-  - `Persona`: Complete persona definition with attributes, background, and traits
-  
-- **Features**:
-  - Structured attribute storage
-  - Natural language description generation
-  - JSON serialization support
-  - Example personas with diverse backgrounds
+### 4. API Integration (`utils/api_wrapper.py`)
+- OpenRouter API integration
+- Environment variable management
+- Error handling and retry logic
+- Response formatting
 
-#### 3. API Integration (`utils/api_wrapper.py`)
+## Output Organization
 
-- **Class**: `OpenRouterAPI`
-- **Key Features**:
-  - Environment variable management
-  - Configurable API parameters
-  - Robust error handling:
-    - Automatic retries (3 attempts)
-    - Exponential backoff (2s, 4s, 8s)
-    - Detailed error logging
-    - Fallback responses
-  - Message formatting for API calls
-  - Support for temperature and sampling parameters
+The framework organizes outputs in two ways:
 
-#### 4. Generation Agent (`agents/generation_agent.py`)
+1. **Raw Outputs** (`output/`):
+   - Individual JSON files for each dialogue
+   - Named with pattern: `{category_id}_{scenario_name}_{timestamp}.json`
 
-- **Purpose**: Produces contextually appropriate dialogue turns
-- **Features**:
-  - Persona-aware generation
-  - Context maintenance
-  - System prompt engineering
-  - Temperature control for output variation
-  - Error recovery mechanisms
+2. **Analysis Outputs** (`output-archive/dialogue_outputs_*`):
+   - Timestamped directories for each generation run
+   - Contains:
+     - `_dataset_info.json`: Metadata about all dialogues
+     - Category-specific subdirectories
+     - Analysis summaries and formatted outputs
 
-#### 5. Monitoring Agent (`agents/monitoring_agent.py`)
+## Usage
 
-- **Purpose**: Ensures dialogue quality and tracks patterns
-- **Analysis Areas**:
-  - Persona consistency checking
-  - Stereotype pattern identification
-  - Language authenticity validation
-  - Turn-by-turn analysis
+### Environment Setup
 
-#### 6. Dialogue Manager (`agents/dialogue_manager.py`)
+1. Create `.env` file with:
+```
+OPENROUTER_API_KEY=your_api_key
+OPENROUTER_REFERER=http://localhost:3000
+OPENROUTER_TITLE=PersuasionDialogue
+OPENROUTER_MODEL=deepseek/deepseek-chat-v3-0324:free
+```
 
-- **Purpose**: Orchestrates the dialogue generation process
-- **Features**:
-  - Turn management
-  - Persona tracking
-  - Dialogue context maintenance
-  - Export functionality
-  - Invalid turn handling and regeneration
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-### Data Structures
+### Running the Framework
 
-#### 1. Persona Definition
+1. Generate dialogues:
+```bash
+python main.py
+```
+
+2. Format dialogues for analysis:
+```bash
+python format_dialogues.py
+```
+
+3. Generate analysis summaries:
+```bash
+python generate_summary.py
+```
+
+## Dependencies
+
+- openai>=1.0.0: OpenAI API client
+- python-dotenv: Environment variable management
+- requests: HTTP requests
+
+## Data Structures
+
+### Persona Definition
 ```python
 {
     "name": str,
@@ -129,7 +189,7 @@ Each category includes:
 }
 ```
 
-#### 2. Dialogue Turn
+### Dialogue Turn
 ```python
 {
     "speaker": str,
@@ -143,7 +203,7 @@ Each category includes:
 }
 ```
 
-#### 3. Complete Dialogue Export
+### Complete Dialogue Export
 ```python
 {
     "context": str,
@@ -157,25 +217,7 @@ Each category includes:
 }
 ```
 
-### Output Organization
-
-The framework organizes outputs by stereotype categories:
-
-```
-dialogue_outputs_[timestamp]/
-├── gender/
-│   ├── _category_info.json
-│   ├── leadership_competence.json
-│   └── work_life_balance.json
-├── race_ethnicity/
-│   ├── _category_info.json
-│   ├── academic_achievement.json
-│   └── professional_competence.json
-...
-└── _dataset_info.json
-```
-
-### Error Handling
+## Error Handling
 
 The framework implements robust error handling:
 
@@ -196,166 +238,3 @@ The framework implements robust error handling:
    - Directory creation checks
    - JSON validation
    - Error recovery
-
-## Usage
-
-### Environment Setup
-
-1. Create `.env` file with:
-```
-OPENROUTER_API_KEY=your_api_key
-OPENROUTER_REFERER=http://localhost:3000
-OPENROUTER_TITLE=PersuasionDialogue
-OPENROUTER_MODEL=deepseek/deepseek-chat-v3-0324:free
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-### Running the Framework
-
-Basic usage:
-```python
-python main.py
-```
-
-This will:
-1. Initialize the dialogue manager
-2. Load predefined personas
-3. Generate dialogues for each stereotype category
-4. Perform analysis
-5. Save results in organized directories
-
-### Dataset Generation
-
-The framework supports systematic dataset generation:
-1. Multiple stereotype categories
-2. Diverse scenarios per category
-3. Various persona combinations
-4. Comprehensive analysis
-5. Organized output structure
-
-## Dependencies
-
-- openai>=1.0.0: OpenAI API client
-- python-dotenv: Environment variable management
-- requests: HTTP requests
-
-## Project Structure
-```
-stereotype-dialogue/
-├── agents/
-│   ├── __init__.py
-│   ├── dialogue_manager.py
-│   ├── generation_agent.py
-│   └── monitoring_agent.py
-├── config/
-│   ├── __init__.py
-│   ├── personas.py
-│   ├── dialogue_contexts.py
-│   └── stereotype_categories.py
-├── utils/
-│   ├── __init__.py
-│   └── api_wrapper.py
-├── prompts/
-│   └── __init__.py
-├── .env
-├── .gitignore
-├── main.py
-├── requirements.txt
-└── README.md
-```
-
-## Token Usage and Costs
-
-### Per-Turn Token Usage (Approximate)
-
-1. **Generation**:
-   - System prompt: ~100 tokens
-   - Persona description: ~50-100 tokens
-   - Conversation history: Varies (~50 tokens per turn)
-   - Generated response: ~50-150 tokens
-
-2. **Analysis**:
-   - Consistency check: ~200 tokens
-   - Stereotype analysis: ~200 tokens
-   - Language authenticity: ~200 tokens
-
-Total per turn: ~850-1000 tokens
-
-### Cost Considerations
-
-Using the free tier of DeepSeek's model through OpenRouter allows for:
-- Testing and development
-- Small dataset generation
-- Proof of concept work
-
-## Generation Order
-
-The dialogues are generated in the following order of stereotype categories:
-
-1. Gender Stereotypes
-2. Race and Ethnicity Stereotypes
-3. Socioeconomic Status Stereotypes
-4. Age Stereotypes
-5. Religious Stereotypes
-6. Disability Stereotypes
-7. Education Level Stereotypes
-
-Each category contains two scenarios, and the generation process follows this order. If the generation gets cut off, you can identify which category was being processed by checking the output files and their timestamps.
-
-## Setup
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Create a `.env` file with your OpenRouter API key:
-   ```
-   OPENROUTER_API_KEY=your_api_key_here
-   OPENROUTER_REFERER=http://localhost:3000
-   OPENROUTER_TITLE=PersuasionDialogue
-   OPENROUTER_MODEL=deepseek/deepseek-chat-v3-0324:free
-   ```
-
-## Usage
-
-Run the main script:
-```bash
-python main.py
-```
-
-This will:
-1. Generate dialogues for each stereotype category
-2. Save them in JSON format
-3. Convert them to text format
-4. Create a structured output directory
-
-## Output Structure
-
-The script creates a directory named `dialogue_outputs_[timestamp]` containing:
-- A subdirectory for each stereotype category
-- JSON files for each dialogue
-- Text files for each dialogue
-- Metadata files with analysis information
-
-## Analysis
-
-The system analyzes each dialogue for:
-- Stereotype patterns
-- Persona consistency
-- Language authenticity
-- Conversation dynamics
-
-## Requirements
-
-- Python 3.8+
-- OpenRouter API key
-- Dependencies listed in requirements.txt
-
-## License
-
-MIT License
