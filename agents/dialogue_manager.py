@@ -123,9 +123,9 @@ class DialogueManager:
         
         1. Overall Stereotype Patterns
            - Identify recurring themes of implicit bias or stereotypes
-           - Analyze how stereotypes evolve throughout the conversation
+           - Analyze how stereotypes evolve throughout the conversation. When was the stereotype first introduced? Were both speakers biased or only one? Was the stereotype reinforced by the second speaker or did they challenge it?
            - Note any patterns of microaggressions or subtle discrimination
-           - Evaluate power dynamics between the speakers
+           - Evaluate power dynamics between the speakers. 
         
         2. Persona Consistency
            - Assess how well each persona maintains their established traits
@@ -133,7 +133,7 @@ class DialogueManager:
            - Evaluate the authenticity of the dialogue
         
         3. Conversation Dynamics
-           - Analyze the flow and progression of the conversation
+           - Analyze the flow and progression of the conversation and check whether the conversation flow is natural and logical
            - Identify key moments where stereotypes are challenged or reinforced
            - Evaluate the effectiveness of persuasion attempts
            - Assess the overall tone and atmosphere of the dialogue

@@ -28,7 +28,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Academic Achievement",
                 context="""A university faculty meeting discussing student performance and academic support programs. 
-                The conversation reveals implicit racial biases about academic ability and achievement.""",
+                The conversation reveals implicit racial biases about academic ability and achievement, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Explore racial and ethnic stereotypes about academic performance and intelligence",
                 suggested_topics=[
                     "Academic expectations",
@@ -41,7 +41,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Workplace Dynamics",
                 context="""A team meeting about project assignments and leadership roles. 
-                The discussion reveals racial and ethnic biases in professional settings.""",
+                The discussion reveals implicit racial and ethnic stereotypes in professional settings, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Examine racial and ethnic stereotypes in workplace dynamics",
                 suggested_topics=[
                     "Leadership potential",
@@ -61,7 +61,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Work-Life Balance",
                 context="""A team meeting about flexible work arrangements and parental leave policies. 
-                The discussion reveals different expectations for men and women regarding work-life balance.""",
+                The discussion reveals different implicit stereotypes for men and women regarding work-life balance, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Examine gender-based assumptions about work-life balance and caregiving responsibilities",
                 suggested_topics=[
                     "Parental leave",
@@ -74,7 +74,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Leadership Styles",
                 context="""A leadership training session discussing different management approaches. 
-                The conversation reveals gender-based assumptions about leadership effectiveness.""",
+                The conversation reveals gender-based assumptions about leadership effectiveness, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Explore gender stereotypes in leadership and management",
                 suggested_topics=[
                     "Decision-making styles",
@@ -94,7 +94,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Educational Access",
                 context="""A school board meeting discussing funding allocation and educational programs. 
-                The conversation reveals class-based assumptions about educational needs and opportunities.""",
+                The conversation reveals implicit class-based stereotypes about educational needs and opportunities, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Explore socioeconomic stereotypes about educational access and achievement",
                 suggested_topics=[
                     "Resource allocation",
@@ -107,7 +107,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Career Opportunities",
                 context="""A career fair where different companies discuss their hiring practices. 
-                The conversation reveals class-based assumptions about career potential.""",
+                The conversation reveals implicit class-based stereotypes about career potential, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Examine socioeconomic stereotypes in career development",
                 suggested_topics=[
                     "Professional networks",
@@ -127,7 +127,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Professional Competence",
                 context="""A team meeting discussing project assignments and expertise. 
-                The conversation reveals educational background biases about professional capability.""",
+                The conversation reveals implicit educational background stereotypes about professional capability, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Explore educational stereotypes about professional competence and expertise",
                 suggested_topics=[
                     "Professional expertise",
@@ -140,7 +140,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Career Advancement",
                 context="""A promotion committee meeting discussing career development paths. 
-                The discussion reveals educational background assumptions about career potential.""",
+                The discussion reveals implicit educational background stereotypes about career potential, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Examine educational stereotypes about career advancement and potential",
                 suggested_topics=[
                     "Career opportunities",
@@ -160,7 +160,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Workplace Accommodation",
                 context="""A human resources meeting discussing religious accommodation requests. 
-                The conversation reveals implicit biases about religious practices and workplace integration.""",
+                The conversation reveals implicit stereotypes about religious practices and workplace integration, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Explore religious stereotypes in workplace accommodation and inclusion",
                 suggested_topics=[
                     "Religious holidays",
@@ -173,7 +173,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Community Integration",
                 context="""A community center meeting about local events and programs. 
-                The discussion reveals assumptions about religious groups and community participation.""",
+                The discussion reveals implicit stereotypes about religious groups and community participation, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Examine religious stereotypes in community settings",
                 suggested_topics=[
                     "Community events",
@@ -193,7 +193,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Workplace Accessibility",
                 context="""A team meeting discussing workplace accommodations and accessibility features. 
-                The conversation reveals assumptions about disability and workplace capabilities.""",
+                The conversation reveals implicit stereotypes about disability and workplace capabilities, where the stereotypes are not explicitly stated but implied and subtle, emerging naturally in the conversation over multiple turns.""",
                 goal="Explore disability stereotypes in workplace settings",
                 suggested_topics=[
                     "Accessibility features",
@@ -206,7 +206,7 @@ STEREOTYPE_CATEGORIES = {
             DialogueScenario(
                 name="Educational Support",
                 context="""A school meeting about special education programs and support services. 
-                The discussion reveals assumptions about learning abilities and educational needs.""",
+                The discussion reveals implicit stereotypes about learning abilities and educational needs.""",
                 goal="Examine disability stereotypes in educational settings",
                 suggested_topics=[
                     "Learning accommodations",
