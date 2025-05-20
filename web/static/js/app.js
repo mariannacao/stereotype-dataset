@@ -114,20 +114,27 @@ async function loadScenarios() {
         const response = await fetch('/api/scenarios');
         scenarios = await response.json();
         
-        const categories = [...new Set(scenarios.map(s => s.category_name))];
+        const categories = [...new Set(scenarios.map(s => s.category_id))];
         categorySelect.innerHTML = `
             <option value="">Select a category...</option>
-            ${categories.map(category => `
-                <option value="${category}">${category}</option>
-            `).join('')}
+            ${categories.map(categoryId => {
+                const category = scenarios.find(s => s.category_id === categoryId);
+                return `<option value="${categoryId}">${category.category_name}</option>`;
+            }).join('')}
         `;
     } catch (error) {
         console.error('Error loading scenarios:', error);
     }
 }
 
-function updateScenarioSelect(category) {
-    const filteredScenarios = scenarios.filter(s => s.category_name === category);
+function updateScenarioSelect(categoryId) {
+    let filteredScenarios;
+    if (categoryId === 'all') {
+        filteredScenarios = scenarios.filter(s => s.category_id !== 'all');
+    } else {
+        filteredScenarios = scenarios.filter(s => s.category_id === categoryId);
+    }
+    
     scenarioSelect.innerHTML = `
         <option value="">Select a scenario...</option>
         ${filteredScenarios.map(scenario => `
@@ -141,10 +148,10 @@ categorySelect.addEventListener('change', (e) => {
 });
 
 generateBtn.addEventListener('click', () => {
-    const category = categorySelect.value;
+    const categoryId = categorySelect.value;
     const scenarioId = scenarioSelect.value;
     
-    if (!category || !scenarioId) {
+    if (!categoryId || !scenarioId) {
         alert('Please select both a category and a scenario');
         return;
     }
@@ -155,7 +162,7 @@ generateBtn.addEventListener('click', () => {
     generateBtn.disabled = true;
     
     ws.send(JSON.stringify({
-        category_id: category,
+        category_id: categoryId,
         scenario_id: scenarioId
     }));
 });

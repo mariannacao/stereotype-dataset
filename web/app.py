@@ -52,13 +52,21 @@ async def websocket_endpoint(websocket: WebSocket):
             category_id = data.get("category_id")
             
             scenario = None
-            for category in STEREOTYPE_CATEGORIES.values():
-                if category.id == category_id:
+            if category_id == "all":
+                for category in STEREOTYPE_CATEGORIES.values():
                     for s in category.scenarios:
-                        if s.id == scenario_id:
+                        if s.name.lower().replace(' ', '_') == scenario_id:
                             scenario = s
                             break
-                    break
+                    if scenario:
+                        break
+            else:
+                category = STEREOTYPE_CATEGORIES.get(category_id)
+                if category:
+                    for s in category.scenarios:
+                        if s.name.lower().replace(' ', '_') == scenario_id:
+                            scenario = s
+                            break
             
             if not scenario:
                 await websocket.send_json({
@@ -114,12 +122,20 @@ async def websocket_endpoint(websocket: WebSocket):
 async def get_scenarios():
     """Get available dialogue scenarios."""
     scenarios = []
-    for category in STEREOTYPE_CATEGORIES.values():
+    
+    scenarios.append({
+        "id": "all",
+        "name": "All Categories",
+        "category_id": "all",
+        "category_name": "All Categories"
+    })
+    
+    for category_id, category in STEREOTYPE_CATEGORIES.items():
         for scenario in category.scenarios:
             scenarios.append({
-                "id": scenario.id,
+                "id": scenario.name.lower().replace(' ', '_'),
                 "name": scenario.name,
-                "category_id": category.id,
+                "category_id": category_id,
                 "category_name": category.name
             })
     return scenarios 
