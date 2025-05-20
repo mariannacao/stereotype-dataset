@@ -33,6 +33,8 @@ function initWebSocket() {
 }
 
 function handleWebSocketMessage(data) {
+    console.log('Received WebSocket message:', data);  
+    
     switch (data.type) {
         case 'metadata':
             addPersonaMetadata(data.personas);
@@ -141,19 +143,7 @@ function addDialogueTurn(data) {
     const turnDiv = document.createElement('div');
     turnDiv.className = `dialogue-turn ${data.persona_id}`;
     
-    let text = '';
-    try {
-        if (typeof data.content === 'string') {
-            text = data.content;
-        } else if (typeof data.content === 'object') {
-            text = data.content.content || JSON.stringify(data.content);
-        } else {
-            text = JSON.stringify(data.content);
-        }
-    } catch (e) {
-        console.error('Error parsing dialogue text:', e);
-        text = 'Error displaying dialogue';
-    }
+    let text = data.content;
     
     if (data.turn_analysis && data.turn_analysis.stereotype_quotes && data.turn_analysis.stereotype_quotes.length > 0) {
         data.turn_analysis.stereotype_quotes.forEach(quote => {
@@ -163,12 +153,8 @@ function addDialogueTurn(data) {
         });
     }
     
-    const personaNumber = parseInt(data.persona_id.replace('persona', ''));
-    const personaCard = document.querySelector(`.persona-card:nth-child(${personaNumber}) h3`);
-    const personaName = personaCard ? personaCard.textContent : data.speaker;
-    
     turnDiv.innerHTML = `
-        <div class="font-semibold mb-2">${personaName}</div>
+        <div class="font-semibold mb-2">${data.speaker}</div>
         <div class="whitespace-pre-wrap">${text}</div>
     `;
     
@@ -178,36 +164,27 @@ function addDialogueTurn(data) {
 
 function addAnalysisItem(data) {
     const analysisDiv = document.createElement('div');
-    analysisDiv.className = `analysis-item ${data.analysis.stereotype_detected ? 'stereotype-detected' : 'no-stereotype'}`;
-    
-    let analysisText = '';
-    try {
-        if (data.text && data.text.turn_analysis) {
-            analysisText = data.text.turn_analysis.stereotype_analysis || 
-                          data.text.turn_analysis.persona_consistency || '';
-        }
-    } catch (e) {
-        console.error('Error parsing analysis:', e);
-    }
+    analysisDiv.className = `analysis-item ${data.turn_analysis.stereotype_quotes.length > 0 ? 'stereotype-detected' : 'no-stereotype'}`;
     
     analysisDiv.innerHTML = `
-        <div class="font-semibold mb-2">${data.persona}'s Turn Analysis</div>
+        <div class="font-semibold mb-2">${data.speaker}'s Turn Analysis</div>
         <div class="text-sm">
-            <p>Stereotype Detected: ${data.analysis.stereotype_detected ? 'Yes' : 'No'}</p>
-            <p>Confidence: ${(data.analysis.confidence * 100).toFixed(1)}%</p>
-            ${analysisText ? `
+            <p>Stereotype Detected: ${data.turn_analysis.stereotype_quotes.length > 0 ? 'Yes' : 'No'}</p>
+            ${data.turn_analysis.stereotype_analysis ? `
                 <div class="mt-2 p-2 bg-gray-50 rounded">
                     <p class="font-medium">Analysis:</p>
-                    <p class="whitespace-pre-wrap">${analysisText}</p>
+                    <p class="whitespace-pre-wrap">${data.turn_analysis.stereotype_analysis}</p>
                 </div>
             ` : ''}
-            ${data.analysis.highlighted_segments && data.analysis.highlighted_segments.length > 0 ? `
-                <p class="mt-2">Highlighted Segments:</p>
-                <ul class="list-disc list-inside">
-                    ${data.analysis.highlighted_segments.map(segment => 
-                        `<li>${segment.text}</li>`
-                    ).join('')}
-                </ul>
+            ${data.turn_analysis.stereotype_quotes.length > 0 ? `
+                <div class="mt-2">
+                    <p class="font-medium">Stereotype Quotes:</p>
+                    <ul class="list-disc list-inside">
+                        ${data.turn_analysis.stereotype_quotes.map(quote => 
+                            `<li>${quote}</li>`
+                        ).join('')}
+                    </ul>
+                </div>
             ` : ''}
         </div>
     `;

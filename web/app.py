@@ -94,12 +94,9 @@ async def websocket_endpoint(websocket: WebSocket):
             
             personas = []
             for i, background in enumerate(scenario.persona_backgrounds):
-                persona_name = f"Person {i+1}"  
-                personas.append({
-                    "name": persona_name,
-                    "background": background
-                })
                 dialogue_manager.add_persona(f"persona{i+1}", background=background)
+                persona = dialogue_manager.active_personas[f"persona{i+1}"]
+                personas.append(persona.to_dict())
             
             await websocket.send_json({
                 "type": "metadata",
@@ -111,48 +108,16 @@ async def websocket_endpoint(websocket: WebSocket):
                 goal=scenario.goal
             )
             
-            # all_turns = []
-            
             for i in range(len(scenario.persona_backgrounds)):
-                turn = dialogue_manager.generate_turn(f"persona{i+1}")
-                
-                if isinstance(turn, dict):
-                    turn_text = turn.get('content', str(turn))
-                else:
-                    turn_text = str(turn)
-                
-                analysis = { # TODO: add analysis haha
-                    "stereotype_detected": random.choice([True, False]),
-                    "confidence": random.random(),
-                    "highlighted_segments": [
-                        {"text": turn_text[:50], "type": "potential_stereotype"}
-                    ] if random.random() > 0.7 else []
-                }
-                
-                # all_turns.append({
-                #     "turn": turn,
-                #     "analysis": analysis
-                # })
+                turn_data = dialogue_manager.generate_turn(f"persona{i+1}")
                 
                 await websocket.send_json({
                     "type": "turn",
-                    "persona": f"persona{i+1}",
-                    "text": turn,
-                    "analysis": analysis
+                    "persona_id": turn_data["persona_id"],
+                    "speaker": turn_data["speaker"],
+                    "content": turn_data["content"],
+                    "turn_analysis": turn_data["turn_analysis"]
                 })
-                
-                await asyncio.sleep(1)
-            
-            # dialogue_data = {
-            #     "category_id": category_id,
-            #     "scenario_name": scenario.name,
-            #     "context": scenario.context,
-            #     "goal": scenario.goal,
-            #     "turns": all_turns,
-            #     "timestamp": datetime.now().isoformat()
-            # }
-            
-            # saved_file = save_dialogue(dialogue_data, category_id, scenario.name)
             
             await websocket.send_json({
                 "type": "complete",
