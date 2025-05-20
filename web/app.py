@@ -65,6 +65,7 @@ async def websocket_endpoint(websocket: WebSocket):
             
             scenario_id = data.get("scenario_id")
             category_id = data.get("category_id")
+            num_turns = data.get("num_turns", 4)  
             
             scenario = None
             if category_id == "all":
@@ -108,8 +109,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 goal=scenario.goal
             )
             
-            for i in range(2):
-                turn_data = dialogue_manager.generate_turn(f"persona{i+1}")
+            for i in range(num_turns):
+                persona_id = f"persona{(i % 2) + 1}" 
+                turn_data = dialogue_manager.generate_turn(persona_id)
                 
                 await websocket.send_json({
                     "type": "turn",

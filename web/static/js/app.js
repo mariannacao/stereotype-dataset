@@ -7,6 +7,7 @@ const scenarioSelect = document.getElementById('scenarioSelect');
 const generateBtn = document.getElementById('generateBtn');
 const dialogueContainer = document.getElementById('dialogueContainer');
 const analysisContainer = document.getElementById('analysisContainer');
+const turnsInput = document.getElementById('turnsInput');
 
 function initWebSocket() {
     ws = new WebSocket(`ws://${window.location.host}/ws`);
@@ -256,9 +257,15 @@ categorySelect.addEventListener('change', (e) => {
 generateBtn.addEventListener('click', () => {
     const categoryId = categorySelect.value;
     const scenarioId = scenarioSelect.value;
+    const numTurns = parseInt(turnsInput.value) || 2;
     
     if (!categoryId || !scenarioId) {
         alert('Please select both a category and a scenario');
+        return;
+    }
+    
+    if (numTurns < 2) {
+        alert('Number of turns must be at least 2');
         return;
     }
     
@@ -270,7 +277,8 @@ generateBtn.addEventListener('click', () => {
     
     ws.send(JSON.stringify({
         category_id: categoryId,
-        scenario_id: scenarioId
+        scenario_id: scenarioId,
+        num_turns: numTurns
     }));
 });
 
