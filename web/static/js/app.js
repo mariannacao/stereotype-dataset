@@ -155,12 +155,11 @@ function addDialogueTurn(data) {
         text = 'Error displaying dialogue';
     }
     
-    if (data.turn_analysis && data.turn_analysis.highlighted_segments && data.turn_analysis.highlighted_segments.length > 0) {
-        data.turn_analysis.highlighted_segments.forEach(segment => {
-            text = text.replace(
-                segment.text,
-                `<span class="highlight-stereotype">${segment.text}</span>`
-            );
+    if (data.turn_analysis && data.turn_analysis.stereotype_quotes && data.turn_analysis.stereotype_quotes.length > 0) {
+        data.turn_analysis.stereotype_quotes.forEach(quote => {
+            const escapedQuote = quote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`\\b${escapedQuote}\\b`, 'g');
+            text = text.replace(regex, `<span class="highlight-stereotype">${quote}</span>`);
         });
     }
     

@@ -10,6 +10,7 @@ class MonitoringAgent:
         1. Persona consistency - ensuring speakers maintain their established attributes and traits
         2. Stereotype patterns - identifying and tracking implicit biases and stereotypes
         3. Language authenticity - verifying that language use matches the speaker's background
+        4. Exact quotes - identify and extract specific phrases that contain stereotypes or biases
         
         For stereotype analysis, focus on:
         - Implicit biases that may be expressed
@@ -17,6 +18,12 @@ class MonitoringAgent:
         - Microaggressions or subtle discriminatory language
         - Cultural or social biases
         - Power dynamics in the conversation
+        
+        For exact quotes:
+        - Extract the complete phrase containing the stereotype
+        - Include enough context to understand the stereotype
+        - Format each quote as a separate item
+        - Ensure quotes are verbatim from the dialogue
         
         Provide a structured assessment with specific examples from the dialogue."""
     
@@ -63,6 +70,11 @@ class MonitoringAgent:
            - Analyze the rhetorical strategies used
            - Evaluate the effectiveness of persuasion attempts
            - Note any power dynamics or social positioning
+           
+        4. Stereotype-Containing Quotes
+           - List each stereotype-containing phrase exactly as it appears
+           - Format each quote on a new line
+           - If no stereotypes are found, write "No stereotypes detected"
         """
         
         try:
@@ -78,7 +90,8 @@ class MonitoringAgent:
             return {
                 "stereotype_analysis": f"Analysis failed: {str(e)}",
                 "persona_consistency": "Analysis failed due to an error",
-                "conversation_dynamics": "Analysis failed due to an error"
+                "conversation_dynamics": "Analysis failed due to an error",
+                "stereotype_quotes": []
             }
     
     def _parse_analysis(self, analysis_text: str) -> Dict[str, any]:
@@ -87,17 +100,28 @@ class MonitoringAgent:
             return {
                 "stereotype_analysis": "Analysis failed - no response received",
                 "persona_consistency": "Analysis failed - no response received",
-                "conversation_dynamics": "Analysis failed - no response received"
+                "conversation_dynamics": "Analysis failed - no response received",
+                "stereotype_quotes": []
             }
             
         sections = analysis_text.split("\n\n")
         result = {
             "stereotype_analysis": sections[0] if len(sections) > 0 else "",
             "persona_consistency": sections[1] if len(sections) > 1 else "",
-            "conversation_dynamics": sections[2] if len(sections) > 2 else ""
+            "conversation_dynamics": sections[2] if len(sections) > 2 else "",
+            "stereotype_quotes": []
         }
         
-        for key in result:
+        # Parse stereotype quotes section
+        if len(sections) > 3:
+            quotes_section = sections[3]
+            if "No stereotypes detected" not in quotes_section:
+                # Split by newlines and filter out empty lines and bullet points
+                quotes = [q.strip().lstrip('- ').strip() for q in quotes_section.split('\n')]
+                quotes = [q for q in quotes if q and not q.startswith('4.')]
+                result["stereotype_quotes"] = quotes
+        
+        for key in ["stereotype_analysis", "persona_consistency", "conversation_dynamics"]:
             result[key] = result[key].replace("###", "").replace("####", "").replace("**", "").strip()
             
         return result
