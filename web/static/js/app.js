@@ -37,6 +37,7 @@ function handleWebSocketMessage(data) {
     
     switch (data.type) {
         case 'metadata':
+            console.log('Number of personas:', data.personas.length); 
             addPersonaMetadata(data.personas);
             break;
         case 'turn':

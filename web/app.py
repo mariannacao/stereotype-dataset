@@ -93,7 +93,7 @@ async def websocket_endpoint(websocket: WebSocket):
             dialogue_manager = DialogueManager()
             
             personas = []
-            for i, background in enumerate(scenario.persona_backgrounds):
+            for i, background in enumerate(scenario.persona_backgrounds[:2]):
                 dialogue_manager.add_persona(f"persona{i+1}", background=background)
                 persona = dialogue_manager.active_personas[f"persona{i+1}"]
                 personas.append(persona.to_dict())
@@ -108,7 +108,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 goal=scenario.goal
             )
             
-            for i in range(len(scenario.persona_backgrounds)):
+            for i in range(2):
                 turn_data = dialogue_manager.generate_turn(f"persona{i+1}")
                 
                 await websocket.send_json({
