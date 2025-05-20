@@ -9,6 +9,7 @@ import random
 from typing import Dict, List
 import sys
 import os
+from datetime import datetime
 
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_root)
@@ -24,6 +25,23 @@ app.mount("/static", StaticFiles(directory="web/static"), name="static")
 templates = Jinja2Templates(directory="web/templates")
 
 active_connections: List[WebSocket] = []
+
+# def ensure_directory(path: str):
+#     """Ensure the output directory exists."""
+#     Path(path).mkdir(parents=True, exist_ok=True)
+
+# def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str):
+#     """Save the generated dialogue to a JSON file."""
+#     output_dir = "output"
+#     ensure_directory(output_dir)
+    
+#     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+#     filename = f"{output_dir}/{category_id}_{scenario_name.lower().replace(' ', '_')}_{timestamp}.json"
+    
+#     with open(filename, 'w') as f:
+#         json.dump(dialogue_data, f, indent=2)
+    
+#     return filename
 
 async def broadcast_message(message: dict):
     for connection in active_connections:
@@ -74,13 +92,26 @@ async def websocket_endpoint(websocket: WebSocket):
             
             dialogue_manager = DialogueManager()
             
+            personas = []
             for i, background in enumerate(scenario.persona_backgrounds):
+                persona_name = f"Person {i+1}"  
+                personas.append({
+                    "name": persona_name,
+                    "background": background
+                })
                 dialogue_manager.add_persona(f"persona{i+1}", background=background)
+            
+            await websocket.send_json({
+                "type": "metadata",
+                "personas": personas
+            })
             
             dialogue_manager.start_dialogue(
                 context=scenario.context,
                 goal=scenario.goal
             )
+            
+            # all_turns = []
             
             for i in range(len(scenario.persona_backgrounds)):
                 turn = dialogue_manager.generate_turn(f"persona{i+1}")
@@ -90,13 +121,18 @@ async def websocket_endpoint(websocket: WebSocket):
                 else:
                     turn_text = str(turn)
                 
-                analysis = {
+                analysis = { # TODO: add analysis haha
                     "stereotype_detected": random.choice([True, False]),
                     "confidence": random.random(),
                     "highlighted_segments": [
                         {"text": turn_text[:50], "type": "potential_stereotype"}
                     ] if random.random() > 0.7 else []
                 }
+                
+                # all_turns.append({
+                #     "turn": turn,
+                #     "analysis": analysis
+                # })
                 
                 await websocket.send_json({
                     "type": "turn",
@@ -106,6 +142,17 @@ async def websocket_endpoint(websocket: WebSocket):
                 })
                 
                 await asyncio.sleep(1)
+            
+            # dialogue_data = {
+            #     "category_id": category_id,
+            #     "scenario_name": scenario.name,
+            #     "context": scenario.context,
+            #     "goal": scenario.goal,
+            #     "turns": all_turns,
+            #     "timestamp": datetime.now().isoformat()
+            # }
+            
+            # saved_file = save_dialogue(dialogue_data, category_id, scenario.name)
             
             await websocket.send_json({
                 "type": "complete",

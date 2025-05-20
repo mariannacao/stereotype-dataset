@@ -34,6 +34,9 @@ function initWebSocket() {
 
 function handleWebSocketMessage(data) {
     switch (data.type) {
+        case 'metadata':
+            addPersonaMetadata(data.personas);
+            break;
         case 'turn':
             addDialogueTurn(data);
             addAnalysisItem(data);
@@ -49,6 +52,24 @@ function handleWebSocketMessage(data) {
             updateGenerateButton();
             break;
     }
+}
+
+function addPersonaMetadata(personas) {
+    const metadataDiv = document.createElement('div');
+    metadataDiv.className = 'metadata-section mb-4';
+    metadataDiv.innerHTML = `
+        <h2 class="text-xl font-semibold mb-2">Characters</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${personas.map(persona => `
+                <div class="persona-card bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold mb-2">${persona.name}</h3>
+                    <p class="text-gray-600">${persona.background}</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    dialogueContainer.parentNode.insertBefore(metadataDiv, dialogueContainer);
 }
 
 function addDialogueTurn(data) {
@@ -78,8 +99,12 @@ function addDialogueTurn(data) {
         });
     }
     
+    const personaNumber = parseInt(data.persona.replace('persona', ''));
+    const personaCard = document.querySelector(`.persona-card:nth-child(${personaNumber}) h3`);
+    const personaName = personaCard ? personaCard.textContent : data.persona;
+    
     turnDiv.innerHTML = `
-        <div class="font-semibold mb-2">${data.persona}</div>
+        <div class="font-semibold mb-2">${personaName}</div>
         <div class="whitespace-pre-wrap">${text}</div>
     `;
     
