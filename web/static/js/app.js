@@ -1,5 +1,6 @@
 let ws = null;
 let scenarios = [];
+let isGenerating = false;
 
 const categorySelect = document.getElementById('categorySelect');
 const scenarioSelect = document.getElementById('scenarioSelect');
@@ -39,9 +40,13 @@ function handleWebSocketMessage(data) {
             break;
         case 'complete':
             showCompletionMessage(data.message);
+            isGenerating = false;
+            updateGenerateButton();
             break;
         case 'error':
             showErrorMessage(data.message);
+            isGenerating = false;
+            updateGenerateButton();
             break;
     }
 }
@@ -50,8 +55,9 @@ function addDialogueTurn(data) {
     const turnDiv = document.createElement('div');
     turnDiv.className = `dialogue-turn ${data.persona}`;
     
-    let text = data.text;
-    if (data.analysis.highlighted_segments.length > 0) {
+    let text = typeof data.text === 'string' ? data.text : JSON.stringify(data.text);
+    
+    if (data.analysis.highlighted_segments && data.analysis.highlighted_segments.length > 0) {
         data.analysis.highlighted_segments.forEach(segment => {
             text = text.replace(
                 segment.text,
@@ -78,7 +84,7 @@ function addAnalysisItem(data) {
         <div class="text-sm">
             <p>Stereotype Detected: ${data.analysis.stereotype_detected ? 'Yes' : 'No'}</p>
             <p>Confidence: ${(data.analysis.confidence * 100).toFixed(1)}%</p>
-            ${data.analysis.highlighted_segments.length > 0 ? `
+            ${data.analysis.highlighted_segments && data.analysis.highlighted_segments.length > 0 ? `
                 <p class="mt-2">Highlighted Segments:</p>
                 <ul class="list-disc list-inside">
                     ${data.analysis.highlighted_segments.map(segment => 
@@ -98,7 +104,6 @@ function showCompletionMessage(message) {
     messageDiv.className = 'text-center text-green-600 mt-4';
     messageDiv.textContent = message;
     dialogueContainer.appendChild(messageDiv);
-    generateBtn.disabled = false;
 }
 
 function showErrorMessage(message) {
@@ -106,7 +111,13 @@ function showErrorMessage(message) {
     messageDiv.className = 'text-center text-red-600 mt-4';
     messageDiv.textContent = `Error: ${message}`;
     dialogueContainer.appendChild(messageDiv);
-    generateBtn.disabled = false;
+}
+
+function updateGenerateButton() {
+    generateBtn.disabled = isGenerating;
+    generateBtn.innerHTML = isGenerating ? 
+        '<span class="loading"></span> Generating...' : 
+        'Generate Dialogue';
 }
 
 async function loadScenarios() {
@@ -159,7 +170,8 @@ generateBtn.addEventListener('click', () => {
     dialogueContainer.innerHTML = '';
     analysisContainer.innerHTML = '';
     
-    generateBtn.disabled = true;
+    isGenerating = true;
+    updateGenerateButton();
     
     ws.send(JSON.stringify({
         category_id: categoryId,
