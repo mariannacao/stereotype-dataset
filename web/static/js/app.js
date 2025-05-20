@@ -58,12 +58,77 @@ function addPersonaMetadata(personas) {
     const metadataDiv = document.createElement('div');
     metadataDiv.className = 'metadata-section mb-4';
     metadataDiv.innerHTML = `
-        <h2 class="text-xl font-semibold mb-2">Characters</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <h2 class="text-xl font-semibold mb-4">Characters</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             ${personas.map(persona => `
-                <div class="persona-card bg-white p-4 rounded-lg shadow">
-                    <h3 class="font-semibold mb-2">${persona.name}</h3>
-                    <p class="text-gray-600">${persona.background}</p>
+                <div class="persona-card bg-white p-6 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
+                            <span class="text-indigo-600 font-semibold text-lg">${persona.name.split(' ').map(n => n[0]).join('')}</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg">${persona.name}</h3>
+                            <p class="text-gray-600 text-sm">${persona.attributes.occupation}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 mb-1">Background</h4>
+                            <p class="text-gray-700">${persona.background}</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 mb-1">Attributes</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                ${Object.entries(persona.attributes).map(([key, value]) => `
+                                    <div class="text-sm">
+                                        <span class="text-gray-500">${key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}:</span>
+                                        <span class="text-gray-700">${value}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 mb-1">Personality Traits</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${persona.personality_traits.map(trait => `
+                                    <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm">${trait}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 mb-1">Communication Style</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                ${Object.entries(persona.communication_style).map(([key, value]) => `
+                                    <div class="text-sm">
+                                        <span class="text-gray-500">${key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}:</span>
+                                        <span class="text-gray-700">${value}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 mb-1">Core Values</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${persona.values.map(value => `
+                                    <span class="px-2 py-1 bg-green-50 text-green-700 rounded-full text-sm">${value}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 mb-1">Key Experiences</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                ${persona.experiences.map(exp => `
+                                    <li>${exp}</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             `).join('')}
         </div>
@@ -74,24 +139,24 @@ function addPersonaMetadata(personas) {
 
 function addDialogueTurn(data) {
     const turnDiv = document.createElement('div');
-    turnDiv.className = `dialogue-turn ${data.persona}`;
+    turnDiv.className = `dialogue-turn ${data.persona_id}`;
     
     let text = '';
     try {
-        if (typeof data.text === 'string') {
-            text = data.text;
-        } else if (typeof data.text === 'object') {
-            text = data.text.content || JSON.stringify(data.text);
+        if (typeof data.content === 'string') {
+            text = data.content;
+        } else if (typeof data.content === 'object') {
+            text = data.content.content || JSON.stringify(data.content);
         } else {
-            text = JSON.stringify(data.text);
+            text = JSON.stringify(data.content);
         }
     } catch (e) {
         console.error('Error parsing dialogue text:', e);
         text = 'Error displaying dialogue';
     }
     
-    if (data.analysis && data.analysis.highlighted_segments && data.analysis.highlighted_segments.length > 0) {
-        data.analysis.highlighted_segments.forEach(segment => {
+    if (data.turn_analysis && data.turn_analysis.highlighted_segments && data.turn_analysis.highlighted_segments.length > 0) {
+        data.turn_analysis.highlighted_segments.forEach(segment => {
             text = text.replace(
                 segment.text,
                 `<span class="highlight-stereotype">${segment.text}</span>`
@@ -99,9 +164,9 @@ function addDialogueTurn(data) {
         });
     }
     
-    const personaNumber = parseInt(data.persona.replace('persona', ''));
+    const personaNumber = parseInt(data.persona_id.replace('persona', ''));
     const personaCard = document.querySelector(`.persona-card:nth-child(${personaNumber}) h3`);
-    const personaName = personaCard ? personaCard.textContent : data.persona;
+    const personaName = personaCard ? personaCard.textContent : data.speaker;
     
     turnDiv.innerHTML = `
         <div class="font-semibold mb-2">${personaName}</div>
