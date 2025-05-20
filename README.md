@@ -47,34 +47,7 @@ Using the free tier of DeepSeek's model through OpenRouter allows for:
 - Small dataset generation
 - Proof of concept work
 
-## Project Structure
-
-```
-stereotype-dialogue/
-├── agents/                    # Core dialogue generation and management
-│   ├── dialogue_manager.py    # Orchestrates dialogue generation
-│   ├── generation_agent.py    # Generates dialogue turns
-│   ├── monitoring_agent.py    # Analyzes dialogue quality
-│   └── dialogue_agent.py      # Base agent class
-├── config/                    # Configuration and data
-│   ├── personas.py           # Persona definitions
-│   ├── dialogue_contexts.py  # Dialogue scenarios
-│   ├── stereotype_categories.py # Stereotype categories
-│   └── persona_generator.py  # Persona generation utilities
-├── utils/                    # Utility functions
-│   └── api_wrapper.py       # API integration
-├── prompts/                  # Prompt templates
-│   ├── templates.py         # Base templates
-│   └── prompt_templates.py  # Specialized templates
-├── output/                   # Raw dialogue outputs
-├── output-archive/          # Archived dialogue outputs
-├── main.py                  # Main execution script
-├── format_dialogues.py      # Dialogue formatting utility
-├── generate_summary.py      # Analysis summary generator
-└── requirements.txt         # Project dependencies
-```
-
-## Core Components
+### Core Components
 
 ### 1. Stereotype Categories (`config/stereotype_categories.py`)
 Eight fundamental dimensions of stereotypes:

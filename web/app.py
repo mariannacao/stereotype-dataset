@@ -26,7 +26,6 @@ templates = Jinja2Templates(directory="web/templates")
 active_connections: List[WebSocket] = []
 
 async def broadcast_message(message: dict):
-    """Broadcast a message to all connected clients."""
     for connection in active_connections:
         try:
             await connection.send_json(message)
@@ -35,12 +34,10 @@ async def broadcast_message(message: dict):
 
 @app.get("/", response_class=HTMLResponse)
 async def get_home(request: Request):
-    """Serve the main page."""
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    """Handle WebSocket connections for real-time dialogue streaming."""
     await websocket.accept()
     active_connections.append(websocket)
     
@@ -88,11 +85,16 @@ async def websocket_endpoint(websocket: WebSocket):
             for i in range(len(scenario.persona_backgrounds)):
                 turn = dialogue_manager.generate_turn(f"persona{i+1}")
                 
+                if isinstance(turn, dict):
+                    turn_text = turn.get('content', str(turn))
+                else:
+                    turn_text = str(turn)
+                
                 analysis = {
                     "stereotype_detected": random.choice([True, False]),
                     "confidence": random.random(),
                     "highlighted_segments": [
-                        {"text": turn[:50], "type": "potential_stereotype"}
+                        {"text": turn_text[:50], "type": "potential_stereotype"}
                     ] if random.random() > 0.7 else []
                 }
                 
@@ -113,6 +115,7 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         active_connections.remove(websocket)
     except Exception as e:
+        print(f"Error in WebSocket: {str(e)}")
         await websocket.send_json({
             "type": "error",
             "message": str(e)
@@ -120,7 +123,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.get("/api/scenarios")
 async def get_scenarios():
-    """Get available dialogue scenarios."""
     scenarios = []
     
     scenarios.append({
@@ -138,4 +140,4 @@ async def get_scenarios():
                 "category_id": category_id,
                 "category_name": category.name
             })
-    return scenarios 
+    return scenarios

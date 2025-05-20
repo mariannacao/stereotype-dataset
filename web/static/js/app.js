@@ -55,9 +55,21 @@ function addDialogueTurn(data) {
     const turnDiv = document.createElement('div');
     turnDiv.className = `dialogue-turn ${data.persona}`;
     
-    let text = typeof data.text === 'string' ? data.text : JSON.stringify(data.text);
+    let text = '';
+    try {
+        if (typeof data.text === 'string') {
+            text = data.text;
+        } else if (typeof data.text === 'object') {
+            text = data.text.content || JSON.stringify(data.text);
+        } else {
+            text = JSON.stringify(data.text);
+        }
+    } catch (e) {
+        console.error('Error parsing dialogue text:', e);
+        text = 'Error displaying dialogue';
+    }
     
-    if (data.analysis.highlighted_segments && data.analysis.highlighted_segments.length > 0) {
+    if (data.analysis && data.analysis.highlighted_segments && data.analysis.highlighted_segments.length > 0) {
         data.analysis.highlighted_segments.forEach(segment => {
             text = text.replace(
                 segment.text,
@@ -68,7 +80,7 @@ function addDialogueTurn(data) {
     
     turnDiv.innerHTML = `
         <div class="font-semibold mb-2">${data.persona}</div>
-        <div>${text}</div>
+        <div class="whitespace-pre-wrap">${text}</div>
     `;
     
     dialogueContainer.appendChild(turnDiv);
@@ -79,11 +91,27 @@ function addAnalysisItem(data) {
     const analysisDiv = document.createElement('div');
     analysisDiv.className = `analysis-item ${data.analysis.stereotype_detected ? 'stereotype-detected' : 'no-stereotype'}`;
     
+    let analysisText = '';
+    try {
+        if (data.text && data.text.turn_analysis) {
+            analysisText = data.text.turn_analysis.stereotype_analysis || 
+                          data.text.turn_analysis.persona_consistency || '';
+        }
+    } catch (e) {
+        console.error('Error parsing analysis:', e);
+    }
+    
     analysisDiv.innerHTML = `
         <div class="font-semibold mb-2">${data.persona}'s Turn Analysis</div>
         <div class="text-sm">
             <p>Stereotype Detected: ${data.analysis.stereotype_detected ? 'Yes' : 'No'}</p>
             <p>Confidence: ${(data.analysis.confidence * 100).toFixed(1)}%</p>
+            ${analysisText ? `
+                <div class="mt-2 p-2 bg-gray-50 rounded">
+                    <p class="font-medium">Analysis:</p>
+                    <p class="whitespace-pre-wrap">${analysisText}</p>
+                </div>
+            ` : ''}
             ${data.analysis.highlighted_segments && data.analysis.highlighted_segments.length > 0 ? `
                 <p class="mt-2">Highlighted Segments:</p>
                 <ul class="list-disc list-inside">
