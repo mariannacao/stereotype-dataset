@@ -60,7 +60,7 @@ function handleWebSocketMessage(data) {
 
 function addPersonaMetadata(personas) {
     const metadataDiv = document.createElement('div');
-    metadataDiv.className = 'metadata-section mb-4';
+    metadataDiv.className = 'metadata-section mb-8 w-full';
     metadataDiv.innerHTML = `
         <h2 class="text-xl font-semibold mb-4">Characters</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -138,7 +138,9 @@ function addPersonaMetadata(personas) {
         </div>
     `;
     
-    dialogueContainer.parentNode.insertBefore(metadataDiv, dialogueContainer);
+    // Insert after the configuration panel
+    const configPanel = document.querySelector('.config-panel');
+    configPanel.parentNode.insertBefore(metadataDiv, configPanel.nextSibling);
 }
 
 function addDialogueTurn(data) {
