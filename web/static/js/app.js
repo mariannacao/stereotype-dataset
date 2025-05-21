@@ -138,8 +138,9 @@ function addPersonaMetadata(personas) {
         </div>
     `;
     
-    const configPanel = document.querySelector('.config-panel');
-    configPanel.parentNode.insertBefore(metadataDiv, configPanel.nextSibling);
+    const configPanel = document.querySelector('.bg-white.rounded-lg.shadow-md.p-6.mb-8');
+    const mainContentArea = document.querySelector('.grid.grid-cols-1.lg\\:grid-cols-2.gap-8');
+    configPanel.parentNode.insertBefore(metadataDiv, mainContentArea);
 }
 
 function addDialogueTurn(data) {
