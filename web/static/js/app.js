@@ -138,7 +138,6 @@ function addPersonaMetadata(personas) {
         </div>
     `;
     
-    // Insert after the configuration panel
     const configPanel = document.querySelector('.config-panel');
     configPanel.parentNode.insertBefore(metadataDiv, configPanel.nextSibling);
 }
