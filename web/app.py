@@ -26,22 +26,22 @@ templates = Jinja2Templates(directory="web/templates")
 
 active_connections: List[WebSocket] = []
 
-# def ensure_directory(path: str):
-#     """Ensure the output directory exists."""
-#     Path(path).mkdir(parents=True, exist_ok=True)
+def ensure_directory(path: str):
+    """Ensure the output directory exists."""
+    Path(path).mkdir(parents=True, exist_ok=True)
 
-# def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str):
-#     """Save the generated dialogue to a JSON file."""
-#     output_dir = "output"
-#     ensure_directory(output_dir)
+def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str):
+    """Save the generated dialogue to a JSON file."""
+    output_dir = "output"
+    ensure_directory(output_dir)
     
-#     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-#     filename = f"{output_dir}/{category_id}_{scenario_name.lower().replace(' ', '_')}_{timestamp}.json"
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{output_dir}/{category_id}_{scenario_name.lower().replace(' ', '_')}_{timestamp}.json"
     
-#     with open(filename, 'w') as f:
-#         json.dump(dialogue_data, f, indent=2)
+    with open(filename, 'w') as f:
+        json.dump(dialogue_data, f, indent=2)
     
-#     return filename
+    return filename
 
 async def broadcast_message(message: dict):
     for connection in active_connections:
@@ -65,7 +65,7 @@ async def websocket_endpoint(websocket: WebSocket):
             
             scenario_id = data.get("scenario_id")
             category_id = data.get("category_id")
-            num_turns = data.get("num_turns", 4)  
+            num_turns = data.get("num_turns", 2)
             
             scenario = None
             if category_id == "all":
@@ -109,9 +109,27 @@ async def websocket_endpoint(websocket: WebSocket):
                 goal=scenario.goal
             )
             
+            dialogue_data = {
+                "scenario": {
+                    "name": scenario.name,
+                    "category": category_id,
+                    "context": scenario.context,
+                    "goal": scenario.goal
+                },
+                "personas": personas,
+                "turns": []
+            }
+            
             for i in range(num_turns):
-                persona_id = f"persona{(i % 2) + 1}" 
+                persona_id = f"persona{(i % 2) + 1}"
                 turn_data = dialogue_manager.generate_turn(persona_id)
+                
+                dialogue_data["turns"].append({
+                    "persona_id": turn_data["persona_id"],
+                    "speaker": turn_data["speaker"],
+                    "content": turn_data["content"],
+                    "turn_analysis": turn_data["turn_analysis"]
+                })
                 
                 await websocket.send_json({
                     "type": "turn",
@@ -121,9 +139,11 @@ async def websocket_endpoint(websocket: WebSocket):
                     "turn_analysis": turn_data["turn_analysis"]
                 })
             
+            filename = save_dialogue(dialogue_data, category_id, scenario.name)
+            
             await websocket.send_json({
                 "type": "complete",
-                "message": "Dialogue generation complete"
+                "message": f"Dialogue generation complete. Saved to {filename}"
             })
             
     except WebSocketDisconnect:

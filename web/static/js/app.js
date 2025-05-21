@@ -150,7 +150,7 @@ function addDialogueTurn(data) {
     if (data.turn_analysis && data.turn_analysis.stereotype_quotes && data.turn_analysis.stereotype_quotes.length > 0) {
         data.turn_analysis.stereotype_quotes.forEach(quote => {
             const escapedQuote = quote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`\\b${escapedQuote}\\b`, 'g');
+            const regex = new RegExp(escapedQuote, 'g');
             text = text.replace(regex, `<span class="highlight-stereotype">${quote}</span>`);
         });
     }
