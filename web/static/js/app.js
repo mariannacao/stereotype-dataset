@@ -279,6 +279,11 @@ generateBtn.addEventListener('click', () => {
     dialogueContainer.innerHTML = '';
     analysisContainer.innerHTML = '';
     
+    const existingMetadata = document.querySelector('.metadata-section');
+    if (existingMetadata) {
+        existingMetadata.remove();
+    }
+    
     isGenerating = true;
     updateGenerateButton();
     

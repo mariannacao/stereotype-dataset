@@ -84,13 +84,20 @@ class MonitoringAgent:
             ]
             
             analysis = self.api_client.generate_response(messages)
+            if not analysis or not analysis.strip():
+                return {
+                    "stereotype_analysis": "Analysis failed - Empty response from API",
+                    "persona_consistency": "Analysis failed - Empty response from API",
+                    "conversation_dynamics": "Analysis failed - Empty response from API",
+                    "stereotype_quotes": []
+                }
             return self._parse_analysis(analysis)
         except Exception as e:
             print(f"Error analyzing turn: {str(e)}")
             return {
-                "stereotype_analysis": f"Analysis failed: {str(e)}",
-                "persona_consistency": "Analysis failed due to an error",
-                "conversation_dynamics": "Analysis failed due to an error",
+                "stereotype_analysis": f"Analysis failed - {str(e)}",
+                "persona_consistency": f"Analysis failed - {str(e)}",
+                "conversation_dynamics": f"Analysis failed - {str(e)}",
                 "stereotype_quotes": []
             }
     
@@ -119,13 +126,13 @@ class MonitoringAgent:
                 continue
                 
             if section.startswith("1. Stereotype Analysis"):
-                content = section.replace("1. Stereotype Analysis", "").strip("\n")
+                content = section.replace("1. Stereotype Analysis", "").strip()
                 result["stereotype_analysis"] = content
             elif section.startswith("2. Persona Consistency"):
-                content = section.replace("2. Persona Consistency", "").strip("\n")
+                content = section.replace("2. Persona Consistency", "").strip()
                 result["persona_consistency"] = content
             elif section.startswith("3. Conversation Dynamics"):
-                content = section.replace("3. Conversation Dynamics", "").strip("\n")
+                content = section.replace("3. Conversation Dynamics", "").strip()
                 result["conversation_dynamics"] = content
             elif section.startswith("4. Stereotype-Containing Quotes"):
                 if "No stereotypes detected" not in section:
