@@ -170,24 +170,27 @@ function addAnalysisItem(data) {
     
     analysisDiv.innerHTML = `
         <div class="font-semibold mb-2">${data.speaker}'s Turn Analysis</div>
-        <div class="text-sm">
-            <p>Stereotype Detected: ${data.turn_analysis.stereotype_quotes.length > 0 ? 'Yes' : 'No'}</p>
-            ${data.turn_analysis.stereotype_analysis ? `
-                <div class="mt-2 p-2 bg-gray-50 rounded">
-                    <p class="font-medium">Analysis:</p>
+        <div class="text-sm space-y-4">
+            <div>
+                <p class="font-bold text-gray-800">Stereotype Analysis</p>
+                <div class="mt-1 p-2 bg-gray-50 rounded">
                     <p class="whitespace-pre-wrap">${data.turn_analysis.stereotype_analysis}</p>
                 </div>
-            ` : ''}
-            ${data.turn_analysis.stereotype_quotes.length > 0 ? `
-                <div class="mt-2">
-                    <p class="font-medium">Stereotype Quotes:</p>
-                    <ul class="list-disc list-inside">
-                        ${data.turn_analysis.stereotype_quotes.map(quote => 
-                            `<li>${quote}</li>`
-                        ).join('')}
-                    </ul>
+            </div>
+            
+            <div>
+                <p class="font-bold text-gray-800">Persona Consistency</p>
+                <div class="mt-1 p-2 bg-gray-50 rounded">
+                    <p class="whitespace-pre-wrap">${data.turn_analysis.persona_consistency}</p>
                 </div>
-            ` : ''}
+            </div>
+            
+            <div>
+                <p class="font-bold text-gray-800">Conversation Dynamics</p>
+                <div class="mt-1 p-2 bg-gray-50 rounded">
+                    <p class="whitespace-pre-wrap">${data.turn_analysis.conversation_dynamics}</p>
+                </div>
+            </div>
         </div>
     `;
     
