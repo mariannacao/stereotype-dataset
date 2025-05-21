@@ -174,21 +174,21 @@ function addAnalysisItem(data) {
             <div>
                 <p class="font-bold text-gray-800">Stereotype Analysis</p>
                 <div class="mt-1 p-2 bg-gray-50 rounded">
-                    <p class="whitespace-pre-wrap">${data.turn_analysis.stereotype_analysis}</p>
+                    <p class="whitespace-pre-wrap font-mono text-sm">${data.turn_analysis.stereotype_analysis}</p>
                 </div>
             </div>
             
             <div>
                 <p class="font-bold text-gray-800">Persona Consistency</p>
                 <div class="mt-1 p-2 bg-gray-50 rounded">
-                    <p class="whitespace-pre-wrap">${data.turn_analysis.persona_consistency}</p>
+                    <p class="whitespace-pre-wrap font-mono text-sm">${data.turn_analysis.persona_consistency}</p>
                 </div>
             </div>
             
             <div>
                 <p class="font-bold text-gray-800">Conversation Dynamics</p>
                 <div class="mt-1 p-2 bg-gray-50 rounded">
-                    <p class="whitespace-pre-wrap">${data.turn_analysis.conversation_dynamics}</p>
+                    <p class="whitespace-pre-wrap font-mono text-sm">${data.turn_analysis.conversation_dynamics}</p>
                 </div>
             </div>
         </div>

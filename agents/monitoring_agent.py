@@ -106,11 +106,36 @@ class MonitoringAgent:
             
         sections = analysis_text.split("\n\n")
         result = {
-            "stereotype_analysis": sections[0] if len(sections) > 0 else "",
-            "persona_consistency": sections[1] if len(sections) > 1 else "",
-            "conversation_dynamics": sections[2] if len(sections) > 2 else "",
+            "stereotype_analysis": "",
+            "persona_consistency": "",
+            "conversation_dynamics": "",
             "stereotype_quotes": []
         }
+        
+        for i, section in enumerate(sections):
+            if i >= 3: 
+                break
+                
+            lines = section.split('\n')
+            if lines and any(lines[0].startswith(str(n) + '.') for n in range(1, 10)):
+                lines = lines[1:]
+            
+            processed_lines = []
+            for line in lines:
+                line = line.strip()
+                if line.startswith('-'):
+                    indent = len(line) - len(line.lstrip())
+                    line = '•' + line[1:].strip()
+                    processed_lines.append(' ' * (indent + 2) + line)
+                else:
+                    processed_lines.append(line)
+            
+            if i == 0:
+                result["stereotype_analysis"] = '\n'.join(processed_lines).strip()
+            elif i == 1:
+                result["persona_consistency"] = '\n'.join(processed_lines).strip()
+            elif i == 2:
+                result["conversation_dynamics"] = '\n'.join(processed_lines).strip()
         
         # Parse stereotype quotes section
         if len(sections) > 3:
