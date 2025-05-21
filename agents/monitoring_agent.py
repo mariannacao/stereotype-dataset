@@ -103,27 +103,40 @@ class MonitoringAgent:
                 "conversation_dynamics": "Analysis failed - no response received",
                 "stereotype_quotes": []
             }
-            
+        
+        analysis_text = analysis_text.replace("#", "").replace("####", "").replace("**", "").strip()
         sections = analysis_text.split("\n\n")
+                                
         result = {
-            "stereotype_analysis": sections[0] if len(sections) > 0 else "",
-            "persona_consistency": sections[1] if len(sections) > 1 else "",
-            "conversation_dynamics": sections[2] if len(sections) > 2 else "",
+            "stereotype_analysis": "",
+            "persona_consistency": "",
+            "conversation_dynamics": "",
             "stereotype_quotes": []
         }
         
-        # Parse stereotype quotes section
-        if len(sections) > 3:
-            quotes_section = sections[3]
-            if "No stereotypes detected" not in quotes_section:
-                # Split by newlines and filter out empty lines and bullet points
-                quotes = [q.strip().lstrip('- ').strip() for q in quotes_section.split('\n')]
-                quotes = [q for q in quotes if q and not q.startswith('4.')]
-                result["stereotype_quotes"] = quotes
+        for i, section in enumerate(sections):
+            section = section.strip()
+            if not section:
+                continue
+                
+            if section.startswith("1. Stereotype Analysis"):
+                content = section.replace("1. Stereotype Analysis", "").strip()
+                result["stereotype_analysis"] = content
+            elif section.startswith("2. Persona Consistency"):
+                content = section.replace("2. Persona Consistency", "").strip()
+                result["persona_consistency"] = content
+            elif section.startswith("3. Conversation Dynamics"):
+                content = section.replace("3. Conversation Dynamics", "").strip()
+                result["conversation_dynamics"] = content
+            elif section.startswith("4. Stereotype-Containing Quotes"):
+                if "No stereotypes detected" not in section:
+                    quotes = []
+                    for line in section.split('\n'):
+                        line = line.strip().lstrip('- ').strip()
+                        if line and not line.startswith("4."):
+                            quotes.append(line)
+                    result["stereotype_quotes"] = quotes
         
-        for key in ["stereotype_analysis", "persona_consistency", "conversation_dynamics"]:
-            result[key] = result[key].replace("###", "").replace("####", "").replace("**", "").strip()
-            
         return result
     
     def _format_history(self, history: List[Dict[str, str]]) -> str:
