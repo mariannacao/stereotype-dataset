@@ -46,19 +46,6 @@ class DialogueManager:
             dialogue_goal=self._goal
         )
         
-        is_valid, validation_reason = self.monitoring_agent.check_turn_validity(
-            turn_content=turn_content,
-            speaking_persona=speaking_persona
-        )
-        
-        if not is_valid:
-            turn_content = self.generation_agent.generate_turn(
-                speaking_persona=speaking_persona,
-                conversation_history=self.conversation_history,
-                dialogue_context=f"{self._context}\nNote: Previous attempt was invalid because: {validation_reason}",
-                dialogue_goal=self._goal
-            )
-        
         analysis = self.monitoring_agent.analyze_turn(
             turn_content=turn_content,
             speaking_persona=speaking_persona,
@@ -69,9 +56,14 @@ class DialogueManager:
             "speaker": speaking_persona.name,
             "content": turn_content,
             "persona_id": speaking_persona_id,
-            "is_valid": is_valid,
-            "validation_reason": validation_reason,
-            "turn_analysis": analysis
+            "is_valid": analysis["is_valid"],
+            "validation_reason": analysis["validation_reason"],
+            "turn_analysis": {
+                "stereotype_analysis": analysis["stereotype_analysis"],
+                "persona_consistency": analysis["persona_consistency"],
+                "conversation_dynamics": analysis["conversation_dynamics"],
+                "stereotype_quotes": analysis["stereotype_quotes"]
+            }
         }
         
         self.conversation_history.append(turn_data)

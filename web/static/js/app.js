@@ -176,6 +176,13 @@ function addAnalysisItem(data) {
         <div class="font-semibold mb-2">${data.speaker}'s Turn Analysis</div>
         <div class="text-sm space-y-4">
             <div>
+                <p class="font-bold text-gray-800">Validation</p>
+                <div class="mt-1 p-2 ${data.is_valid ? 'bg-green-50' : 'bg-red-50'} rounded">
+                    <p class="whitespace-pre-wrap">${data.validation_reason}</p>
+                </div>
+            </div>
+            
+            <div>
                 <p class="font-bold text-gray-800">Stereotype Analysis</p>
                 <div class="mt-1 p-2 bg-gray-50 rounded">
                     <p class="whitespace-pre-wrap">${data.turn_analysis.stereotype_analysis}</p>
