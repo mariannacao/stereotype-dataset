@@ -103,10 +103,9 @@ class MonitoringAgent:
                 "conversation_dynamics": "Analysis failed - no response received",
                 "stereotype_quotes": []
             }
-        
-        analysis_text = analysis_text.replace("#", "").replace("####", "").replace("**", "").strip()
+            
+        analysis_text = analysis_text.replace("#", "").replace("_", "").replace("*", "").strip()
         sections = analysis_text.split("\n\n")
-                                
         result = {
             "stereotype_analysis": "",
             "persona_consistency": "",
@@ -120,13 +119,13 @@ class MonitoringAgent:
                 continue
                 
             if section.startswith("1. Stereotype Analysis"):
-                content = section.replace("1. Stereotype Analysis", "").strip()
+                content = section.replace("1. Stereotype Analysis", "").strip("\n")
                 result["stereotype_analysis"] = content
             elif section.startswith("2. Persona Consistency"):
-                content = section.replace("2. Persona Consistency", "").strip()
+                content = section.replace("2. Persona Consistency", "").strip("\n")
                 result["persona_consistency"] = content
             elif section.startswith("3. Conversation Dynamics"):
-                content = section.replace("3. Conversation Dynamics", "").strip()
+                content = section.replace("3. Conversation Dynamics", "").strip("\n")
                 result["conversation_dynamics"] = content
             elif section.startswith("4. Stereotype-Containing Quotes"):
                 if "No stereotypes detected" not in section:
@@ -134,7 +133,10 @@ class MonitoringAgent:
                     for line in section.split('\n'):
                         line = line.strip().lstrip('- ').strip()
                         if line and not line.startswith("4."):
-                            quotes.append(line)
+                            quote = line.strip('*"\'')
+                            quote = quote.strip()
+                            if quote and len(quote) > 10:  
+                                quotes.append(quote)
                     result["stereotype_quotes"] = quotes
         
         return result

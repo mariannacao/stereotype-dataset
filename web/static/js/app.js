@@ -148,10 +148,14 @@ function addDialogueTurn(data) {
     let text = data.content;
     
     if (data.turn_analysis && data.turn_analysis.stereotype_quotes && data.turn_analysis.stereotype_quotes.length > 0) {
-        data.turn_analysis.stereotype_quotes.forEach(quote => {
-            const escapedQuote = quote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(escapedQuote, 'g');
-            text = text.replace(regex, `<span class="highlight-stereotype">${quote}</span>`);
+        const sortedQuotes = [...data.turn_analysis.stereotype_quotes].sort((a, b) => b.length - a.length);
+        
+        sortedQuotes.forEach(quote => {
+            const cleanQuote = quote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim();
+            
+            const regex = new RegExp(cleanQuote, 'gi');
+            
+            text = text.replace(regex, match => `<span class="highlight-stereotype">${match}</span>`);
         });
     }
     
