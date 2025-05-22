@@ -6,14 +6,14 @@
     word-wrap: break-word;
 }
 
-.dialogue-turn.persona1 {
+.dialogue-turn.persona1, .analysis-item.persona1 {
     background-color: #f3f4f6;
     border-left: 4px solid #4f46e5;
 }
 
-.dialogue-turn.persona2 {
-    background-color: #f0fdf4;
-    border-left: 4px solid #22c55e;
+.dialogue-turn.persona2, .analysis-item.persona2 {
+    background-color: #fff7d1;
+    border-left: 4px solid #ffd900;
 }
 
 .highlight-stereotype {
@@ -25,18 +25,22 @@
 .analysis-item {
     padding: 1rem;
     border-radius: 0.5rem;
-    background-color: #f8fafc;
     margin-bottom: 1rem;
 }
 
-.analysis-item.stereotype-detected {
-    background-color: #fef2f2;
-    border-left: 4px solid #ef4444;
+.analysis-item .bg-red-50 {
+    background-color: #fef2f2 !important;
+    border: 1px solid #ef4444;
 }
 
-.analysis-item.no-stereotype {
-    background-color: #f0fdf4;
-    border-left: 4px solid #22c55e;
+.analysis-item .bg-green-50 {
+    background-color: #f0fdf4 !important;
+    border: 1px solid #22c55e;
+}
+
+.analysis-item .bg-gray-50 {
+    background-color: #f3f4f6 !important;
+    border: 1px solid #9ca3af;
 }
 
 /* loading cat? */

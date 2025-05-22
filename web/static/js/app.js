@@ -172,35 +172,32 @@ function addDialogueTurn(data) {
 
 function addAnalysisItem(data) {
     const analysisDiv = document.createElement('div');
-    analysisDiv.className = `analysis-item ${data.turn_analysis.stereotype_quotes.length > 0 ? 'stereotype-detected' : 'no-stereotype'}`;
+    const hasStereotypes = data.turn_analysis.stereotype_quotes.length > 0;
+    const isPersonaConsistent = data.turn_analysis.persona_consistency.toLowerCase().includes('consistent') || 
+                              !data.turn_analysis.persona_consistency.toLowerCase().includes('inconsistent');
+    
+    analysisDiv.className = `analysis-item ${data.persona_id}`;
     
     analysisDiv.innerHTML = `
         <div class="font-semibold mb-2">${data.speaker}'s Turn Analysis</div>
         <div class="text-sm space-y-4">
             <div>
-                <p class="font-bold text-gray-800">Validation</p>
-                <div class="mt-1 p-2 ${data.is_valid ? 'bg-green-50' : 'bg-red-50'} rounded">
-                    <p class="whitespace-pre-wrap">${data.validation_reason}</p>
-                </div>
-            </div>
-            
-            <div>
                 <p class="font-bold text-gray-800">Stereotype Analysis</p>
-                <div class="mt-1 p-2 bg-gray-50 rounded">
+                <div class="mt-1 p-2 rounded ${hasStereotypes ? 'bg-red-50' : 'bg-green-50'}">
                     <p class="whitespace-pre-wrap">${data.turn_analysis.stereotype_analysis}</p>
                 </div>
             </div>
             
             <div>
                 <p class="font-bold text-gray-800">Persona Consistency</p>
-                <div class="mt-1 p-2 bg-gray-50 rounded">
+                <div class="mt-1 p-2 rounded ${isPersonaConsistent ? 'bg-green-50' : 'bg-red-50'}">
                     <p class="whitespace-pre-wrap">${data.turn_analysis.persona_consistency}</p>
                 </div>
             </div>
             
             <div>
                 <p class="font-bold text-gray-800">Conversation Dynamics</p>
-                <div class="mt-1 p-2 bg-gray-50 rounded">
+                <div class="mt-1 p-2 rounded bg-gray-50">
                     <p class="whitespace-pre-wrap">${data.turn_analysis.conversation_dynamics}</p>
                 </div>
             </div>
