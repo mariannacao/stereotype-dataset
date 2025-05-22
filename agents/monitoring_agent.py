@@ -10,7 +10,8 @@ class MonitoringAgent:
         1. Persona consistency - ensuring speakers maintain their established attributes and traits
         2. Stereotype patterns - identifying and tracking implicit biases and stereotypes
         3. Language authenticity - verifying that language use matches the speaker's background
-        4. Exact quotes - identify and extract specific phrases that contain stereotypes or biases
+        4. Stereotype quotes - identify and extract specific phrases that contain stereotypes or biases
+        5. Anti-stereotype quotes - identify and extract specific phrases that challenge or counter stereotypes
         
         For stereotype analysis, focus on:
         - Implicit biases that may be expressed
@@ -19,7 +20,7 @@ class MonitoringAgent:
         - Cultural or social biases
         - Power dynamics in the conversation
         
-        For exact quotes:
+        For stereotype and anti-stereotype quotes:
         - Extract the complete phrase containing the stereotype
         - Include enough context to understand the stereotype
         - Format each quote as a separate item
@@ -78,6 +79,11 @@ class MonitoringAgent:
            - List each stereotype-containing phrase exactly as it appears
            - Format each quote on a new line
            - If no stereotypes are found, write "No stereotypes detected"
+           
+        5. Anti-Stereotype Quotes
+           - List each phrase that challenges or counters stereotypes
+           - Format each quote on a new line
+           - If no anti-stereotypes are found, write "No anti-stereotypes detected"
         """
         
         try:
@@ -94,7 +100,8 @@ class MonitoringAgent:
                     "stereotype_analysis": "Analysis failed - Empty response from API",
                     "persona_consistency": "Analysis failed - Empty response from API",
                     "conversation_dynamics": "Analysis failed - Empty response from API",
-                    "stereotype_quotes": []
+                    "stereotype_quotes": [],
+                    "anti_stereotype_quotes": []
                 }
             
             result = self._parse_analysis(analysis)
@@ -110,7 +117,8 @@ class MonitoringAgent:
                 "stereotype_analysis": f"Analysis failed - {str(e)}",
                 "persona_consistency": f"Analysis failed - {str(e)}",
                 "conversation_dynamics": f"Analysis failed - {str(e)}",
-                "stereotype_quotes": []
+                "stereotype_quotes": [],
+                "anti_stereotype_quotes": []
             }
     
     def _parse_analysis(self, analysis_text: str) -> Dict[str, any]:
@@ -120,7 +128,8 @@ class MonitoringAgent:
                 "stereotype_analysis": "Analysis failed - no response received",
                 "persona_consistency": "Analysis failed - no response received",
                 "conversation_dynamics": "Analysis failed - no response received",
-                "stereotype_quotes": []
+                "stereotype_quotes": [],
+                "anti_stereotype_quotes": []
             }
             
         analysis_text = analysis_text.replace("#", "").replace("_", "").replace("*", "").strip()
@@ -129,7 +138,8 @@ class MonitoringAgent:
             "stereotype_analysis": "",
             "persona_consistency": "",
             "conversation_dynamics": "",
-            "stereotype_quotes": []
+            "stereotype_quotes": [],
+            "anti_stereotype_quotes": []
         }
         
         for i, section in enumerate(sections):
@@ -157,6 +167,17 @@ class MonitoringAgent:
                             if quote and len(quote) > 10:  
                                 quotes.append(quote)
                     result["stereotype_quotes"] = quotes
+            elif section.startswith("5. Anti-Stereotype Quotes"):
+                if "No anti-stereotypes detected" not in section:
+                    quotes = []
+                    for line in section.split('\n'):
+                        line = line.strip().lstrip('- ').strip()
+                        if line and not line.startswith("5."):
+                            quote = line.strip('*"\'')
+                            quote = quote.strip()
+                            if quote and len(quote) > 10:
+                                quotes.append(quote)
+                    result["anti_stereotype_quotes"] = quotes
         
         return result
     

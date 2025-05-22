@@ -62,7 +62,8 @@ class DialogueManager:
                 "stereotype_analysis": analysis["stereotype_analysis"],
                 "persona_consistency": analysis["persona_consistency"],
                 "conversation_dynamics": analysis["conversation_dynamics"],
-                "stereotype_quotes": analysis["stereotype_quotes"]
+                "stereotype_quotes": analysis["stereotype_quotes"],
+                "anti_stereotype_quotes": analysis["anti_stereotype_quotes"]
             }
         }
         

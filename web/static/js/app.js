@@ -154,10 +154,18 @@ function addDialogueTurn(data) {
         
         sortedQuotes.forEach(quote => {
             const cleanQuote = quote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim();
-            
             const regex = new RegExp(cleanQuote, 'gi');
-            
             text = text.replace(regex, match => `<span class="highlight-stereotype">${match}</span>`);
+        });
+    }
+    
+    if (data.turn_analysis && data.turn_analysis.anti_stereotype_quotes && data.turn_analysis.anti_stereotype_quotes.length > 0) {
+        const sortedQuotes = [...data.turn_analysis.anti_stereotype_quotes].sort((a, b) => b.length - a.length);
+        
+        sortedQuotes.forEach(quote => {
+            const cleanQuote = quote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim();
+            const regex = new RegExp(cleanQuote, 'gi');
+            text = text.replace(regex, match => `<span class="highlight-anti-stereotype">${match}</span>`);
         });
     }
     
