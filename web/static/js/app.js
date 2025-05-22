@@ -151,41 +151,68 @@ function addDialogueTurn(data) {
     
     const normalizeText = (str) => {
         return str
-            .replace(/\u2019/g, "'")  // smart single quote
-            .replace(/\u2018/g, "'")  // smart single quote
-            .replace(/\u201c/g, '"')  // smart double quote
-            .replace(/\u201d/g, '"')  // smart double quote
-            .replace(/\u2014/g, '-')  // em dash
-            .replace(/\u2013/g, '-')  // en dash
-            .replace(/\u2026/g, '...') // ellipsis
-            .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape regex special chars
+            .replace(/\u2019/g, "'")
+            .replace(/\u2018/g, "'")
+            .replace(/\u201c/g, '"')
+            .replace(/\u201d/g, '"')
+            .replace(/\u2014/g, '-')
+            .replace(/\u2013/g, '-')
+            .replace(/\u2026/g, '...')
+            .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
             .trim();
     };
     
+    const matches = [];
+    
     if (data.turn_analysis && data.turn_analysis.stereotype_quotes && data.turn_analysis.stereotype_quotes.length > 0) {
         const sortedQuotes = [...data.turn_analysis.stereotype_quotes]
-            .map(quote => quote.replace(/^\d+\.\s*/, '').trim()) // Remove numbering
+            .map(quote => quote.replace(/^\d+\.\s*/, '').trim())
             .sort((a, b) => b.length - a.length);
         
         sortedQuotes.forEach(quote => {
             const cleanQuote = normalizeText(quote);
             const regex = new RegExp(cleanQuote, 'gi');
-            text = text.replace(regex, match => `<span class="highlight-stereotype">${match}</span>`);
+            let match;
+            while ((match = regex.exec(text)) !== null) {
+                matches.push({
+                    start: match.index,
+                    end: match.index + match[0].length,
+                    type: 'stereotype',
+                    text: match[0]
+                });
+            }
         });
     }
     
     if (data.turn_analysis && data.turn_analysis.anti_stereotype_quotes && data.turn_analysis.anti_stereotype_quotes.length > 0) {
         const sortedQuotes = [...data.turn_analysis.anti_stereotype_quotes]
-            .map(quote => quote.replace(/^\d+\.\s*/, '').trim()) // Remove numbering
-            .map(quote => quote.replace(/\s*\([^)]*\)/, '').trim()) // Remove parenthetical explanations
+            .map(quote => quote.replace(/^\d+\.\s*/, '').trim())
+            .map(quote => quote.replace(/\s*\([^)]*\)/, '').trim())
             .sort((a, b) => b.length - a.length);
         
         sortedQuotes.forEach(quote => {
             const cleanQuote = normalizeText(quote);
             const regex = new RegExp(cleanQuote, 'gi');
-            text = text.replace(regex, match => `<span class="highlight-anti-stereotype">${match}</span>`);
+            let match;
+            while ((match = regex.exec(text)) !== null) {
+                matches.push({
+                    start: match.index,
+                    end: match.index + match[0].length,
+                    type: 'anti-stereotype',
+                    text: match[0]
+                });
+            }
         });
     }
+    
+    matches.sort((a, b) => a.start - b.start);
+    
+    matches.reverse().forEach(match => {
+        const before = text.slice(0, match.start);
+        const after = text.slice(match.end);
+        const className = match.type === 'stereotype' ? 'highlight-stereotype' : 'highlight-anti-stereotype';
+        text = before + `<span class="${className}">${match.text}</span>` + after;
+    });
     
     turnDiv.innerHTML = `
         <div class="font-semibold mb-2">${data.speaker}</div>
