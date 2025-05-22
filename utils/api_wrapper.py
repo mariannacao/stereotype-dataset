@@ -22,11 +22,34 @@ class OpenRouterAPI:
             default_headers={
                 "HTTP-Referer": self.referer,
                 "X-Title": self.title
-            }
+            },
+            timeout=30.0 
         )
         
         self.max_retries = 3
-        self.retry_delay = 2  # seconds
+        self.retry_delay = 2
+        self.max_tokens = 4000
+        self.max_input_tokens = 8000
+    
+    def _truncate_messages(self, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        total_length = sum(len(msg.get('content', '')) for msg in messages)
+        if total_length > self.max_input_tokens:
+            system_msg = next((msg for msg in messages if msg['role'] == 'system'), None)
+            truncated_messages = [system_msg] if system_msg else []
+            
+            remaining_tokens = self.max_input_tokens - len(system_msg.get('content', '')) if system_msg else self.max_input_tokens
+            for msg in messages:
+                if msg['role'] != 'system':
+                    content = msg.get('content', '')
+                    if len(content) > remaining_tokens:
+                        content = content[:remaining_tokens] + "..."
+                    truncated_messages.append({'role': msg['role'], 'content': content})
+                    remaining_tokens -= len(content)
+                    if remaining_tokens <= 0:
+                        break
+            
+            return truncated_messages
+        return messages
     
     def generate_response(self, 
                          messages: List[Dict[str, str]], 
@@ -48,16 +71,18 @@ class OpenRouterAPI:
         retries = 0
         last_error = None
         
+        # Truncate messages if needed
+        messages = self._truncate_messages(messages)
+        
         while retries < self.max_retries:
             try:
                 params: Dict[str, Any] = {
                     "model": self.model,
                     "messages": messages,
                     "temperature": temperature,
+                    "max_tokens": max_tokens or self.max_tokens,
                 }
                 
-                if max_tokens is not None:
-                    params["max_tokens"] = max_tokens
                 if top_p is not None:
                     params["top_p"] = top_p
                 
