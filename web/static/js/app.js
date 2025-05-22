@@ -149,21 +149,39 @@ function addDialogueTurn(data) {
     
     let text = data.content;
     
+    const normalizeText = (str) => {
+        return str
+            .replace(/\u2019/g, "'")  // smart single quote
+            .replace(/\u2018/g, "'")  // smart single quote
+            .replace(/\u201c/g, '"')  // smart double quote
+            .replace(/\u201d/g, '"')  // smart double quote
+            .replace(/\u2014/g, '-')  // em dash
+            .replace(/\u2013/g, '-')  // en dash
+            .replace(/\u2026/g, '...') // ellipsis
+            .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape regex special chars
+            .trim();
+    };
+    
     if (data.turn_analysis && data.turn_analysis.stereotype_quotes && data.turn_analysis.stereotype_quotes.length > 0) {
-        const sortedQuotes = [...data.turn_analysis.stereotype_quotes].sort((a, b) => b.length - a.length);
+        const sortedQuotes = [...data.turn_analysis.stereotype_quotes]
+            .map(quote => quote.replace(/^\d+\.\s*/, '').trim()) // Remove numbering
+            .sort((a, b) => b.length - a.length);
         
         sortedQuotes.forEach(quote => {
-            const cleanQuote = quote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim();
+            const cleanQuote = normalizeText(quote);
             const regex = new RegExp(cleanQuote, 'gi');
             text = text.replace(regex, match => `<span class="highlight-stereotype">${match}</span>`);
         });
     }
     
     if (data.turn_analysis && data.turn_analysis.anti_stereotype_quotes && data.turn_analysis.anti_stereotype_quotes.length > 0) {
-        const sortedQuotes = [...data.turn_analysis.anti_stereotype_quotes].sort((a, b) => b.length - a.length);
+        const sortedQuotes = [...data.turn_analysis.anti_stereotype_quotes]
+            .map(quote => quote.replace(/^\d+\.\s*/, '').trim()) // Remove numbering
+            .map(quote => quote.replace(/\s*\([^)]*\)/, '').trim()) // Remove parenthetical explanations
+            .sort((a, b) => b.length - a.length);
         
         sortedQuotes.forEach(quote => {
-            const cleanQuote = quote.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim();
+            const cleanQuote = normalizeText(quote);
             const regex = new RegExp(cleanQuote, 'gi');
             text = text.replace(regex, match => `<span class="highlight-anti-stereotype">${match}</span>`);
         });
