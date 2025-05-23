@@ -23,34 +23,14 @@ class OpenRouterAPI:
                 "HTTP-Referer": self.referer,
                 "X-Title": self.title
             },
-            timeout=30.0 
+            timeout=30.0
         )
         
         self.max_retries = 3
         self.retry_delay = 5
         self.max_tokens = 40000
         self.max_input_tokens = 80000
-    
-    # def _truncate_messages(self, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
-    #     total_length = sum(len(msg.get('content', '')) for msg in messages)
-    #     if total_length > self.max_input_tokens:
-    #         system_msg = next((msg for msg in messages if msg['role'] == 'system'), None)
-    #         truncated_messages = [system_msg] if system_msg else []
-            
-    #         remaining_tokens = self.max_input_tokens - len(system_msg.get('content', '')) if system_msg else self.max_input_tokens
-    #         for msg in messages:
-    #             if msg['role'] != 'system':
-    #                 content = msg.get('content', '')
-    #                 if len(content) > remaining_tokens:
-    #                     content = content[:remaining_tokens] + "..."
-    #                 truncated_messages.append({'role': msg['role'], 'content': content})
-    #                 remaining_tokens -= len(content)
-    #                 if remaining_tokens <= 0:
-    #                     break
-            
-    #         return truncated_messages
-    #     return messages
-    
+     
     def generate_response(self, 
                          messages: List[Dict[str, str]], 
                          temperature: float = 0.7,
@@ -70,8 +50,7 @@ class OpenRouterAPI:
         """
         retries = 0
         last_error = None
-        
-        # messages = self._truncate_messages(messages)
+        current_delay = self.retry_delay
         
         while retries < self.max_retries:
             try:
@@ -88,10 +67,19 @@ class OpenRouterAPI:
                 response = self.client.chat.completions.create(**params)
                 
                 if response and response.choices and len(response.choices) > 0:
-                    return response.choices[0].message.content
+                    content = response.choices[0].message.content
+                    if content and content.strip():
+                        return content
+                    else:
+                        print(f"Warning: Empty content in response (attempt {retries + 1}/{self.max_retries})")
                 else:
-                    print("Warning: Empty response from API")
-                    retries += 1
+                    print(f"Warning: Empty response from API (attempt {retries + 1}/{self.max_retries})")
+                
+                retries += 1
+                if retries < self.max_retries:
+                    print(f"Retrying in {current_delay} seconds...")
+                    time.sleep(current_delay)
+                    current_delay *= 2  
                     
             except Exception as e:
                 last_error = str(e)
@@ -99,45 +87,9 @@ class OpenRouterAPI:
                 retries += 1
                 
                 if retries < self.max_retries:
-                    print(f"Retrying in {self.retry_delay} seconds...")
-                    time.sleep(self.retry_delay)
-                    self.retry_delay *= 2
+                    print(f"Retrying in {current_delay} seconds...")
+                    time.sleep(current_delay)
+                    current_delay *= 2 
         
         print(f"All {self.max_retries} attempts failed. Last error: {last_error}")
         return None
-
-    def generate_dialogue_turn(self,
-                             persona_description: str,
-                             conversation_history: List[Dict[str, str]],
-                             system_prompt: str) -> str:
-        """
-        Generate a single turn of dialogue for a given persona.
-        
-        Args:
-            persona_description: Description of the speaking persona
-            conversation_history: List of previous messages
-            system_prompt: System prompt to guide the generation
-            
-        Returns:
-            Generated dialogue turn or a fallback message if generation fails
-        """
-        formatted_history = []
-        for msg in conversation_history:
-            formatted_history.append({
-                "role": "assistant" if msg.get("speaker") else "user",
-                "content": f"{msg.get('speaker', 'Unknown')}: {msg.get('content', '')}"
-            })
-
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Persona:\n{persona_description}\n\nConversation history:\n" + 
-             "\n".join([f"{m.get('speaker', 'Unknown')}: {m.get('content', '')}" for m in conversation_history])}
-        ]
-        
-        response = self.generate_response(messages, temperature=0.7)
-        
-        if response is None:
-            # Return a fallback response if API calls fail
-            return "[Error: Unable to generate response. The conversation cannot continue.]"
-        
-        return response

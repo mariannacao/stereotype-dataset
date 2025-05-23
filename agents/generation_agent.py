@@ -32,48 +32,8 @@ class GenerationAgent:
         Returns:
             Generated dialogue turn
         """
-        system_prompt = self.base_system_prompt
-        
-        if dialogue_context:
-            system_prompt += f"\n\nContext: {dialogue_context}"
-        if dialogue_goal:
-            system_prompt += f"\n\nConversation goal: {dialogue_goal}"
-        
-        if not conversation_history:
-            system_prompt += """\n\nThis is the FIRST turn of the conversation. You should:
-            1. Start the discussion naturally, addressing the context and goal
-            2. Speak in a way that establishes your persona's perspective
-            3. Open the conversation in a way that invites response
-            4. Make a substantive contribution that sets the tone for the dialogue
-            
-            Do NOT just say hello or give a minimal response. Make a meaningful opening statement."""
-            
-        persona_desc = speaking_persona.get_prompt_description()
-        
-        user_prompt = f"Persona:\n{persona_desc}\n\n"
-        if conversation_history:
-            user_prompt += f"Conversation history:\n" + "\n".join([
-                f"{m.get('speaker', 'Unknown')}: {m.get('content', '')}" 
-                for m in conversation_history
-            ])
-        else:
-            user_prompt += f"You are starting the conversation in this context. Make a meaningful opening statement that reflects your persona and engages with the topic."
-        
-        response = self.api_client.generate_dialogue_turn(
-            persona_description=persona_desc,
-            conversation_history=conversation_history,
-            system_prompt=system_prompt
-        )
-        
-        if not response or not response.strip():
-            system_prompt += "\n\nIMPORTANT: You MUST generate a substantive response. Empty or minimal responses are not acceptable."
-            response = self.api_client.generate_dialogue_turn(
-                persona_description=persona_desc,
-                conversation_history=conversation_history,
-                system_prompt=system_prompt
-            )
-        
-        return response.strip()
+        # rip
+        return ""
     
     def format_conversation_history(self, history: List[Dict[str, str]]) -> str:
         """Format conversation history for display or logging."""
