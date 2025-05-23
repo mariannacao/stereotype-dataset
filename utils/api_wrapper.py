@@ -26,7 +26,7 @@ class OpenRouterAPI:
             timeout=30.0
         )
         
-        self.max_retries = 3
+        self.max_retries = 10
         self.retry_delay = 5
         self.max_tokens = 40000
         self.max_input_tokens = 80000

@@ -9,12 +9,23 @@ const dialogueContainer = document.getElementById('dialogueContainer');
 const analysisContainer = document.getElementById('analysisContainer');
 const turnsInput = document.getElementById('turnsInput');
 
+function forceReloadStyles() {
+    const links = document.getElementsByTagName('link');
+    for (let i = 0; i < links.length; i++) {
+        if (links[i].rel === 'stylesheet') {
+            const href = links[i].href.split('?')[0];
+            links[i].href = href + '?v=' + new Date().getTime();
+        }
+    }
+}
+
 function initWebSocket() {
     ws = new WebSocket(`ws://${window.location.host}/ws`);
     
     ws.onopen = () => {
         console.log('WebSocket connected');
         generateBtn.disabled = false;
+        forceReloadStyles();
     };
     
     ws.onclose = () => {
@@ -146,6 +157,7 @@ function addPersonaMetadata(personas) {
 function addDialogueTurn(data) {
     const turnDiv = document.createElement('div');
     turnDiv.className = `dialogue-turn ${data.persona_id}`;
+    turnDiv.dataset.turnIndex = dialogueContainer.children.length;
     
     let text = data.content;
     
@@ -219,6 +231,20 @@ function addDialogueTurn(data) {
         <div class="whitespace-pre-wrap">${text}</div>
     `;
     
+    turnDiv.addEventListener('click', () => {
+        document.querySelectorAll('.dialogue-turn, .analysis-item').forEach(el => {
+            el.classList.remove('elevated');
+        });
+        
+        turnDiv.classList.add('elevated');
+        
+        const analysisItem = analysisContainer.children[turnDiv.dataset.turnIndex];
+        if (analysisItem) {
+            analysisItem.classList.add('elevated');
+            analysisItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    });
+    
     dialogueContainer.appendChild(turnDiv);
     dialogueContainer.scrollTop = dialogueContainer.scrollHeight;
 }
@@ -230,6 +256,8 @@ function addAnalysisItem(data) {
                               !data.turn_analysis.persona_consistency.toLowerCase().includes('inconsistent');
     
     analysisDiv.className = `analysis-item ${data.persona_id}`;
+    analysisDiv.dataset.turnIndex = analysisContainer.children.length;
+    analysisDiv.style.cursor = 'pointer';
     
     analysisDiv.innerHTML = `
         <div class="font-semibold mb-2">${data.speaker}'s Turn Analysis</div>
@@ -256,6 +284,20 @@ function addAnalysisItem(data) {
             </div>
         </div>
     `;
+    
+    analysisDiv.addEventListener('click', () => {
+        document.querySelectorAll('.dialogue-turn, .analysis-item').forEach(el => {
+            el.classList.remove('elevated');
+        });
+        
+        analysisDiv.classList.add('elevated');
+        
+        const turnDiv = dialogueContainer.children[analysisDiv.dataset.turnIndex];
+        if (turnDiv) {
+            turnDiv.classList.add('elevated');
+            turnDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    });
     
     analysisContainer.appendChild(analysisDiv);
     analysisContainer.scrollTop = analysisContainer.scrollHeight;
