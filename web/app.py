@@ -20,9 +20,9 @@ from config.stereotype_categories import STEREOTYPE_CATEGORIES
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="web/static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-templates = Jinja2Templates(directory="web/templates")
+templates = Jinja2Templates(directory="templates")
 
 active_connections: List[WebSocket] = []
 
@@ -141,9 +141,12 @@ async def websocket_endpoint(websocket: WebSocket):
             
             filename = save_dialogue(dialogue_data, category_id, scenario.name)
             
+            overall_analysis = dialogue_manager._analyze_conversation()
+            
             await websocket.send_json({
                 "type": "complete",
-                "message": f"Dialogue generation complete. Saved to {filename}"
+                "message": f"Dialogue generation complete. Saved to {filename}",
+                "statistics": overall_analysis
             })
             
     except WebSocketDisconnect:

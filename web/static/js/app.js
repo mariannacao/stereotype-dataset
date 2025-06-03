@@ -57,10 +57,10 @@ function handleWebSocketMessage(data) {
             addAnalysisItem(data);
             break;
         case 'complete':
-            showCompletionMessage(data.message);
             if (data.statistics) {
                 addOverallAnalysis(data.statistics);
             }
+            showCompletionMessage(data.message);
             isGenerating = false;
             updateGenerateButton();
             break;
