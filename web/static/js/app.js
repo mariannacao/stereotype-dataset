@@ -58,6 +58,9 @@ function handleWebSocketMessage(data) {
             break;
         case 'complete':
             showCompletionMessage(data.message);
+            if (data.statistics) {
+                addOverallAnalysis(data.statistics);
+            }
             isGenerating = false;
             updateGenerateButton();
             break;
@@ -394,6 +397,219 @@ generateBtn.addEventListener('click', () => {
         num_turns: numTurns
     }));
 });
+
+function addOverallAnalysis(statistics) {
+    const overallDiv = document.createElement('div');
+    overallDiv.className = 'overall-analysis';
+    
+    const summaryHTML = `
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-3">Overall Dialogue Statistics</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Total Turns</p>
+                    <p class="text-2xl font-bold">${statistics.total_turns}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Total Stereotypes</p>
+                    <p class="text-2xl font-bold text-red-600">${statistics.total_stereotypes}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Anti-Stereotypes</p>
+                    <p class="text-2xl font-bold text-green-600">${statistics.total_anti_stereotypes}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Stereotype Ratio</p>
+                    <p class="text-2xl font-bold">${(statistics.total_stereotypes / statistics.total_turns).toFixed(2)}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const evolutionHTML = `
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-3">Stereotype Evolution</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="sparkline-container mb-4" style="height: 60px;">
+                    ${generateSparkline(statistics.evolution)}
+                </div>
+                <div class="space-y-2">
+                    ${statistics.evolution.map(ev => `
+                        <div class="flex items-center text-sm">
+                            <span class="w-16">Turn ${ev.turn}:</span>
+                            <span class="w-8 text-center">${'⭐'.repeat(ev.intensity)}</span>
+                            <span class="text-gray-600 ml-2">${ev.note}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const powerHTML = `
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-3">Power Dynamics</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="space-y-4">
+                    ${Object.entries(statistics.power_dynamics).map(([speaker, data]) => `
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-semibold">${speaker}</span>
+                                <span class="text-sm text-gray-600">Influence: ${data.influence.toFixed(1)}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-indigo-600 h-2 rounded-full" style="width: ${data.influence * 20}%"></div>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">${data.observation}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const crossHTML = `
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-3">Cross-Stereotype Analysis</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="grid grid-cols-2 gap-4">
+                    ${statistics.cross_stereotypes.map(cross => `
+                        <div class="border rounded p-3">
+                            <div class="font-semibold text-sm mb-1">${cross.group1} + ${cross.group2}</div>
+                            <p class="text-sm text-gray-600">${cross.interaction}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const targetedGroupsHTML = `
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-3">Targeted Groups Analysis</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="space-y-4">
+                    ${Object.entries(statistics.targeted_groups).map(([group, data]) => `
+                        <div class="border rounded p-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-semibold">${group}</span>
+                                <span class="text-sm ${getSeverityColor(data.severity)}">${data.severity}</span>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                <span>Frequency: ${data.frequency}</span>
+                            </div>
+                            <p class="text-sm text-gray-600">${data.observation}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const severityHTML = `
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-3">Severity Analysis</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="space-y-3">
+                    ${statistics.severity_analysis.map(sev => `
+                        <div class="flex items-start">
+                            <span class="w-16 text-sm">Turn ${sev.turn}:</span>
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <span class="text-sm font-medium ${getSeverityColor(sev.severity)}">${sev.severity}</span>
+                                </div>
+                                <p class="text-sm text-gray-600">${sev.justification}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const mitigationHTML = `
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-3">Mitigation Effectiveness</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="space-y-3">
+                    ${statistics.mitigation_effectiveness.map(mit => `
+                        <div class="flex items-start">
+                            <span class="w-16 text-sm">Turn ${mit.turn}:</span>
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <span class="text-sm font-medium">${mit.challenge}</span>
+                                    <span class="ml-2">${mit.success ? '✅' : '❌'}</span>
+                                </div>
+                                <p class="text-sm text-gray-600">${mit.outcome}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const narrativeHTML = `
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-3">Narrative Summary</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-gray-700">${statistics.narrative_summary}</p>
+            </div>
+        </div>
+    `;
+    
+    overallDiv.innerHTML = `
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Overall Analysis</h2>
+            ${summaryHTML}
+            ${evolutionHTML}
+            ${powerHTML}
+            ${crossHTML}
+            ${targetedGroupsHTML}
+            ${severityHTML}
+            ${mitigationHTML}
+            ${narrativeHTML}
+        </div>
+    `;
+    
+    analysisContainer.insertBefore(overallDiv, analysisContainer.firstChild);
+}
+
+function getSeverityColor(severity) {
+    switch (severity.toLowerCase()) {
+        case 'severe':
+            return 'text-red-600';
+        case 'moderate':
+            return 'text-yellow-600';
+        case 'mild':
+            return 'text-green-600';
+        default:
+            return 'text-gray-600';
+    }
+}
+
+function generateSparkline(evolution) {
+    const maxIntensity = Math.max(...evolution.map(e => e.intensity));
+    const points = evolution.map(e => (e.intensity / maxIntensity) * 100);
+    
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", "100%");
+    svg.setAttribute("height", "100%");
+    svg.setAttribute("viewBox", "0 0 100 20");
+    
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const d = points.map((p, i) => 
+        `${i === 0 ? 'M' : 'L'} ${(i / (points.length - 1)) * 100} ${100 - p}`
+    ).join(' ');
+    
+    path.setAttribute("d", d);
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", "#4f46e5");
+    path.setAttribute("stroke-width", "2");
+    
+    svg.appendChild(path);
+    return svg.outerHTML;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     initWebSocket();

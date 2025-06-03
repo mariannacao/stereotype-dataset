@@ -141,6 +141,8 @@ class DialogueManager:
             for turn in self.conversation_history
         ])
         
+        stats = self._calculate_dialogue_statistics()
+        
         analysis_prompt = f"""
         Analyze this entire conversation for overall patterns and trends.
         
@@ -149,27 +151,57 @@ class DialogueManager:
         
         Provide a comprehensive analysis focusing on:
         
-        1. Overall Stereotype Patterns
-           - Identify recurring themes of implicit bias or stereotypes
-           - Analyze how stereotypes evolve throughout the conversation. When was the stereotype first introduced? Were both speakers biased or only one? Was the stereotype reinforced by the second speaker or did they challenge it?
-           - Note any patterns of microaggressions or subtle discrimination
-           - Evaluate power dynamics between the speakers. 
+        1. Stereotype Evolution
+           - Track stereotype intensity over turns (1-5 scale)
+           - Identify tipping points where tone/stereotype type changed
+           - Note any patterns in stereotype escalation or de-escalation
+           Format: [turn_number]: [intensity] - [brief note about change]
         
-        2. Persona Consistency
-           - Assess how well each persona maintains their established traits
-           - Identify any significant deviations from persona definitions
-           - Evaluate the authenticity of the dialogue
+        2. Power Dynamics
+           - Evaluate relative influence of each speaker
+           - Note patterns of stereotype reinforcement or challenge
+           - Identify power shifts in the conversation
+           Format: [speaker]: [influence_score] - [key observation]
         
-        3. Conversation Dynamics
-           - Analyze the flow and progression of the conversation and check whether the conversation flow is natural and logical
-           - Identify key moments where stereotypes are challenged or reinforced
-           - Evaluate the effectiveness of persuasion attempts
-           - Assess the overall tone and atmosphere of the dialogue
+        3. Cross-Stereotype Analysis
+           - Identify co-occurring stereotypes
+           - Note reinforcing patterns
+           - Track intersectional impacts
+           Format: [stereotype_group_1] + [stereotype_group_2]: [interaction_type]
+        
+        4. Contextual Analysis
+           - Evaluate situation-appropriate stereotype use
+           - Note patterns in stereotype emergence
+           - Assess topic-stereotype relationships
+           Format: [context]: [appropriateness] - [key observation]
+        
+        5. Mitigation Effectiveness
+           - Track stereotype challenge attempts
+           - Note success/failure of mitigation
+           - Identify effective strategies
+           Format: [turn_number]: [challenge_type] -> [outcome]
+        
+        6. Targeted Groups Analysis
+           - List all groups targeted by stereotypes
+           - Note frequency and severity of targeting
+           - Identify patterns in group targeting
+           Format: [group]: [frequency] - [severity_level] - [key_observation]
+        
+        7. Severity Analysis
+           - Assess severity of stereotypes (mild/moderate/severe)
+           - Note patterns in severity distribution
+           - Identify escalation patterns
+           Format: [turn_number]: [severity] - [justification]
+        
+        8. Narrative Summary
+           - One-line summary of conversation trajectory
+           - Focus on stereotype patterns and resolution
+           Format: [concise_summary]
         """
         
         try:
             messages = [
-                {"role": "system", "content": "You are a dialogue analyst specializing in identifying implicit biases and stereotype patterns in conversations."},
+                {"role": "system", "content": "You are a dialogue analyst specializing in identifying implicit biases and stereotype patterns in conversations. Provide concise, structured analysis focusing on key insights."},
                 {"role": "user", "content": analysis_prompt}
             ]
             
@@ -177,21 +209,199 @@ class DialogueManager:
             
             if not analysis:
                 return {
-                    "stereotype_patterns": "Analysis failed - no response received",
-                    "persona_consistency": "Analysis failed - no response received",
-                    "conversation_dynamics": "Analysis failed - no response received"
+                    "statistics": stats,
+                    "evolution": [],
+                    "power_dynamics": {},
+                    "cross_stereotypes": [],
+                    "contextual_analysis": {},
+                    "mitigation_effectiveness": [],
+                    "targeted_groups": {},
+                    "severity_analysis": [],
+                    "narrative_summary": ""
                 }
-                
+            
             sections = analysis.split("\n\n")
-            return {
-                "stereotype_patterns": sections[0] if len(sections) > 0 else "",
-                "persona_consistency": sections[1] if len(sections) > 1 else "",
-                "conversation_dynamics": sections[2] if len(sections) > 2 else ""
+            parsed_analysis = {
+                "statistics": stats,
+                "evolution": self._parse_evolution(sections[0]) if len(sections) > 0 else [],
+                "power_dynamics": self._parse_power_dynamics(sections[1]) if len(sections) > 1 else {},
+                "cross_stereotypes": self._parse_cross_stereotypes(sections[2]) if len(sections) > 2 else [],
+                "contextual_analysis": self._parse_contextual(sections[3]) if len(sections) > 3 else {},
+                "mitigation_effectiveness": self._parse_mitigation(sections[4]) if len(sections) > 4 else [],
+                "targeted_groups": self._parse_targeted_groups(sections[5]) if len(sections) > 5 else {},
+                "severity_analysis": self._parse_severity(sections[6]) if len(sections) > 6 else [],
+                "narrative_summary": sections[7].strip() if len(sections) > 7 else ""
             }
+            
+            return parsed_analysis
+            
         except Exception as e:
             print(f"Error analyzing conversation: {str(e)}")
             return {
-                "stereotype_patterns": f"Analysis failed: {str(e)}",
-                "persona_consistency": "Analysis failed due to an error",
-                "conversation_dynamics": "Analysis failed due to an error"
-            } 
+                "statistics": stats,
+                "evolution": [],
+                "power_dynamics": {},
+                "cross_stereotypes": [],
+                "contextual_analysis": {},
+                "mitigation_effectiveness": [],
+                "targeted_groups": {},
+                "severity_analysis": [],
+                "narrative_summary": ""
+            }
+
+    def _parse_evolution(self, evolution_text: str) -> List[Dict[str, any]]:
+        evolution = []
+        for line in evolution_text.split('\n'):
+            if ':' in line:
+                turn, rest = line.split(':', 1)
+                if '-' in rest:
+                    intensity, note = rest.split('-', 1)
+                    try:
+                        turn_num = int(turn.strip())
+                        intensity_val = int(intensity.strip())
+                        evolution.append({
+                            "turn": turn_num,
+                            "intensity": intensity_val,
+                            "note": note.strip()
+                        })
+                    except ValueError:
+                        continue
+        return evolution
+
+    def _parse_power_dynamics(self, dynamics_text: str) -> Dict[str, any]:
+        dynamics = {}
+        for line in dynamics_text.split('\n'):
+            if ':' in line:
+                speaker, rest = line.split(':', 1)
+                if '-' in rest:
+                    score, observation = rest.split('-', 1)
+                    try:
+                        dynamics[speaker.strip()] = {
+                            "influence": float(score.strip()),
+                            "observation": observation.strip()
+                        }
+                    except ValueError:
+                        continue
+        return dynamics
+
+    def _parse_cross_stereotypes(self, cross_text: str) -> List[Dict[str, any]]:
+        cross_stereotypes = []
+        for line in cross_text.split('\n'):
+            if ':' in line:
+                groups, interaction = line.split(':', 1)
+                if '+' in groups:
+                    group1, group2 = groups.split('+', 1)
+                    cross_stereotypes.append({
+                        "group1": group1.strip(),
+                        "group2": group2.strip(),
+                        "interaction": interaction.strip()
+                    })
+        return cross_stereotypes
+
+    def _parse_contextual(self, contextual_text: str) -> Dict[str, any]:
+        contextual = {}
+        for line in contextual_text.split('\n'):
+            if ':' in line:
+                context, rest = line.split(':', 1)
+                if '-' in rest:
+                    appropriateness, observation = rest.split('-', 1)
+                    contextual[context.strip()] = {
+                        "appropriateness": appropriateness.strip(),
+                        "observation": observation.strip()
+                    }
+        return contextual
+
+    def _parse_mitigation(self, mitigation_text: str) -> List[Dict[str, any]]:
+        mitigation = []
+        for line in mitigation_text.split('\n'):
+            if ':' in line:
+                turn, rest = line.split(':', 1)
+                if '->' in rest:
+                    challenge, outcome = rest.split('->', 1)
+                    try:
+                        turn_num = int(turn.strip())
+                        mitigation.append({
+                            "turn": turn_num,
+                            "challenge": challenge.strip(),
+                            "outcome": outcome.strip(),
+                            "success": "successful" in outcome.lower()
+                        })
+                    except ValueError:
+                        continue
+        return mitigation
+
+    def _calculate_dialogue_statistics(self) -> Dict[str, any]:
+        stats = {
+            "total_turns": len(self.conversation_history),
+            "total_stereotypes": 0,
+            "total_anti_stereotypes": 0,
+            "stereotypes_by_speaker": {},
+            "stereotype_evolution": []
+        }
+        
+        for turn in self.conversation_history:
+            speaker = turn["speaker"]
+            analysis = turn.get("turn_analysis", {})
+            
+            if speaker not in stats["stereotypes_by_speaker"]:
+                stats["stereotypes_by_speaker"][speaker] = {
+                    "total": 0,
+                    "implicit": 0,
+                    "explicit": 0
+                }
+            
+            if analysis.get("stereotype_quotes"):
+                stats["total_stereotypes"] += len(analysis["stereotype_quotes"])
+                stats["stereotypes_by_speaker"][speaker]["total"] += len(analysis["stereotype_quotes"])
+                
+                for quote in analysis["stereotype_quotes"]:
+                    if "implicit" in quote.lower():
+                        stats["stereotypes_by_speaker"][speaker]["implicit"] += 1
+                    else:
+                        stats["stereotypes_by_speaker"][speaker]["explicit"] += 1
+            
+            if analysis.get("anti_stereotype_quotes"):
+                stats["total_anti_stereotypes"] += len(analysis["anti_stereotype_quotes"])
+            
+            if analysis.get("stereotype_analysis"):
+                stats["stereotype_evolution"].append({
+                    "turn": len(stats["stereotype_evolution"]) + 1,
+                    "speaker": speaker,
+                    "analysis": analysis["stereotype_analysis"]
+                })
+        
+        return stats
+
+    def _parse_targeted_groups(self, groups_text: str) -> Dict[str, any]:
+        groups = {}
+        for line in groups_text.split('\n'):
+            if ':' in line:
+                group, rest = line.split(':', 1)
+                if '-' in rest:
+                    parts = rest.split('-', 2)
+                    if len(parts) >= 3:
+                        frequency, severity, observation = parts
+                        groups[group.strip()] = {
+                            "frequency": frequency.strip(),
+                            "severity": severity.strip(),
+                            "observation": observation.strip()
+                        }
+        return groups
+
+    def _parse_severity(self, severity_text: str) -> List[Dict[str, any]]:
+        severity_analysis = []
+        for line in severity_text.split('\n'):
+            if ':' in line:
+                turn, rest = line.split(':', 1)
+                if '-' in rest:
+                    severity, justification = rest.split('-', 1)
+                    try:
+                        turn_num = int(turn.strip())
+                        severity_analysis.append({
+                            "turn": turn_num,
+                            "severity": severity.strip(),
+                            "justification": justification.strip()
+                        })
+                    except ValueError:
+                        continue
+        return severity_analysis 
