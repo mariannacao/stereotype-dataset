@@ -31,13 +31,21 @@ def ensure_directory(path: str):
     """Ensure the output directory exists."""
     Path(path).mkdir(parents=True, exist_ok=True)
 
-def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str):
+def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str, dialogue_manager: DialogueManager = None):
     """Save the generated dialogue to a JSON file."""
     output_dir = "output"
     ensure_directory(output_dir)
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"{output_dir}/{category_id}_{scenario_name.lower().replace(' ', '_')}_{timestamp}.json"
+    
+    if dialogue_manager:
+        try:
+            overall_analysis = dialogue_manager._analyze_conversation()
+            dialogue_data["overall_analysis"] = overall_analysis
+        except Exception as e:
+            print(f"Error generating overall analysis for save: {str(e)}")
+            dialogue_data["overall_analysis"] = {"error": str(e)}
     
     with open(filename, 'w') as f:
         json.dump(dialogue_data, f, indent=2)
@@ -148,14 +156,21 @@ async def websocket_endpoint(websocket: WebSocket):
                         "turn_analysis": turn_data["turn_analysis"]
                     })
                 
-                filename = save_dialogue(dialogue_data, category_id, scenario.name)
+                filename = save_dialogue(dialogue_data, category_id, scenario.name, dialogue_manager)
                 
-                asyncio.create_task(generate_overall_analysis(dialogue_manager))
-                
-                await websocket.send_json({
-                    "type": "complete",
-                    "message": f"Dialogue generation complete. Saved to {filename}"
-                })
+                try:
+                    overall_analysis = dialogue_manager._analyze_conversation()
+                    await websocket.send_json({
+                        "type": "complete",
+                        "message": f"Dialogue generation complete. Saved to {filename}",
+                        "statistics": overall_analysis
+                    })
+                except Exception as e:
+                    print(f"Error generating overall analysis: {str(e)}")
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": f"Error generating overall analysis: {str(e)}"
+                    })
                 
             except json.JSONDecodeError:
                 await websocket.send_json({

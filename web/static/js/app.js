@@ -57,12 +57,15 @@ function handleWebSocketMessage(data) {
             addAnalysisItem(data);
             break;
         case 'complete':
-            if (data.statistics) {
-                addOverallAnalysis(data.statistics);
-            }
-            showCompletionMessage(data.message);
-            isGenerating = false;
-            updateGenerateButton();
+            addOverallAnalysis(null);
+            setTimeout(() => {
+                if (data.statistics) {
+                    renderOverallAnalysis(document.querySelector('.overall-analysis'), data.statistics);
+                }
+                showCompletionMessage(data.message);
+                isGenerating = false;
+                updateGenerateButton();
+            }, 100);
             break;
         case 'error':
             showErrorMessage(data.message);
@@ -428,50 +431,11 @@ function addOverallAnalysis(statistics) {
     const overallAnalysisContainer = document.getElementById('overallAnalysisContainer');
     overallAnalysisContainer.innerHTML = '';
     overallAnalysisContainer.appendChild(overallDiv);
-
-    if (!statistics) {
-        pollForOverallAnalysis(overallDiv);
-        return;
-    }
-
-    renderOverallAnalysis(overallDiv, statistics);
-}
-
-function pollForOverallAnalysis(overallDiv, attempt = 1) {
-    const maxAttempts = 10;
-    const baseDelay = 1000; 
-    
-    if (attempt > maxAttempts) {
-        overallDiv.innerHTML = `
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold mb-4">Overall Analysis</h2>
-                <div class="text-red-600">
-                    Failed to load overall analysis after ${maxAttempts} attempts. Please try again.
-                </div>
-            </div>
-        `;
-        return;
-    }
-
-    const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), 30000); // Max 30 seconds
-    
-    setTimeout(async () => {
-        try {
-            const response = await fetch('/api/overall-analysis');
-            if (response.ok) {
-                const statistics = await response.json();
-                renderOverallAnalysis(overallDiv, statistics);
-            } else {
-                pollForOverallAnalysis(overallDiv, attempt + 1);
-            }
-        } catch (error) {
-            console.error('Error polling for overall analysis:', error);
-            pollForOverallAnalysis(overallDiv, attempt + 1);
-        }
-    }, delay);
 }
 
 function renderOverallAnalysis(overallDiv, statistics) {
+    if (!overallDiv) return;
+    
     const summaryHTML = `
         <div class="mb-6">
             <h3 class="text-lg font-semibold mb-3">Overall Dialogue Statistics</h3>
