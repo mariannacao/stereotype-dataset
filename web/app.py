@@ -1,5 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
@@ -25,6 +25,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 active_connections: List[WebSocket] = []
+current_analysis: Dict = {} 
 
 def ensure_directory(path: str):
     """Ensure the output directory exists."""
@@ -149,12 +150,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 filename = save_dialogue(dialogue_data, category_id, scenario.name)
                 
-                overall_analysis = dialogue_manager._analyze_conversation()
+                asyncio.create_task(generate_overall_analysis(dialogue_manager))
                 
                 await websocket.send_json({
                     "type": "complete",
-                    "message": f"Dialogue generation complete. Saved to {filename}",
-                    "statistics": overall_analysis
+                    "message": f"Dialogue generation complete. Saved to {filename}"
                 })
                 
             except json.JSONDecodeError:
@@ -182,6 +182,30 @@ async def websocket_endpoint(websocket: WebSocket):
             })
         except:
             pass
+
+async def generate_overall_analysis(dialogue_manager: DialogueManager):
+    try:
+        global current_analysis
+        current_analysis = dialogue_manager._analyze_conversation()
+    except Exception as e:
+        print(f"Error generating overall analysis: {str(e)}")
+        current_analysis = {"error": str(e)}
+
+@app.get("/api/overall-analysis")
+async def get_overall_analysis():
+    if not current_analysis:
+        return JSONResponse(
+            status_code=202,
+            content={"status": "processing"}
+        )
+    
+    if "error" in current_analysis:
+        return JSONResponse(
+            status_code=500,
+            content={"error": current_analysis["error"]}
+        )
+    
+    return current_analysis
 
 @app.get("/api/scenarios")
 async def get_scenarios():
