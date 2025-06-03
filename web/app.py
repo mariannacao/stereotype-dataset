@@ -42,7 +42,56 @@ def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str, dia
     if dialogue_manager:
         try:
             overall_analysis = dialogue_manager._analyze_conversation()
-            dialogue_data["overall_analysis"] = overall_analysis
+            
+            cleaned_analysis = {
+                "total_turns": overall_analysis.get("statistics", {}).get("total_turns", 0),
+                "total_stereotypes": overall_analysis.get("statistics", {}).get("total_stereotypes", 0),
+                "total_anti_stereotypes": overall_analysis.get("statistics", {}).get("total_anti_stereotypes", 0),
+                "evolution": overall_analysis.get("statistics", {}).get("stereotype_evolution", []),
+                "power_dynamics": {
+                    k.strip("- **").strip("**"): {
+                        "influence": v.get("influence", 0),
+                        "observation": v.get("observation", "").strip("**")
+                    }
+                    for k, v in overall_analysis.get("power_dynamics", {}).items()
+                },
+                "cross_stereotypes": [
+                    {
+                        "group1": item.get("group1", "").strip("- **").strip("**"),
+                        "group2": item.get("group2", "").strip("**"),
+                        "interaction": item.get("interaction", "").strip("**")
+                    }
+                    for item in overall_analysis.get("cross_stereotypes", [])
+                ],
+                "targeted_groups": {
+                    k.strip("- **").strip("**"): {
+                        "severity": v.get("severity", "mild"),
+                        "frequency": v.get("frequency", 0),
+                        "observation": v.get("observation", "").strip("**")
+                    }
+                    for k, v in overall_analysis.get("targeted_groups", {}).items()
+                },
+                "severity_analysis": [
+                    {
+                        "turn": item.get("turn", 0),
+                        "severity": item.get("severity", "mild"),
+                        "justification": item.get("justification", "").strip("**")
+                    }
+                    for item in overall_analysis.get("severity_analysis", [])
+                ],
+                "mitigation_effectiveness": [
+                    {
+                        "turn": item.get("turn", 0),
+                        "challenge": item.get("challenge", "").strip("**"),
+                        "success": item.get("success", False),
+                        "outcome": item.get("outcome", "").strip("**")
+                    }
+                    for item in overall_analysis.get("mitigation_effectiveness", [])
+                ],
+                "narrative_summary": overall_analysis.get("narrative_summary", "").strip("### 8. **Narrative Summary**  \n- **").strip("**")
+            }
+            
+            dialogue_data["overall_analysis"] = cleaned_analysis
         except Exception as e:
             print(f"Error generating overall analysis for save: {str(e)}")
             dialogue_data["overall_analysis"] = {"error": str(e)}
