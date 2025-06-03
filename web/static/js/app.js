@@ -559,7 +559,7 @@ function addOverallAnalysis(statistics) {
     `;
     
     overallDiv.innerHTML = `
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-xl font-semibold mb-4">Overall Analysis</h2>
             ${summaryHTML}
             ${evolutionHTML}
@@ -572,7 +572,9 @@ function addOverallAnalysis(statistics) {
         </div>
     `;
     
-    analysisContainer.insertBefore(overallDiv, analysisContainer.firstChild);
+    const overallAnalysisContainer = document.getElementById('overallAnalysisContainer');
+    overallAnalysisContainer.innerHTML = ''; 
+    overallAnalysisContainer.appendChild(overallDiv);
 }
 
 function getSeverityColor(severity) {
