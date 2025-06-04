@@ -444,19 +444,19 @@ function renderOverallAnalysis(overallDiv, statistics) {
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Total Turns</p>
-                    <p class="text-2xl font-bold">${stats.statistics.total_turns || 0}</p>
+                    <p class="text-2xl font-bold">${stats.statistics?.total_turns || 0}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Total Stereotypes</p>
-                    <p class="text-2xl font-bold text-red-600">${stats.statistics.total_stereotypes || 0}</p>
+                    <p class="text-2xl font-bold text-red-600">${stats.statistics?.total_stereotypes || 0}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Anti-Stereotypes</p>
-                    <p class="text-2xl font-bold text-green-600">${stats.statistics.total_anti_stereotypes || 0}</p>
+                    <p class="text-2xl font-bold text-green-600">${stats.statistics?.total_anti_stereotypes || 0}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Stereotype Ratio</p>
-                    <p class="text-2xl font-bold">${stats.statistics.total_turns ? (stats.statistics.total_stereotypes / stats.statistics.total_turns).toFixed(2) : '0.00'}</p>
+                    <p class="text-2xl font-bold">${stats.statistics?.total_turns ? (stats.statistics.total_stereotypes / stats.statistics.total_turns).toFixed(2) : '0.00'}</p>
                 </div>
             </div>
         </div>
@@ -467,17 +467,14 @@ function renderOverallAnalysis(overallDiv, statistics) {
             <h3 class="text-lg font-semibold mb-3">Stereotype Evolution</h3>
             <div class="bg-gray-50 p-4 rounded-lg">
                 <div class="space-y-2">
-                    ${(stats.evolution || []).map(ev => `
+                    ${(stats.statistics?.stereotype_evolution || []).map(ev => `
                         <div class="flex items-start">
                             <span class="w-16 text-sm">Turn ${ev.turn}:</span>
                             <div class="flex-1">
                                 <div class="flex items-center mb-1">
-                                    <span class="text-sm font-medium">Intensity: ${ev.intensity}/5</span>
-                                    <div class="ml-2 w-24 bg-gray-200 rounded-full h-2">
-                                        <div class="bg-indigo-600 h-2 rounded-full" style="width: ${ev.intensity * 20}%"></div>
-                                    </div>
+                                    <span class="text-sm font-medium">Speaker: ${ev.speaker}</span>
                                 </div>
-                                <p class="text-sm text-gray-600">${ev.note}</p>
+                                <p class="text-sm text-gray-600">${ev.analysis}</p>
                             </div>
                         </div>
                     `).join('')}
@@ -497,26 +494,7 @@ function renderOverallAnalysis(overallDiv, statistics) {
                                 <span class="font-semibold">${speaker}</span>
                                 <span class="text-sm text-gray-600">Influence: ${data.influence.toFixed(1)}</span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-indigo-600 h-2 rounded-full" style="width: ${data.influence * 20}%"></div>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-1">${data.observation}</p>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        </div>
-    `;
-    
-    const crossHTML = `
-        <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-3">Cross-Stereotype Analysis</h3>
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="grid grid-cols-2 gap-4">
-                    ${(stats.cross_stereotypes || []).map(cross => `
-                        <div class="border rounded p-3">
-                            <div class="font-semibold text-sm mb-1">${cross.group1} + ${cross.group2}</div>
-                            <p class="text-sm text-gray-600">${cross.interaction}</p>
+                            <p class="text-sm text-gray-600">${data.observation}</p>
                         </div>
                     `).join('')}
                 </div>
@@ -526,19 +504,17 @@ function renderOverallAnalysis(overallDiv, statistics) {
     
     const targetedGroupsHTML = `
         <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-3">Targeted Groups Analysis</h3>
+            <h3 class="text-lg font-semibold mb-3">Targeted Groups</h3>
             <div class="bg-gray-50 p-4 rounded-lg">
                 <div class="space-y-4">
                     ${Object.entries(stats.targeted_groups || {}).map(([group, data]) => `
-                        <div class="border rounded p-3">
-                            <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
                                 <span class="font-semibold">${group}</span>
-                                <span class="text-sm ${getSeverityColor(data.severity)}">${data.severity}</span>
-                            </div>
-                            <div class="flex justify-between text-sm text-gray-600 mb-2">
-                                <span>Frequency: ${data.frequency}</span>
+                                <span class="text-sm text-gray-600">${data.frequency}</span>
                             </div>
                             <p class="text-sm text-gray-600">${data.observation}</p>
+                            <span class="inline-block px-2 py-1 text-xs rounded ${getSeverityColor(data.severity)}">${data.severity}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -550,38 +526,14 @@ function renderOverallAnalysis(overallDiv, statistics) {
         <div class="mb-6">
             <h3 class="text-lg font-semibold mb-3">Severity Analysis</h3>
             <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="space-y-3">
-                    ${(stats.severity_analysis || []).map(sev => `
-                        <div class="flex items-start">
-                            <span class="w-16 text-sm">Turn ${sev.turn}:</span>
-                            <div class="flex-1">
-                                <div class="flex items-center">
-                                    <span class="text-sm font-medium ${getSeverityColor(sev.severity)}">${sev.severity}</span>
-                                </div>
-                                <p class="text-sm text-gray-600">${sev.justification}</p>
+                <div class="space-y-4">
+                    ${(stats.severity_analysis || []).map(analysis => `
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-semibold">Turn ${analysis.turn}</span>
+                                <span class="inline-block px-2 py-1 text-xs rounded ${getSeverityColor(analysis.severity)}">${analysis.severity}</span>
                             </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        </div>
-    `;
-    
-    const mitigationHTML = `
-        <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-3">Mitigation Effectiveness</h3>
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="space-y-3">
-                    ${(stats.mitigation_effectiveness || []).map(mit => `
-                        <div class="flex items-start">
-                            <span class="w-16 text-sm">Turn ${mit.turn}:</span>
-                            <div class="flex-1">
-                                <div class="flex items-center">
-                                    <span class="text-sm font-medium">${mit.challenge}</span>
-                                    <span class="ml-2">${mit.success ? '✅' : '❌'}</span>
-                                </div>
-                                <p class="text-sm text-gray-600">${mit.outcome}</p>
-                            </div>
+                            <p class="text-sm text-gray-600">${analysis.justification}</p>
                         </div>
                     `).join('')}
                 </div>
@@ -593,7 +545,7 @@ function renderOverallAnalysis(overallDiv, statistics) {
         <div class="mb-6">
             <h3 class="text-lg font-semibold mb-3">Narrative Summary</h3>
             <div class="bg-gray-50 p-4 rounded-lg">
-                <p class="text-gray-700">${stats.narrative_summary || ''}</p>
+                <p class="text-gray-700">${stats.narrative_summary || 'No summary available.'}</p>
             </div>
         </div>
     `;
@@ -604,10 +556,8 @@ function renderOverallAnalysis(overallDiv, statistics) {
             ${summaryHTML}
             ${evolutionHTML}
             ${powerHTML}
-            ${crossHTML}
             ${targetedGroupsHTML}
             ${severityHTML}
-            ${mitigationHTML}
             ${narrativeHTML}
         </div>
     `;

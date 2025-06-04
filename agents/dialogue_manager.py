@@ -273,31 +273,10 @@ class DialogueManager:
                 
                 parsed_analysis = json.loads(cleaned_analysis)
                 parsed_analysis["statistics"] = stats
-                
-                output_dir = "output"
-                ensure_directory(output_dir)
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"{output_dir}/analysis_{timestamp}.json"
-                
-                with open(filename, 'w') as f:
-                    json.dump(parsed_analysis, f, indent=2)
-                
                 return parsed_analysis
+                
             except json.JSONDecodeError as e:
                 print(f"Error parsing JSON response: {str(e)}")
-                output_dir = "output"
-                ensure_directory(output_dir)
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"{output_dir}/raw_analysis_{timestamp}.json"
-                
-                with open(filename, 'w') as f:
-                    json.dump({
-                        "raw_analysis": analysis,
-                        "cleaned_analysis": cleaned_analysis,
-                        "error": str(e),
-                        "statistics": stats
-                    }, f, indent=2)
-                
                 return {
                     "statistics": stats,
                     "evolution": [],
