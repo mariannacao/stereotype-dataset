@@ -56,16 +56,14 @@ def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str, dia
             print("===========================\n")
             
             dialogue_data["overall_analysis"] = overall_analysis
-            return filename, overall_analysis
         except Exception as e:
             print(f"Error generating overall analysis for save: {str(e)}")
             dialogue_data["overall_analysis"] = {"error": str(e)}
-            return filename, {"error": str(e)}
     
     with open(filename, 'w') as f:
         json.dump(dialogue_data, f, indent=2)
     
-    return filename, None
+    return filename, dialogue_data.get("overall_analysis")
 
 async def broadcast_message(message: dict):
     for connection in active_connections:

@@ -5,6 +5,11 @@ from agents.generation_agent import GenerationAgent
 from agents.monitoring_agent import MonitoringAgent
 import json
 from datetime import datetime
+from pathlib import Path
+
+def ensure_directory(path: str):
+    """Ensure the output directory exists."""
+    Path(path).mkdir(parents=True, exist_ok=True)
 
 class DialogueManager:
     def __init__(self):
@@ -132,7 +137,7 @@ class DialogueManager:
             for turn in self.conversation_history
         ])
         
-        stats = self._calculate_dialogue_statistics()
+        stats = self._calculate_statistics()
         
         analysis_prompt = f"""
         Analyze this entire conversation for overall patterns and trends.
@@ -268,6 +273,15 @@ class DialogueManager:
                 
                 parsed_analysis = json.loads(cleaned_analysis)
                 parsed_analysis["statistics"] = stats
+                
+                output_dir = "output"
+                ensure_directory(output_dir)
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"{output_dir}/analysis_{timestamp}.json"
+                
+                with open(filename, 'w') as f:
+                    json.dump(parsed_analysis, f, indent=2)
+                
                 return parsed_analysis
             except json.JSONDecodeError as e:
                 print(f"Error parsing JSON response: {str(e)}")
@@ -310,7 +324,7 @@ class DialogueManager:
                 "narrative_summary": ""
             }
 
-    def _calculate_dialogue_statistics(self) -> Dict[str, any]:
+    def _calculate_statistics(self) -> Dict[str, any]:
         stats = {
             "total_turns": len(self.conversation_history),
             "total_stereotypes": 0,
@@ -352,38 +366,4 @@ class DialogueManager:
         
         return stats
 
-    def _parse_targeted_groups(self, groups_text: str) -> Dict[str, any]:
-        groups = {}
-        for line in groups_text.split('\n'):
-            if '**' in line and ':**' in line:
-                group = line.split('**', 1)[1].split(':**', 1)[0]
-                rest = line.split(':**', 1)[1].strip()
-                if '-' in rest:
-                    parts = rest.split('-', 2)
-                    if len(parts) >= 3:
-                        frequency, severity, observation = parts
-                        groups[group] = {
-                            "frequency": frequency.strip(),
-                            "severity": severity.strip('*'), 
-                            "observation": observation.strip()
-                        }
-        return groups
-
-    def _parse_severity(self, severity_text: str) -> List[Dict[str, any]]:
-        severity_analysis = []
-        for line in severity_text.split('\n'):
-            if '**[' in line and ']**' in line:
-                turn = line.split('**[', 1)[1].split(']', 1)[0]
-                try:
-                    turn_num = int(turn)
-                    rest = line.split(']**', 1)[1].strip()
-                    if '-' in rest:
-                        severity, justification = rest.split('-', 1)
-                        severity_analysis.append({
-                            "turn": turn_num,
-                            "severity": severity.strip(),
-                            "justification": justification.strip()
-                        })
-                except ValueError:
-                    continue
-        return severity_analysis 
+   
