@@ -51,6 +51,9 @@ def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str, dia
     if dialogue_manager:
         try:
             overall_analysis = dialogue_manager._analyze_conversation()
+            print("\n=== RAW OVERALL ANALYSIS ===")
+            print(json.dumps(overall_analysis, indent=2))
+            print("===========================\n")
             
             cleaned_analysis = {
                 "total_turns": overall_analysis.get("statistics", {}).get("total_turns", 0),
@@ -106,6 +109,10 @@ def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str, dia
                 ],
                 "narrative_summary": clean_text(overall_analysis.get("narrative_summary", ""))
             }
+            
+            print("\n=== CLEANED ANALYSIS ===")
+            print(json.dumps(cleaned_analysis, indent=2))
+            print("=======================\n")
             
             dialogue_data["overall_analysis"] = cleaned_analysis
         except Exception as e:
@@ -225,6 +232,70 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 try:
                     overall_analysis = dialogue_manager._analyze_conversation()
+                    print("\n=== RAW OVERALL ANALYSIS ===")
+                    print(json.dumps(overall_analysis, indent=2))
+                    print("===========================\n")
+                    
+                    cleaned_analysis = {
+                        "total_turns": overall_analysis.get("statistics", {}).get("total_turns", 0),
+                        "total_stereotypes": overall_analysis.get("statistics", {}).get("total_stereotypes", 0),
+                        "total_anti_stereotypes": overall_analysis.get("statistics", {}).get("total_anti_stereotypes", 0),
+                        "evolution": [
+                            {
+                                "turn": ev.get("turn", 0),
+                                "speaker": ev.get("speaker", ""),
+                                "analysis": clean_text(ev.get("analysis", ""))
+                            }
+                            for ev in overall_analysis.get("statistics", {}).get("stereotype_evolution", [])
+                        ],
+                        "power_dynamics": {
+                            k: {
+                                "influence": v.get("influence", 0),
+                                "observation": clean_text(v.get("observation", ""))
+                            }
+                            for k, v in overall_analysis.get("power_dynamics", {}).items()
+                        },
+                        "cross_stereotypes": [
+                            {
+                                "group1": item.get("group1", ""),
+                                "group2": item.get("group2", ""),
+                                "interaction": clean_text(item.get("interaction", ""))
+                            }
+                            for item in overall_analysis.get("cross_stereotypes", [])
+                        ],
+                        "targeted_groups": {
+                            k: {
+                                "severity": v.get("severity", "mild"),
+                                "frequency": v.get("frequency", 0),
+                                "observation": clean_text(v.get("observation", ""))
+                            }
+                            for k, v in overall_analysis.get("targeted_groups", {}).items()
+                        },
+                        "severity_analysis": [
+                            {
+                                "turn": item.get("turn", 0),
+                                "severity": item.get("severity", "mild"),
+                                "justification": clean_text(item.get("justification", ""))
+                            }
+                            for item in overall_analysis.get("severity_analysis", [])
+                        ],
+                        "mitigation_effectiveness": [
+                            {
+                                "turn": item.get("turn", 0),
+                                "challenge": clean_text(item.get("challenge", "")),
+                                "success": item.get("success", False),
+                                "outcome": clean_text(item.get("outcome", ""))
+                            }
+                            for item in overall_analysis.get("mitigation_effectiveness", [])
+                        ],
+                        "narrative_summary": clean_text(overall_analysis.get("narrative_summary", ""))
+                    }
+                    
+                    print("\n=== CLEANED ANALYSIS ===")
+                    print(json.dumps(cleaned_analysis, indent=2))
+                    print("=======================\n")
+                    
+                    dialogue_data["overall_analysis"] = cleaned_analysis
                     
                     await websocket.send_json({
                         "type": "complete",
