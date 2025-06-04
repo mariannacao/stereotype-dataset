@@ -256,31 +256,29 @@ class DialogueManager:
     def _parse_evolution(self, evolution_text: str) -> List[Dict[str, any]]:
         evolution = []
         for line in evolution_text.split('\n'):
-            if ':' in line:
-                turn, rest = line.split(':', 1)
+            if '**[' in line and ']**' in line:
+                # Extract turn number from **[1]** format
+                turn = line.split('**[', 1)[1].split(']', 1)[0]
                 try:
-                    turn_num = int(turn.strip())
-                    if '-' in rest:
-                        intensity, note = rest.split('-', 1)
+                    turn_num = int(turn)
+                    # Extract intensity and note
+                    parts = line.split(']**', 1)[1].split('-', 1)
+                    if len(parts) == 2:
+                        intensity = parts[0].strip()
+                        note = parts[1].strip()
                         try:
-                            intensity_val = int(intensity.strip())
+                            intensity_val = int(intensity)
                             evolution.append({
                                 "turn": turn_num,
                                 "intensity": intensity_val,
-                                "note": note.strip()
+                                "note": note
                             })
                         except ValueError:
                             evolution.append({
                                 "turn": turn_num,
                                 "intensity": 0,
-                                "note": rest.strip()
+                                "note": note
                             })
-                    else:
-                        evolution.append({
-                            "turn": turn_num,
-                            "intensity": 0,
-                            "note": rest.strip()
-                        })
                 except ValueError:
                     continue
         return evolution
@@ -288,9 +286,10 @@ class DialogueManager:
     def _parse_power_dynamics(self, dynamics_text: str) -> Dict[str, any]:
         dynamics = {}
         for line in dynamics_text.split('\n'):
-            if ':' in line:
-                speaker, rest = line.split(':', 1)
-                speaker = speaker.strip()
+            if '**' in line and ':**' in line:
+                # Extract speaker and score from **Speaker: Score** format
+                speaker = line.split('**', 1)[1].split(':**', 1)[0]
+                rest = line.split(':**', 1)[1].strip()
                 if '-' in rest:
                     score, observation = rest.split('-', 1)
                     try:
@@ -303,30 +302,21 @@ class DialogueManager:
                             "influence": 0,
                             "observation": rest.strip()
                         }
-                else:
-                    dynamics[speaker] = {
-                        "influence": 0,
-                        "observation": rest.strip()
-                    }
         return dynamics
 
     def _parse_cross_stereotypes(self, cross_text: str) -> List[Dict[str, any]]:
         cross_stereotypes = []
         for line in cross_text.split('\n'):
-            if ':' in line:
-                groups, interaction = line.split(':', 1)
+            if '**' in line and ':**' in line:
+                # Extract groups and interaction from **Group1 + Group2:** Interaction format
+                groups = line.split('**', 1)[1].split(':**', 1)[0]
+                interaction = line.split(':**', 1)[1].strip()
                 if '+' in groups:
                     group1, group2 = groups.split('+', 1)
                     cross_stereotypes.append({
                         "group1": group1.strip(),
                         "group2": group2.strip(),
-                        "interaction": interaction.strip()
-                    })
-                else:
-                    cross_stereotypes.append({
-                        "group1": groups.strip(),
-                        "group2": "",
-                        "interaction": interaction.strip()
+                        "interaction": interaction.strip('*')  # Remove any remaining markdown
                     })
         return cross_stereotypes
 
@@ -346,24 +336,18 @@ class DialogueManager:
     def _parse_mitigation(self, mitigation_text: str) -> List[Dict[str, any]]:
         mitigation = []
         for line in mitigation_text.split('\n'):
-            if ':' in line:
-                turn, rest = line.split(':', 1)
+            if '**[' in line and ']**' in line:
+                turn = line.split('**[', 1)[1].split(']', 1)[0]
                 try:
-                    turn_num = int(turn.strip())
-                    if '->' in rest:
-                        challenge, outcome = rest.split('->', 1)
+                    turn_num = int(turn)
+                    rest = line.split(']**', 1)[1].strip()
+                    if '→' in rest:
+                        challenge, outcome = rest.split('→', 1)
                         mitigation.append({
                             "turn": turn_num,
                             "challenge": challenge.strip(),
                             "outcome": outcome.strip(),
                             "success": "successful" in outcome.lower() or "effective" in outcome.lower()
-                        })
-                    else:
-                        mitigation.append({
-                            "turn": turn_num,
-                            "challenge": rest.strip(),
-                            "outcome": "",
-                            "success": False
                         })
                 except ValueError:
                     continue
@@ -414,51 +398,34 @@ class DialogueManager:
     def _parse_targeted_groups(self, groups_text: str) -> Dict[str, any]:
         groups = {}
         for line in groups_text.split('\n'):
-            if ':' in line:
-                group, rest = line.split(':', 1)
-                group = group.strip()
+            if '**' in line and ':**' in line:
+                group = line.split('**', 1)[1].split(':**', 1)[0]
+                rest = line.split(':**', 1)[1].strip()
                 if '-' in rest:
                     parts = rest.split('-', 2)
                     if len(parts) >= 3:
                         frequency, severity, observation = parts
                         groups[group] = {
                             "frequency": frequency.strip(),
-                            "severity": severity.strip(),
+                            "severity": severity.strip('*'), 
                             "observation": observation.strip()
                         }
-                    else:
-                        groups[group] = {
-                            "frequency": "unknown",
-                            "severity": "mild",
-                            "observation": rest.strip()
-                        }
-                else:
-                    groups[group] = {
-                        "frequency": "unknown",
-                        "severity": "mild",
-                        "observation": rest.strip()
-                    }
         return groups
 
     def _parse_severity(self, severity_text: str) -> List[Dict[str, any]]:
         severity_analysis = []
         for line in severity_text.split('\n'):
-            if ':' in line:
-                turn, rest = line.split(':', 1)
+            if '**[' in line and ']**' in line:
+                turn = line.split('**[', 1)[1].split(']', 1)[0]
                 try:
-                    turn_num = int(turn.strip())
+                    turn_num = int(turn)
+                    rest = line.split(']**', 1)[1].strip()
                     if '-' in rest:
                         severity, justification = rest.split('-', 1)
                         severity_analysis.append({
                             "turn": turn_num,
                             "severity": severity.strip(),
                             "justification": justification.strip()
-                        })
-                    else:
-                        severity_analysis.append({
-                            "turn": turn_num,
-                            "severity": "mild",
-                            "justification": rest.strip()
                         })
                 except ValueError:
                     continue
