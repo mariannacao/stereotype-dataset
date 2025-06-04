@@ -444,19 +444,19 @@ function renderOverallAnalysis(overallDiv, statistics) {
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Total Turns</p>
-                    <p class="text-2xl font-bold">${stats.statistics?.total_turns || 0}</p>
+                    <p class="text-2xl font-bold">${stats.statistics.total_turns}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Total Stereotypes</p>
-                    <p class="text-2xl font-bold text-red-600">${stats.statistics?.total_stereotypes || 0}</p>
+                    <p class="text-2xl font-bold text-red-600">${stats.statistics.total_stereotypes}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Anti-Stereotypes</p>
-                    <p class="text-2xl font-bold text-green-600">${stats.statistics?.total_anti_stereotypes || 0}</p>
+                    <p class="text-2xl font-bold text-green-600">${stats.statistics.total_anti_stereotypes}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Stereotype Ratio</p>
-                    <p class="text-2xl font-bold">${stats.statistics?.total_turns ? (stats.statistics.total_stereotypes / stats.statistics.total_turns).toFixed(2) : '0.00'}</p>
+                    <p class="text-2xl font-bold">${stats.statistics.total_turns ? (stats.statistics.total_stereotypes / stats.statistics.total_turns).toFixed(2) : '0.00'}</p>
                 </div>
             </div>
         </div>
@@ -466,16 +466,14 @@ function renderOverallAnalysis(overallDiv, statistics) {
         <div class="mb-6">
             <h3 class="text-lg font-semibold mb-3">Stereotype Evolution</h3>
             <div class="bg-gray-50 p-4 rounded-lg">
-                <div class="space-y-2">
-                    ${(stats.statistics?.stereotype_evolution || []).map(ev => `
-                        <div class="flex items-start">
-                            <span class="w-16 text-sm">Turn ${ev.turn}:</span>
-                            <div class="flex-1">
-                                <div class="flex items-center mb-1">
-                                    <span class="text-sm font-medium">Speaker: ${ev.speaker}</span>
-                                </div>
-                                <p class="text-sm text-gray-600">${ev.analysis}</p>
+                <div class="space-y-4">
+                    ${stats.statistics.stereotype_evolution.map(ev => `
+                        <div class="border-b pb-4 last:border-b-0">
+                            <div class="flex items-center mb-2">
+                                <span class="font-semibold">Turn ${ev.turn}</span>
+                                <span class="ml-2 text-sm text-gray-600">(${ev.speaker})</span>
                             </div>
+                            <div class="text-sm text-gray-700 whitespace-pre-line">${ev.analysis}</div>
                         </div>
                     `).join('')}
                 </div>
