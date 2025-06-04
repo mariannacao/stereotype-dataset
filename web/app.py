@@ -28,6 +28,14 @@ templates = Jinja2Templates(directory="templates")
 active_connections: List[WebSocket] = []
 current_analysis: Dict = {} 
 
+def clean_text(text):
+    if not text:
+        return ""
+    text = text.replace("**", "").replace("*", "")  
+    text = text.replace("  \n", "\n").replace("\n  ", "\n")  
+    text = re.sub(r'\s+', ' ', text)  
+    return text.strip()
+
 def ensure_directory(path: str):
     """Ensure the output directory exists."""
     Path(path).mkdir(parents=True, exist_ok=True)
@@ -48,27 +56,34 @@ def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str, dia
                 "total_turns": overall_analysis.get("statistics", {}).get("total_turns", 0),
                 "total_stereotypes": overall_analysis.get("statistics", {}).get("total_stereotypes", 0),
                 "total_anti_stereotypes": overall_analysis.get("statistics", {}).get("total_anti_stereotypes", 0),
-                "evolution": overall_analysis.get("statistics", {}).get("stereotype_evolution", []),
+                "evolution": [
+                    {
+                        "turn": ev.get("turn", 0),
+                        "speaker": ev.get("speaker", ""),
+                        "analysis": clean_text(ev.get("analysis", ""))
+                    }
+                    for ev in overall_analysis.get("statistics", {}).get("stereotype_evolution", [])
+                ],
                 "power_dynamics": {
-                    k.strip("- **").strip("**"): {
+                    k: {
                         "influence": v.get("influence", 0),
-                        "observation": v.get("observation", "").strip("**")
+                        "observation": clean_text(v.get("observation", ""))
                     }
                     for k, v in overall_analysis.get("power_dynamics", {}).items()
                 },
                 "cross_stereotypes": [
                     {
-                        "group1": item.get("group1", "").strip("- **").strip("**"),
-                        "group2": item.get("group2", "").strip("**"),
-                        "interaction": item.get("interaction", "").strip("**")
+                        "group1": item.get("group1", ""),
+                        "group2": item.get("group2", ""),
+                        "interaction": clean_text(item.get("interaction", ""))
                     }
                     for item in overall_analysis.get("cross_stereotypes", [])
                 ],
                 "targeted_groups": {
-                    k.strip("- **").strip("**"): {
+                    k: {
                         "severity": v.get("severity", "mild"),
                         "frequency": v.get("frequency", 0),
-                        "observation": v.get("observation", "").strip("**")
+                        "observation": clean_text(v.get("observation", ""))
                     }
                     for k, v in overall_analysis.get("targeted_groups", {}).items()
                 },
@@ -76,20 +91,20 @@ def save_dialogue(dialogue_data: Dict, category_id: str, scenario_name: str, dia
                     {
                         "turn": item.get("turn", 0),
                         "severity": item.get("severity", "mild"),
-                        "justification": item.get("justification", "").strip("**")
+                        "justification": clean_text(item.get("justification", ""))
                     }
                     for item in overall_analysis.get("severity_analysis", [])
                 ],
                 "mitigation_effectiveness": [
                     {
                         "turn": item.get("turn", 0),
-                        "challenge": item.get("challenge", "").strip("**"),
+                        "challenge": clean_text(item.get("challenge", "")),
                         "success": item.get("success", False),
-                        "outcome": item.get("outcome", "").strip("**")
+                        "outcome": clean_text(item.get("outcome", ""))
                     }
                     for item in overall_analysis.get("mitigation_effectiveness", [])
                 ],
-                "narrative_summary": overall_analysis.get("narrative_summary", "").strip("### 8. **Narrative Summary**  \n- **").strip("**")
+                "narrative_summary": clean_text(overall_analysis.get("narrative_summary", ""))
             }
             
             dialogue_data["overall_analysis"] = cleaned_analysis
@@ -210,16 +225,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 try:
                     overall_analysis = dialogue_manager._analyze_conversation()
-                    
-                    def clean_text(text):
-                        if not text:
-                            return ""
-                        text = text.replace("### ", "").replace("## ", "").replace("# ", "")
-                        text = text.replace("**", "").replace("*", "")
-                        text = text.replace("- ", "").replace("  - ", "")
-                        text = text.replace("  \n", "\n").replace("\n  ", "\n")
-                        text = re.sub(r'^\d+\.\s*', '', text, flags=re.MULTILINE)
-                        return text.strip()
                     
                     await websocket.send_json({
                         "type": "complete",
