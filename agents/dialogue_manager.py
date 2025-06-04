@@ -207,6 +207,10 @@ class DialogueManager:
             
             analysis = self.monitoring_agent.api_client.generate_response(messages)
             
+            print("\n=== RAW MODEL OUTPUT ===")
+            print(analysis)
+            print("=======================\n")
+            
             if not analysis:
                 return {
                     "statistics": stats,
@@ -254,18 +258,31 @@ class DialogueManager:
         for line in evolution_text.split('\n'):
             if ':' in line:
                 turn, rest = line.split(':', 1)
-                if '-' in rest:
-                    intensity, note = rest.split('-', 1)
-                    try:
-                        turn_num = int(turn.strip())
-                        intensity_val = int(intensity.strip())
+                try:
+                    turn_num = int(turn.strip())
+                    if '-' in rest:
+                        intensity, note = rest.split('-', 1)
+                        try:
+                            intensity_val = int(intensity.strip())
+                            evolution.append({
+                                "turn": turn_num,
+                                "intensity": intensity_val,
+                                "note": note.strip()
+                            })
+                        except ValueError:
+                            evolution.append({
+                                "turn": turn_num,
+                                "intensity": 0,
+                                "note": rest.strip()
+                            })
+                    else:
                         evolution.append({
                             "turn": turn_num,
-                            "intensity": intensity_val,
-                            "note": note.strip()
+                            "intensity": 0,
+                            "note": rest.strip()
                         })
-                    except ValueError:
-                        continue
+                except ValueError:
+                    continue
         return evolution
 
     def _parse_power_dynamics(self, dynamics_text: str) -> Dict[str, any]:
@@ -273,15 +290,24 @@ class DialogueManager:
         for line in dynamics_text.split('\n'):
             if ':' in line:
                 speaker, rest = line.split(':', 1)
+                speaker = speaker.strip()
                 if '-' in rest:
                     score, observation = rest.split('-', 1)
                     try:
-                        dynamics[speaker.strip()] = {
+                        dynamics[speaker] = {
                             "influence": float(score.strip()),
                             "observation": observation.strip()
                         }
                     except ValueError:
-                        continue
+                        dynamics[speaker] = {
+                            "influence": 0,
+                            "observation": rest.strip()
+                        }
+                else:
+                    dynamics[speaker] = {
+                        "influence": 0,
+                        "observation": rest.strip()
+                    }
         return dynamics
 
     def _parse_cross_stereotypes(self, cross_text: str) -> List[Dict[str, any]]:
@@ -294,6 +320,12 @@ class DialogueManager:
                     cross_stereotypes.append({
                         "group1": group1.strip(),
                         "group2": group2.strip(),
+                        "interaction": interaction.strip()
+                    })
+                else:
+                    cross_stereotypes.append({
+                        "group1": groups.strip(),
+                        "group2": "",
                         "interaction": interaction.strip()
                     })
         return cross_stereotypes
@@ -316,18 +348,25 @@ class DialogueManager:
         for line in mitigation_text.split('\n'):
             if ':' in line:
                 turn, rest = line.split(':', 1)
-                if '->' in rest:
-                    challenge, outcome = rest.split('->', 1)
-                    try:
-                        turn_num = int(turn.strip())
+                try:
+                    turn_num = int(turn.strip())
+                    if '->' in rest:
+                        challenge, outcome = rest.split('->', 1)
                         mitigation.append({
                             "turn": turn_num,
                             "challenge": challenge.strip(),
                             "outcome": outcome.strip(),
-                            "success": "successful" in outcome.lower()
+                            "success": "successful" in outcome.lower() or "effective" in outcome.lower()
                         })
-                    except ValueError:
-                        continue
+                    else:
+                        mitigation.append({
+                            "turn": turn_num,
+                            "challenge": rest.strip(),
+                            "outcome": "",
+                            "success": False
+                        })
+                except ValueError:
+                    continue
         return mitigation
 
     def _calculate_dialogue_statistics(self) -> Dict[str, any]:
@@ -377,15 +416,28 @@ class DialogueManager:
         for line in groups_text.split('\n'):
             if ':' in line:
                 group, rest = line.split(':', 1)
+                group = group.strip()
                 if '-' in rest:
                     parts = rest.split('-', 2)
                     if len(parts) >= 3:
                         frequency, severity, observation = parts
-                        groups[group.strip()] = {
+                        groups[group] = {
                             "frequency": frequency.strip(),
                             "severity": severity.strip(),
                             "observation": observation.strip()
                         }
+                    else:
+                        groups[group] = {
+                            "frequency": "unknown",
+                            "severity": "mild",
+                            "observation": rest.strip()
+                        }
+                else:
+                    groups[group] = {
+                        "frequency": "unknown",
+                        "severity": "mild",
+                        "observation": rest.strip()
+                    }
         return groups
 
     def _parse_severity(self, severity_text: str) -> List[Dict[str, any]]:
@@ -393,15 +445,21 @@ class DialogueManager:
         for line in severity_text.split('\n'):
             if ':' in line:
                 turn, rest = line.split(':', 1)
-                if '-' in rest:
-                    severity, justification = rest.split('-', 1)
-                    try:
-                        turn_num = int(turn.strip())
+                try:
+                    turn_num = int(turn.strip())
+                    if '-' in rest:
+                        severity, justification = rest.split('-', 1)
                         severity_analysis.append({
                             "turn": turn_num,
                             "severity": severity.strip(),
                             "justification": justification.strip()
                         })
-                    except ValueError:
-                        continue
+                    else:
+                        severity_analysis.append({
+                            "turn": turn_num,
+                            "severity": "mild",
+                            "justification": rest.strip()
+                        })
+                except ValueError:
+                    continue
         return severity_analysis 
