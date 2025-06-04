@@ -459,6 +459,30 @@ function renderOverallAnalysis(overallDiv, statistics) {
                     <p class="text-2xl font-bold">${stats.statistics.total_turns ? (stats.statistics.total_stereotypes / stats.statistics.total_turns).toFixed(2) : '0.00'}</p>
                 </div>
             </div>
+            
+            <div class="mt-4">
+                <h4 class="text-md font-semibold mb-2">Stereotype Breakdown by Speaker</h4>
+                <div class="grid grid-cols-1 gap-4">
+                    ${Object.entries(stats.statistics.stereotypes_by_speaker).map(([speaker, data]) => `
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-semibold">${speaker}</span>
+                                <span class="text-sm text-gray-600">Total: ${data.total}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div>
+                                    <span class="text-gray-600">Implicit:</span>
+                                    <span class="ml-2 font-medium">${data.implicit}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">Explicit:</span>
+                                    <span class="ml-2 font-medium">${data.explicit}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
         </div>
     `;
     
