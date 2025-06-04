@@ -436,7 +436,7 @@ function addOverallAnalysis(statistics) {
 function renderOverallAnalysis(overallDiv, statistics) {
     if (!overallDiv) return;
     
-    const stats = statistics.overall_analysis || statistics;
+    const stats = statistics;
     
     const summaryHTML = `
         <div class="mb-6">
@@ -444,19 +444,19 @@ function renderOverallAnalysis(overallDiv, statistics) {
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Total Turns</p>
-                    <p class="text-2xl font-bold">${stats.total_turns || 0}</p>
+                    <p class="text-2xl font-bold">${stats.statistics.total_turns || 0}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Total Stereotypes</p>
-                    <p class="text-2xl font-bold text-red-600">${stats.total_stereotypes || 0}</p>
+                    <p class="text-2xl font-bold text-red-600">${stats.statistics.total_stereotypes || 0}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Anti-Stereotypes</p>
-                    <p class="text-2xl font-bold text-green-600">${stats.total_anti_stereotypes || 0}</p>
+                    <p class="text-2xl font-bold text-green-600">${stats.statistics.total_anti_stereotypes || 0}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <p class="text-sm text-gray-600">Stereotype Ratio</p>
-                    <p class="text-2xl font-bold">${stats.total_turns ? (stats.total_stereotypes / stats.total_turns).toFixed(2) : '0.00'}</p>
+                    <p class="text-2xl font-bold">${stats.statistics.total_turns ? (stats.statistics.total_stereotypes / stats.statistics.total_turns).toFixed(2) : '0.00'}</p>
                 </div>
             </div>
         </div>
@@ -471,7 +471,13 @@ function renderOverallAnalysis(overallDiv, statistics) {
                         <div class="flex items-start">
                             <span class="w-16 text-sm">Turn ${ev.turn}:</span>
                             <div class="flex-1">
-                                <p class="text-sm text-gray-600">${ev.analysis || ''}</p>
+                                <div class="flex items-center mb-1">
+                                    <span class="text-sm font-medium">Intensity: ${ev.intensity}/5</span>
+                                    <div class="ml-2 w-24 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-indigo-600 h-2 rounded-full" style="width: ${ev.intensity * 20}%"></div>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">${ev.note}</p>
                             </div>
                         </div>
                     `).join('')}
